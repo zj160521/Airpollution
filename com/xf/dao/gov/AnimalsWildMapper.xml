@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IAnimalsWildDao">
+
+	<!-- resultMap -->
+	<resultMap type="AnimalsWild" id="AnimalsWildMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="beef" column="beef" />
+		<result property="beefcycle" column="beefcycle" />
+		<result property="cow" column="cow" />
+		<result property="cowcycle" column="cowcycle" />
+		<result property="goat" column="goat" />
+		<result property="goatcycle" column="goatcycle" />
+		<result property="sheep" column="sheep" />
+		<result property="sheepcycle" column="sheepcycle" />
+		<result property="pig" column="pig" />
+		<result property="pigcycle" column="pigcycle" />
+		<result property="chicken" column="chicken" />
+		<result property="chickencycle" column="chickencycle" />
+		<result property="duck" column="duck" />
+		<result property="duckcycle" column="duckcycle" />
+		<result property="goose" column="goose" />
+		<result property="goosecycle" column="goosecycle" />
+		<result property="hen" column="hen" />
+		<result property="layingduck" column="layingduck" />
+		<result property="layinggoose" column="layinggoose" />
+		<result property="sow" column="sow" />
+		<result property="rabbit" column="rabbit" />
+		<result property="horse" column="horse" />
+		<result property="addressStr" column="addressStr" />
+		<result property="he" column="he" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="AnimalsWildMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(beef+beefcycle+chicken+chickencycle+cow+cowcycle+duck+duckcycle+goat+goatcycle+goose+goosecycle+hen+horse+layingduck+layinggoose+pig+pigcycle+rabbit+sheep+sheepcycle+sow) as he
+		from ap_animals_wild where id=#{id}
+	</select>
+	<select id="statAll" resultMap="AnimalsWildMap">
+		select a.* from ap_animals_wild a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{0} and a.`status`=3 AND e1.province>0
+	</select>
+	<select id="statAll2" resultMap="AnimalsWildMap">
+		select a.* from ap_animals_wild a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{0} and a.`status`=3 AND e1.province=0
+	</select>
+	<select id="getAll" resultMap="AnimalsWildMap">
+		select * from ap_animals_wild where `status`=3
+	</select>
+	<select id="getByField" parameterType="AnimalsWild" resultMap="AnimalsWildMap">
+		select *,
+		concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+		(beef+beefcycle+chicken+chickencycle+cow+cowcycle+duck+duckcycle+goat+goatcycle+goose+goosecycle+hen+horse+layingduck+layinggoose+pig+pigcycle+rabbit+sheep+sheepcycle+sow) as he
+		from ap_animals_wild where fillyear=#{fillyear} and town=#{town} and accountid=#{accountid}
+	</select>
+	<select id="getByYear" parameterType="AnimalsWild" resultMap="AnimalsWildMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(beef+beefcycle+chicken+chickencycle+cow+cowcycle+duck+duckcycle+goat+goatcycle+goose+goosecycle+hen+horse+layingduck+layinggoose+pig+pigcycle+rabbit+sheep+sheepcycle+sow) as he
+		from ap_animals_wild where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_animals_wild where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_animals_wild set status=#{0} where accountid=#{1}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_animals_wild set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<insert id="add" parameterType="AnimalsWild" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_animals_wild
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="beef > 0">
+			beef=#{beef},
+		</if>
+		<if test="beefcycle > 0">
+			beefcycle=#{beefcycle},
+		</if>
+		<if test="cow > 0">
+			cow=#{cow},
+		</if>
+		<if test="cowcycle > 0">
+			cowcycle=#{cowcycle},
+		</if>
+		<if test="goat > 0">
+			goat=#{goat},
+		</if>
+		<if test="goatcycle > 0">
+			goatcycle=#{goatcycle},
+		</if>
+		<if test="sheep > 0">
+			sheep=#{sheep},
+		</if>
+		<if test="sheepcycle > 0">
+			sheepcycle=#{sheepcycle},
+		</if>
+		<if test="pig > 0">
+			pig=#{pig},
+		</if>
+		<if test="pigcycle > 0">
+			pigcycle=#{pigcycle},
+		</if>
+		<if test="chicken > 0">
+			chicken=#{chicken},
+		</if>
+		<if test="chickencycle > 0">
+			chickencycle=#{chickencycle},
+		</if>
+		<if test="duck > 0">
+			duck=#{duck},
+		</if>
+		<if test="duckcycle > 0">
+			duckcycle=#{duckcycle},
+		</if>
+		<if test="goose > 0">
+			goose=#{goose},
+		</if>
+		<if test="goosecycle > 0">
+			goosecycle=#{goosecycle},
+		</if>
+		<if test="hen > 0">
+			hen=#{hen},
+		</if>
+		<if test="layingduck > 0">
+			layingduck=#{layingduck},
+		</if>
+		<if test="layinggoose > 0">
+			layinggoose=#{layinggoose},
+		</if>
+		<if test="sow > 0">
+			sow=#{sow},
+		</if>
+		<if test="rabbit > 0">
+			rabbit=#{rabbit},
+		</if>
+		<if test="horse > 0">
+			horse=#{horse},
+		</if>
+		<if test="status > 0">
+			status=#{status}
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_animals_wild where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="AnimalsWild">
+		update ap_animals_wild
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="beef > 0">
+			beef=#{beef},
+		</if>
+		<if test="beefcycle > 0">
+			beefcycle=#{beefcycle},
+		</if>
+		<if test="cow > 0">
+			cow=#{cow},
+		</if>
+		<if test="cowcycle > 0">
+			cowcycle=#{cowcycle},
+		</if>
+		<if test="goat > 0">
+			goat=#{goat},
+		</if>
+		<if test="goatcycle > 0">
+			goatcycle=#{goatcycle},
+		</if>
+		<if test="sheep > 0">
+			sheep=#{sheep},
+		</if>
+		<if test="sheepcycle > 0">
+			sheepcycle=#{sheepcycle},
+		</if>
+		<if test="pig > 0">
+			pig=#{pig},
+		</if>
+		<if test="pigcycle > 0">
+			pigcycle=#{pigcycle},
+		</if>
+		<if test="chicken > 0">
+			chicken=#{chicken},
+		</if>
+		<if test="chickencycle > 0">
+			chickencycle=#{chickencycle},
+		</if>
+		<if test="duck > 0">
+			duck=#{duck},
+		</if>
+		<if test="duckcycle > 0">
+			duckcycle=#{duckcycle},
+		</if>
+		<if test="goose > 0">
+			goose=#{goose},
+		</if>
+		<if test="goosecycle > 0">
+			goosecycle=#{goosecycle},
+		</if>
+		<if test="hen > 0">
+			hen=#{hen},
+		</if>
+		<if test="layingduck > 0">
+			layingduck=#{layingduck},
+		</if>
+		<if test="layinggoose > 0">
+			layinggoose=#{layinggoose},
+		</if>
+		<if test="sow > 0">
+			sow=#{sow},
+		</if>
+		<if test="rabbit > 0">
+			rabbit=#{rabbit},
+		</if>
+		<if test="horse > 0">
+			horse=#{horse},
+		</if>
+		<if test="status > 0">
+			status=#{status}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+	<delete id="clearData" parameterType="AnimalsWild">
+		delete from ap_animals_wild where fillyear=#{fillyear} and accountid=#{accountid}
+	</delete>
+</mapper>

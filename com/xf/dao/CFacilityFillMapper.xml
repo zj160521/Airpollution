@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.ICFacilityFillDao">
+
+	<!-- resultMap -->
+	<resultMap type="cfacilityfill" id="cfacilityfillMap">
+		<result property="id"             column="id"              />
+		<result property="facilityId"     column="facilityId"      />
+		<result property="fillTime"       column="fillTime"        />
+		<result property="fillyear"       column="fillyear"        />
+		<result property="daysPerYear"    column="daysPerYear"     />
+		<result property="collectRate"    column="collectRate"     />
+		<result property="disRate"        column="disRate"         />
+		<result property="status"        column="status"         />
+		<result property="yearCost"        column="yearCost"         />
+		<result property="materialName"        column="materialName"         />
+		<result property="materialConsume"        column="materialConsume"         />
+		<result property="NH3Release"        column="NH3Release"         />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="cfacilityfill" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_facilities_fill(facilityId, fillTime, fillyear, daysPerYear, collectRate, disRate,yearCost,materialName,materialConsume,NH3Release)
+		values(#{facilityId}, #{fillTime}, #{fillyear}, #{daysPerYear}, #{collectRate}, #{disRate}, #{yearCost}, #{materialName}, #{materialConsume}, #{NH3Release})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="cfacilityfill">
+		delete from ap_facilities_fill where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_facilities_fill set status=#{0} where facilityId in (select id from ap_control_facilities where enterpriceId=#{1} and enabled>0) and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_facilities_fill set status=#{0} where facilityId in (select id from ap_control_facilities where enterpriceId=#{1} and enabled>0)
+		and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_facilities_fill set status=#{0} where facilityId in (select id from ap_control_facilities where enterpriceId=#{1} and enabled>0)
+		and status=#{2} and fillyear=#{3}
+	</update>
+	<update id="unpass"> <!-- 参数0是status,参数1是companyid -->
+		update ap_facilities_fill set status=#{0} where id = #{1}
+		and status=#{2}
+	</update>
+	<update id="update" parameterType="cfacilityfill">
+		update ap_facilities_fill 
+		<set>
+			<if test="facilityId > 0">
+				facilityId=#{facilityId},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime}, 
+			</if>
+			<if test="fillyear > 0">
+				fillyear=#{fillyear}, 
+			</if>
+			<if test="daysPerYear != null">
+				daysPerYear=#{daysPerYear},
+			</if>
+			<if test="collectRate != null">
+				collectRate=#{collectRate}, 
+			</if>
+			<if test="disRate != null">
+				disRate=#{disRate},
+			</if>
+			<if test="status > 0">
+				status=#{status},
+			</if>
+			<if test="yearCost != null">
+				yearCost=#{yearCost},
+			</if>
+			<if test="materialName != null">
+				materialName=#{materialName},
+			</if>
+			<if test="materialConsume != null">
+				materialConsume=#{materialConsume},
+			</if>
+			<if test="NH3Release != null">
+				NH3Release=#{NH3Release}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="cfacilityfillMap">
+		select * from ap_facilities_fill where id=#{id}
+	</select>
+	<select id="getByFacility" parameterType="int" resultMap="cfacilityfillMap">
+		select * from ap_facilities_fill where facilityId=#{facilityid} and fillyear=#{fillyear}
+	</select>
+	<select id="getByCuryearFill" parameterType="int" resultMap="cfacilityfillMap">
+		select * from ap_facilities_fill where facilityId=#{facilityid} and fillyear=#{fillyear}
+	</select>
+</mapper>

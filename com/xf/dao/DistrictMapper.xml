@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IDistrictDao">
+
+	<!-- resultMap -->
+	<resultMap type="district" id="districtMap">
+		<result property="id" column="id" />
+		<result property="parentId" column="parentId" />
+		<result property="districtLevel" column="districtLevel" />
+		<result property="districtNo" column="districtNo" />
+		<result property="districtName" column="districtName" />
+		<result property="e_point" column="e_point" />
+		<result property="n_point" column="n_point" />
+
+	</resultMap>
+
+	<select id="getById" parameterType="int" resultMap="districtMap">
+		select * from ap_district where id=#{id}
+	</select>
+	<select id="getByLevel" resultMap="districtMap">
+		select * from ap_district where districtLevel=#{0}
+	</select>
+	<select id="getByNo" parameterType="String" resultMap="districtMap">
+		select * from ap_district where districtNo=#{districtNo} limit 1;
+	</select>
+	<select id="getByName" resultMap="districtMap">
+		select * from ap_district where districtName=#{0} limit 1;
+	</select>
+
+	<select id="getByParent" parameterType="int" resultMap="districtMap">
+		select * from ap_district where parentId=#{parentId}
+	</select>
+
+	<select id="getByParentNo" parameterType="String" resultMap="districtMap">
+		select * from ap_district where parentId=(select id from ap_district where districtNo = #{districtNo})
+	</select>
+
+	<select id="searchByNo" parameterType="String" resultMap="districtMap">
+		select * from ap_district where districtNo like CONCAT(${districtClass},'%' )
+	</select>
+
+	<select id="searchByName" parameterType="String" resultMap="districtMap">
+		select * from ap_district where districtName like CONCAT('%',${districtName},'%' )
+	</select>
+	<select id="getAll" resultMap="districtMap">
+		select * from ap_district
+	</select>
+</mapper>

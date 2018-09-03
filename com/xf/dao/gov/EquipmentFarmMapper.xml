@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IEquipmentFarmDao">
+
+	<!-- resultMap -->
+	<resultMap type="EquipmentFarm" id="EquipmentFarmMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="status" column="status" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="farmtype" column="farmtype" />
+		<result property="farmtype2" column="farmtype2" />
+		<result property="enumber" column="enumber" />
+		<result property="ekw" column="ekw" />
+		<result property="fuelconsume" column="fuelconsume" />
+		<result property="addressStr" column="addressStr" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="EquipmentFarmMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+            (select districtName from ap_district where id=city) as cityName
+		from ap_equipment_farm where id=#{id}
+	</select>
+	<select id="getByField" parameterType="EquipmentFarm" resultMap="EquipmentFarmMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_equipment_farm where fillyear=#{fillyear} and city=#{city} and accountid=#{accountid}
+	</select>
+	<select id="getByYear" parameterType="EquipmentFarm" resultMap="EquipmentFarmMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+            (select districtName from ap_district where id=city) as cityName
+		from ap_equipment_farm where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_equipment_farm where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_equipment_farm set status=#{0} where accountid=#{1} and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_equipment_farm set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_equipment_farm set status=#{0} where accountid=#{1} and status=#{2} and fillyear=#{3}
+	</update>
+	<!-- 添加 -->
+	<insert id="add" parameterType="EquipmentFarm" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_equipment_farm
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="status >= 0">
+			status=#{status},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear >= 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province >= 0">
+			province=#{province},
+		</if>
+		<if test="city >= 0">
+			city=#{city},
+		</if>
+		<if test="town >= 0">
+			town=#{town},
+		</if>
+		<if test="country >= 0">
+			country=#{country},
+		</if>
+		<if test="street >= 0">
+			street=#{street},
+		</if>
+		<if test="farmtype != null">
+			farmtype=#{farmtype},
+		</if>
+		<if test="farmtype2 != null">
+			farmtype2=#{farmtype2},
+		</if>
+		<if test="enumber != null">
+			enumber=#{enumber},
+		</if>
+		<if test="ekw != null">
+			ekw=#{ekw},
+		</if>
+		<if test="fuelconsume != null">
+			fuelconsume=#{fuelconsume},
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_equipment_farm where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="EquipmentFarm">
+		update ap_equipment_farm
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="farmtype != null">
+			farmtype=#{farmtype},
+		</if>
+		<if test="farmtype2 != null">
+			farmtype2=#{farmtype2},
+		</if>
+		<if test="enumber != null">
+			enumber=#{enumber},
+		</if>
+		<if test="ekw != null">
+			ekw=#{ekw},
+		</if>
+		<if test="fuelconsume != null">
+			fuelconsume=#{fuelconsume},
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+	
+	<select id="getThreevalue" parameterType="int" resultMap="EquipmentFarmMap">
+		select d.districtName addressStr,ifnull(tal.enumber,0)enumber,
+		ifnull(tal.ekw,0)ekw,ifnull(tal.fuelconsume,0)fuelconsume 
+		from ap_district d left join
+		(select f.city,sum(f.enumber)enumber,sum(f.ekw)ekw,sum(f.fuelconsume)fuelconsume
+		from ap_equipment_farm f LEFT JOIN ap_enterprise en ON en.id=f.accountid where en.province>0 AND `status`=3 and fillyear=#{year}
+		group by city)tal on d.id=tal.city
+		where d.districtLevel=1
+	</select>
+	
+	<select id="getThreevalue2" parameterType="int" resultMap="EquipmentFarmMap">
+		select d.districtName addressStr,ifnull(tal.enumber,0)enumber,
+		ifnull(tal.ekw,0)ekw,ifnull(tal.fuelconsume,0)fuelconsume 
+		from ap_district d left join
+		(select f.city,sum(f.enumber)enumber,sum(f.ekw)ekw,sum(f.fuelconsume)fuelconsume
+		from ap_equipment_farm f LEFT JOIN ap_enterprise en ON en.id=f.accountid where en.province=0 AND `status`=3 and fillyear=#{year}
+		group by city)tal on d.id=tal.city
+		where d.districtLevel=1
+	</select>
+</mapper>

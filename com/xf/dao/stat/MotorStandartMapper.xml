@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.MotorStandartDao">
+
+	<!--查询全部机动车-->
+	<select id="getAllMotor" resultType="com.xf.entity.gov.VehicleAction" parameterType="int">
+		SELECT a.*,b.id AS vehiclemodel
+        FROM ap_vehicle_action a
+        LEFT JOIN ap_static b
+        ON b.groupid=37 AND a.vehicletype=b.name AND a.gastype=b.remark
+        WHERE a.fillyear=#{fillyear} AND a.`status`=3
+	</select>
+	
+	<select id="getMotorByAccountid" parameterType="int" resultType="com.xf.entity.gov.VehicleAction">
+		SELECT a.*,b.id AS vehiclemodel
+        FROM ap_vehicle_action a
+        LEFT JOIN ap_static b
+        ON b.groupid=37 AND a.vehicletype=b.name AND a.gastype=b.remark
+        WHERE a.fillyear=#{fillyear} AND a.`status`=3 AND a.accountid=#{accountid}
+	</select>
+	
+	<!--查询全部固定信息-->
+	<select id="getAllStandard" resultType="com.xf.entity.gov.VehicleStandard">
+		SELECT * FROM ap_vehicle_standard
+	</select>
+	
+	<update id="updateStandard"  parameterType="java.util.List">
+	 
+	      <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+				update ap_vehicle_action 
+				<set>
+				  standard=${item.standard},avgmile=${item.avgmile}
+				</set>
+				where id = ${item.id}
+		 </foreach>
+		 
+    </update>
+    
+    <!--查询计算需要数据-->
+	<select id="getMotorCount" resultType="com.xf.vo.MotorCount" parameterType="int">
+		SELECT a.fillyear,a.province,a.city,a.town,b.id AS vehiclemodel,COUNT(*) AS count,AVG(a.avgmile) AS avgmile,a.standard
+        FROM ap_vehicle_action a
+        LEFT JOIN ap_static b
+        ON b.groupid=37 AND a.vehicletype=b.name AND a.gastype=b.remark
+        WHERE a.fillyear=#{fillyear} AND a.`status`=3
+        GROUP BY a.city,a.standard,b.id order by a.city
+	</select>
+	
+	 <!--查询计算需要的因子-->
+	<select id="getMotorFactor" resultType="com.xf.entity.gov.VehicleFactor">
+		SELECT a.id,a.pollutant AS pollutantId,a.standard AS standardId,a.vehiclemodel,a.factor 
+        FROM ap_vehicle_factor a
+	</select>
+	
+	 <!--插入计算结果-->
+	<insert id="addMotorres" parameterType="java.util.List">
+		insert into ap_stat_motor(pollutantId,fillyear,province,city,town,vehiclemodel,statvalue,standard,stat_exp,stat_valtype,stat_value,stat_factor,stat_dsrate)  
+	    values
+	    <foreach collection="list" item="motor" index="index" separator=",">  
+	       (#{motor.pollutantId},#{motor.fillyear},#{motor.province},#{motor.city},#{motor.town},#{motor.vehiclemodel},#{motor.statvalue},#{motor.standard},#{motor.stat_exp},#{motor.stat_valtype},#{motor.stat_value},#{motor.stat_factor},#{motor.stat_dsrate})
+	    </foreach>
+	</insert>
+	
+	<insert id="addMotorres2" parameterType="java.util.List">
+		insert into ap_stat_motor_pc(pollutantId,fillyear,province,city,town,vehiclemodel,statvalue,standard,stat_exp,stat_valtype,stat_value,stat_factor,stat_dsrate)  
+	    values
+	    <foreach collection="list" item="motor" index="index" separator=",">  
+	       (#{motor.pollutantId},#{motor.fillyear},#{motor.province},#{motor.city},#{motor.town},#{motor.vehiclemodel},#{motor.statvalue},#{motor.standard},#{motor.stat_exp},#{motor.stat_valtype},#{motor.stat_value},#{motor.stat_factor},#{motor.stat_dsrate})
+	    </foreach>
+	</insert>
+	
+	<delete id="deleteAll" parameterType="int">
+	    DELETE FROM ap_stat_motor WHERE fillyear=#{fillyear}
+	</delete>
+	
+	<delete id="deleteAll2" parameterType="int">
+	    DELETE FROM ap_stat_motor_pc WHERE fillyear=#{fillyear}
+	</delete>
+</mapper>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xf.dao.stat.IProductClassifyDao">
+
+	<resultMap type="Product" id="ProductMap">
+		<result property="id" column="id" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="productName" column="productName" />
+		<result property="remark" column="remark" />
+		<result property="trade1" column="trade1" />
+		<result property="trade2" column="trade2" />
+		<result property="trade3" column="trade3" />
+		<result property="trade4" column="trade4" />
+		<result property="groupid" column="groupid" />
+		<result property="isgroup" column="isgroup" />
+	</resultMap>
+
+	<resultMap type="FactorType" id="FactorTypeMap">
+		<result property="id" column="id" />
+		<result property="typeid" column="typeid" />
+		<result property="typeName" column="typeName" />
+	</resultMap>
+
+	<select id="getProduct" parameterType="int" resultMap="ProductMap">
+		SELECT *
+		FROM ap_product where enterpriceId=#{enterpriceId};
+	</select>
+
+	<select id="getgByid" parameterType="int" resultType="java.lang.String">
+		select
+		productName
+		from ap_product where id=#{id}
+	</select>
+
+	<select id="findProductName" parameterType="int" resultMap="ProductMap">
+		SELECT DISTINCT productName FROM ap_product where trade2=#{tradeid};
+	</select>
+
+	<select id="findProBygid" parameterType="int" resultMap="ProductMap">
+		SELECT *
+		FROM ap_product where groupid=#{groupid} and isgroup=0;
+	</select>
+
+	<select id="findPrYield" parameterType="int" resultType="ProductFill">
+		SELECT *
+		FROM ap_product_fill f JOIN ap_product p on f.productId=p.id and
+		f.enterpriceId=p.enterpriceId where f.fillyear=(select v FROM
+		ap_config where k='current_year') and p.id=#{id}
+	</select>
+
+	<select id="getProdFactor" parameterType="int" resultType="com.xf.vo.ProductFact">
+		SELECT a.id comid,a.name,a.enterpriceName,a.trade2 tradeid,b.id
+		productid,b.productName,c.id
+		factorid,c.pollutantName,d.typeid,d.factor,d.materialId
+		FROM
+		ap_enterprise a
+		LEFT JOIN ap_product b
+		ON a.id=b.enterpriceId
+		LEFT JOIN
+		ap_pollutant c
+		ON a.id !=0
+		LEFT JOIN ap_factor d
+		ON b.id=d.productId AND
+		c.id=d.pollutantId
+		WHERE trade2=#{tradeid}
+		ORDER BY a.trade2
+	</select>
+
+	<insert id="addGroup" parameterType="Product" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_product
+		<set>
+			<if test="productName !=null">
+				productName=#{productName},
+			</if>
+			<if test="remark !=null">
+				remark=#{remark},
+			</if>
+			<if test="trade1 >= 0">
+				trade1=#{trade1},
+			</if>
+			<if test="trade2 >= 0">
+				trade2=#{trade2},
+			</if>
+			<if test="trade3 >= 0">
+				trade3=#{trade3},
+			</if>
+			<if test="trade4 >= 0">
+				trade4=#{trade4},
+			</if>
+			<if test="isgroup >=0">
+				isgroup=1
+			</if>
+		</set>
+	</insert>
+
+	<update id="updateGroup" parameterType="Product">
+		update ap_product
+		<set>
+			<if test="productName !=null">
+				productName = #{productName},
+			</if>
+			<if test="remark != null">
+				remark = #{remark},
+			</if>
+			<if test="trade1 > 0">
+				trade1=#{trade1},
+			</if>
+			<if test="trade2 > 0">
+				trade2=#{trade2},
+			</if>
+			<if test="trade3 > 0">
+				trade3=#{trade3},
+			</if>
+			<if test="trade4 > 0">
+				trade4=#{trade4},
+			</if>
+			<if test="id>0">
+				groupid=#{id}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="deleteGroup" parameterType="int">
+		delete from ap_product
+		where id=#{id}
+	</delete>
+
+	<select id="findGroupBytrade" parameterType="int" resultMap="ProductMap">
+		SELECT * from ap_product where isgroup=1 and (trade1=#{tradeid} or trade2=#{tradeid} or trade3=#{tradeid} or trade4=#{tradeid})
+	</select>
+
+	<update id="updatePGroup" parameterType="int">
+		update ap_product
+		set
+		groupid=#{0}
+		where id=#{1}
+	</update>
+
+	<update id="updatePGNull" parameterType="int">
+		update ap_product
+		set
+		groupid=0
+		where groupid=#{groupid} and isgroup=0;
+	</update>
+
+	<update id="updateNullByid">
+		update ap_product set groupid=#{id} where id=#{id}
+	</update>
+	
+	<select id="checkName" parameterType="java.lang.String" resultMap="ProductMap">
+		select * from ap_product where productName=#{productName} and isgroup=1 limit 1
+	</select>
+</mapper>

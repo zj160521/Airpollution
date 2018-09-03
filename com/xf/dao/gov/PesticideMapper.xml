@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IPesticideDao">
+
+	<!-- resultMap -->
+	<resultMap type="Pesticide" id="PesticideMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="status" column="status" />
+		<result property="importflag" column="importflag" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="crop" column="crop" />
+		<result property="worm_ddt" column="worm_ddt" />
+		<result property="worm_leguo" column="worm_leguo" />
+		<result property="worm_juzhi" column="worm_juzhi" />
+		<result property="worm_total" column="worm_total" />
+		<result property="grass_baicao" column="grass_baicao" />
+		<result property="germ_duojun" column="germ_duojun" />
+		<result property="grass_ganlin" column="grass_ganlin" />
+		<result property="grass_total" column="grass_total" />
+		<result property="germ_daowen" column="germ_daowen" />
+		<result property="germ_total" column="germ_total" />
+		<result property="addressStr" column="addressStr" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="PesticideMap">
+		select * from ap_pesticide where id=#{id}
+	</select>
+	<select id="getTowns" resultType="java.lang.Integer">
+		select DISTINCT town from ap_pesticide where fillyear=#{1} and accountid=#{0}
+	</select>
+	<select id="getCitys" resultType="java.lang.Integer">
+		select DISTINCT city from ap_pesticide where fillyear=#{1} and accountid=#{0}
+	</select>
+	<select id="getByYear" parameterType="Pesticide" resultMap="PesticideMap">
+		select * from ap_pesticide where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getByTown" resultMap="PesticideMap">
+		select * from ap_pesticide where (town=#{0} or city=#{0}) and fillyear=#{1}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_pesticide where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_pesticide set status=#{0} where accountid=#{1} and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_pesticide set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_pesticide set status=#{0} where accountid=#{1} and status=#{2} and fillyear=#{3}
+	</update>
+	<!-- 删除 -->
+	<delete id="delete">
+		delete from ap_pesticide where town=#{0} and fillyear=#{1}
+	</delete>
+	<delete id="delete2">
+		delete from ap_pesticide where city=#{0} and accountid=#{1}
+	</delete>
+	<select id="getCheck" resultMap="PesticideMap">
+		select * from ap_pesticide where town=#{0} and accountid=#{1} and fillyear=#{2}
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="Pesticide" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_pesticide
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="status >= 0">
+			status=#{status},
+		</if>
+		<if test="importflag >= 0">
+			importflag=#{importflag},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear >= 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province >= 0">
+			province=#{province},
+		</if>
+		<if test="city >= 0">
+			city=#{city},
+		</if>
+		<if test="town >= 0">
+			town=#{town},
+		</if>
+		<if test="country >= 0">
+			country=#{country},
+		</if>
+		<if test="street >= 0">
+			street=#{street},
+		</if>
+		<if test="crop != null">
+			crop=#{crop},
+		</if>
+		<if test="worm_ddt >= 0">
+			worm_ddt=#{worm_ddt},
+		</if>
+		<if test="worm_leguo >= 0">
+			worm_leguo=#{worm_leguo},
+		</if>
+		<if test="worm_juzhi >= 0">
+			worm_juzhi=#{worm_juzhi},
+		</if>
+		<if test="worm_total >= 0">
+			worm_total=#{worm_total},
+		</if>
+		<if test="grass_baicao >= 0">
+			grass_baicao=#{grass_baicao},
+		</if>
+		<if test="germ_duojun >= 0">
+			germ_duojun=#{germ_duojun},
+		</if>
+		<if test="grass_ganlin >= 0">
+			grass_ganlin=#{grass_ganlin},
+		</if>
+		<if test="grass_total >= 0">
+			grass_total=#{grass_total},
+		</if>
+		<if test="germ_daowen >= 0">
+			germ_daowen=#{germ_daowen},
+		</if>
+		<if test="germ_total >= 0">
+			germ_total=#{germ_total},
+		</if>
+	</set>
+	</insert>
+	<!--修改 -->
+	<update id="update" parameterType="Pesticide">
+		update ap_pesticide
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="importflag > 0">
+			importflag=#{importflag},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="crop != null">
+			crop=#{crop},
+		</if>
+		<if test="worm_ddt != null">
+			worm_ddt=#{worm_ddt},
+		</if>
+		<if test="worm_leguo != null">
+			worm_leguo=#{worm_leguo},
+		</if>
+		<if test="worm_juzhi != null">
+			worm_juzhi=#{worm_juzhi},
+		</if>
+		<if test="worm_total != null">
+			worm_total=#{worm_total},
+		</if>
+		<if test="grass_baicao != null">
+			grass_baicao=#{grass_baicao},
+		</if>
+		<if test="germ_duojun != null">
+			germ_duojun=#{germ_duojun},
+		</if>
+		<if test="grass_ganlin != null">
+			grass_ganlin=#{grass_ganlin},
+		</if>
+		<if test="grass_total != null">
+			grass_total=#{grass_total},
+		</if>
+		<if test="germ_daowen != null">
+			germ_daowen=#{germ_daowen},
+		</if>
+		<if test="germ_total != null">
+			germ_total=#{germ_total},
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

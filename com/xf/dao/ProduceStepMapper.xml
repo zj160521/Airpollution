@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IProduceStepDao">
+
+	<!-- resultMap -->
+	<resultMap type="producestep" id="producestepMap">
+		<result property="id" column="id" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="stepSerial" column="stepSerial" />
+		<result property="stepName" column="stepName" />
+		<result property="techChart" column="techChart" />
+		<result property="techDesp" column="techDesp" />
+		<result property="enabled" column="enabled" />
+		<result property="remark" column="remark" />
+		<result property="status" column="status" />
+		<result property="mainDevices" column="mainDevices" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="producestep" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_producestep
+		(enterpriceId, stepSerial,
+		stepName, techChart, techDesp, mainDevices, remark)
+		values(#{enterpriceId}, #{stepSerial}, #{stepName}, #{techChart},
+		#{techDesp}, #{mainDevices}, #{remark});
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_producestep
+		where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="producestep">
+		update ap_producestep
+		<set>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="stepSerial != null">
+				stepSerial=#{stepSerial},
+			</if>
+			<if test="stepName != null">
+				stepName=#{stepName},
+			</if>
+			<if test="techChart != null">
+				techChart=#{techChart},
+			</if>
+			<if test="techDesp != null">
+				techDesp=#{techDesp},
+			</if>
+			<if test="mainDevices != null">
+				mainDevices=#{mainDevices},
+			</if>
+			<if test="enabled > 0">
+				enabled=#{enabled},
+			</if>
+			<if test="remark != null">
+				remark=#{remark}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<select id="getById" parameterType="int" resultMap="producestepMap">
+		select *,
+		(select status from ap_product_fill where s.id=produceStepId and
+		fillyear=#{fillyear} limit 1)
+		status
+		from ap_producestep s where id=#{id};
+	</select>
+	<select id="getById1" parameterType="int" resultMap="producestepMap">
+		select * 
+		from ap_producestep s where id=#{id};
+	</select>
+	<select id="getByCompany" parameterType="int" resultMap="producestepMap">
+		select
+		*,
+		(select status from ap_product_fill where s.id=produceStepId and
+		fillyear=#{0} limit 1)
+		status
+		from ap_producestep s where enterpriceId=#{1}
+	</select>
+	<select id="getByFacility" parameterType="int" resultMap="producestepMap">
+		select
+		*,
+		(select status from ap_product_fill where s.id=produceStepId and
+		fillyear=#{fillyear} limit 1)
+		status
+		from ap_producestep s join ap_facility_step fs on s.id=fs.stepId
+		where fs.facilityId=#{facilityid};
+	</select>
+
+	<select id="yearList" resultMap="producestepMap">
+		select s.*, pf.status
+		from
+		ap_producestep s left outer join ap_product_fill pf on
+		pf.produceStepId = s.id
+		where fillyear=(select v from ap_config where
+		k='current_year')
+	</select>
+	<select id="getBySerial" parameterType="String" resultMap="producestepMap">
+		select * from ap_producestep where stepserial=#{stepserial} and
+		enterpriceId=#{enterpriceId}
+	</select>
+
+	<select id="getyearList" parameterType="Condition" resultMap="producestepMap">
+		select s.*, pf.status
+		from ap_producestep s left outer join
+		ap_product_fill pf on pf.produceStepId = s.id
+		<where>
+			<if test="fillyear>0">
+				fillyear=#{fillyear}
+			</if>
+		</where>
+	</select>
+</mapper>

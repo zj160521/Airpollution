@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xf.dao.stat.DetailOfComputeAllDao">
+
+	<select id="getDetails" resultType="com.xf.entity.gov.GovStat">
+		SELECT c.districtName AS cityName,d.districtName AS townName,b.pollutantName,a.months,
+		(select `name` from ap_static where id=stattype2)stattype,
+		a.stattype3,a.statvalue,a.stat_exp,a.stat_value,a.stat_valtype
+        FROM ap_stat_gov a
+        LEFT JOIN ap_pollutant b
+        ON a.pollutantId=b.id
+        LEFT JOIN ap_district c
+        ON a.city=c.id
+        LEFT JOIN ap_district d
+        ON a.town=d.id
+        <where>
+           <if test="year>0">
+              a.fillyear=#{year}
+           </if>
+           <if test="did>1">
+              and (a.province = #{did} OR a.city = #{did} or a.town = #{did}) 
+           </if>
+           <if test="tablename!=null">
+              and a.stattype=#{tablename}
+           </if>
+        </where>
+	</select>
+	
+	<select id="getDetails2" resultType="com.xf.entity.gov.GovStat">
+		SELECT c.districtName AS cityName,d.districtName AS townName,b.pollutantName,a.months,
+		(select `name` from ap_static where id=stattype2)stattype,
+		a.stattype3,a.statvalue,a.stat_exp,a.stat_value,a.stat_valtype
+        FROM ap_stat_gov_pc a
+        LEFT JOIN ap_pollutant b
+        ON a.pollutantId=b.id
+        LEFT JOIN ap_district c
+        ON a.city=c.id
+        LEFT JOIN ap_district d
+        ON a.town=d.id
+        <where>
+           <if test="year>0">
+              a.fillyear=#{year}
+           </if>
+           <if test="did>1">
+              and a.city=#{did}
+           </if>
+           <if test="tablename!=null">
+              and a.stattype=#{tablename}
+           </if>
+        </where>
+	</select>
+	
+	<select id="moveDetails" resultType="com.xf.entity.gov.GovStat">
+		SELECT c.districtName AS cityName,d.districtName AS townName,b.pollutantName,
+		(select `name` from ap_static where id=vehiclemodel)stattype3,
+		a.statvalue,a.stat_exp,a.stat_value,a.stat_valtype
+        FROM ap_stat_motor a
+        LEFT JOIN ap_pollutant b
+        ON a.pollutantId=b.id
+        LEFT JOIN ap_district c
+        ON a.city=c.id
+        LEFT JOIN ap_district d
+        ON a.town=d.id
+        <where>
+        	<if test="year>0">
+            	a.fillyear=#{year}
+           	</if>
+			<if test="did>1">
+	        	and a.city=#{did}
+	        </if>
+        </where>
+	</select>
+	
+	<select id="moveDetails2" resultType="com.xf.entity.gov.GovStat">
+		SELECT c.districtName AS cityName,d.districtName AS townName,b.pollutantName,
+		(select `name` from ap_static where id=vehiclemodel)stattype3,
+		a.statvalue,a.stat_exp,a.stat_value,a.stat_valtype
+        FROM ap_stat_motor_pc a
+        LEFT JOIN ap_pollutant b
+        ON a.pollutantId=b.id
+        LEFT JOIN ap_district c
+        ON a.city=c.id
+        LEFT JOIN ap_district d
+        ON a.town=d.id
+        <where>
+        	<if test="year>0">
+            	a.fillyear=#{year}
+           	</if>
+			<if test="did>1">
+	        	and a.city=#{did}
+	        </if>
+        </where>
+	</select>
+</mapper>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IPollutantDao">
+
+	<!-- resultMap -->
+	<resultMap type="pollutant" id="pollutantMap">
+		<result property="id" column="id" />
+		<result property="pollutantName" column="pollutantName" />
+		<result property="pollutantType" column="pollutantType" />
+		<result property="remark" column="remark" />
+		<result property="groupid" column="groupid" />
+		<result property="groupname" column="groupname" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="pollutant" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_pollutant(pollutantName, pollutantType, remark,groupid,groupname)
+		values(#{pollutantName}, #{pollutantType}, #{remark},(SELECT MAX(a.groupid)+1 FROM ap_pollutant a),#{pollutantName})
+	</insert>
+	<insert id="add2" parameterType="pollutant" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_pollutant(pollutantName, pollutantType, remark,groupid,groupname)
+		values(#{pollutantName}, #{pollutantType}, #{remark},#{groupid},#{groupname})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="pollutant">
+		delete from ap_pollutant where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="pollutant">
+		update ap_pollutant 
+		<set>
+			<if test="pollutantName != null">
+				pollutantName=#{pollutantName}, 
+			</if>
+			<if test="pollutantType != null">
+				pollutantType=#{pollutantType}, 
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="groupid > 0">
+				groupid = #{groupid},
+			</if>
+			<if test="groupname != null">
+				groupname = #{groupname}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="pollutantMap">
+		select * from ap_pollutant where id=#{id}
+	</select>
+	<select id="getByName" parameterType="java.lang.String" resultMap="pollutantMap">
+		select * from ap_pollutant where pollutantName=#{name}
+	</select>
+	
+	<select id="getByGrpName" parameterType="java.lang.String" resultMap="pollutantMap">
+		select * from ap_pollutant where groupname = #{name} LIMIT 1
+	</select>
+	
+	<select id="getMaxGroupId" resultType="java.lang.Integer">
+		SELECT MAX(a.groupid)+1 FROM ap_pollutant a
+	</select>
+	
+	<select id="getAll" resultMap="pollutantMap">
+		select * from ap_pollutant
+	</select>
+	<select id="getBasic" resultMap="pollutantMap">
+		select * from ap_pollutant where id &lt; 11
+	</select>
+	<select id="getTen" resultMap="pollutantMap">
+		select * from ap_pollutant where id &lt;=10;
+	</select>
+
+	<select id="getAllGroup" resultType="com.xf.vo.IntString">
+		select distinct a.groupid it,a.groupname str from ap_pollutant a WHERE a.groupid!=0
+	</select>
+	
+  	<select id="getFactors" resultType="com.xf.vo.PollutantCount">
+		SELECT a.id fId,a.name fName,b.id sId,b.name sName,c.id pollutantId,c.pollutantName,d.productId,d.factor
+        FROM ap_static a
+        LEFT JOIN ap_static b
+        ON a.id=b.pid
+        LEFT JOIN ap_pollutant c
+        ON c.id!=a.id AND c.id &lt; 11
+        LEFT JOIN ap_factor d
+        ON c.id=d.pollutantId AND b.id=d.productId AND d.tradeid=#{0} AND d.formulaId=#{1}
+        WHERE b.groupid=3  AND b.id > 2100
+	</select>
+	
+	<select id="getFactors2" resultType="com.xf.vo.PollutantCount">
+		SELECT  a.id fId,a.name fName,c.id pollutantId,c.pollutantName,d.productId,d.factor
+        FROM ap_static a 
+        LEFT JOIN ap_pollutant c
+        ON c.id!=a.id AND c.id &lt; 11
+        LEFT JOIN ap_factor d
+        ON c.id=d.pollutantId AND a.id=d.productId AND d.tradeid=#{0} AND d.formulaId=#{1}
+        WHERE a.groupid=2  AND a.id > 2000
+	</select>
+	
+	
+	
+	<select id="getFNames" resultType="com.xf.vo.IntString">
+		SELECT a.id it,a.name str
+	    FROM ap_static a
+	    WHERE a.groupid=2 AND a.id BETWEEN 2000 AND 2100
+	    UNION ALL
+	   	SELECT b.id it,b.name str
+	    FROM ap_static b
+	    WHERE b.groupid=2 AND b.id = 102009
+	</select> 
+	
+	<select id="getNames" resultType="String">
+		SELECT pollutantName FROM ap_pollutant
+	</select>
+	<select id="getByProductId" resultType="int">
+		SELECT pollutantName FROM ap_pollutant
+	</select>
+	<select id="getSNames" parameterType="int" resultType="com.xf.vo.IntString">
+		SELECT a.id it,a.name str
+        FROM ap_static a
+        WHERE a.pid=#{pid} AND groupid=3 and a.id > 2000
+	</select>
+		<select id="getGroupName" parameterType="int" resultType="int">
+		SELECT a.groupid FROM ap_pollutant a WHERE a.id=#{id}
+	</select>
+	
+	<select id="getBygroupid" parameterType="int" resultMap="pollutantMap">
+		select * from ap_pollutant where groupid=#{id}
+	</select>
+	
+	<update id="updateCofac" parameterType="int">
+		update ap_control_facilities set pollutantId=#{newid} where pollutantId=#{oldid}
+	</update>
+	
+	<update id="updateFac" parameterType="int">
+		update ap_factor set pollutantId=#{newid} where pollutantId=#{oldid}
+	</update>
+	
+	<update id="updateOutpoll" parameterType="int">
+		update ap_outlet_pollutant set pollutantId=#{newid} where pollutantId=#{oldid}
+	</update>
+	
+	<update id="updateVehifac" parameterType="int">
+		update ap_vehicle_factor set pollutant=#{newid} where pollutant=#{oldid}
+	</update>
+	
+	<delete id="deleteStatdev" parameterType="int">
+		delete from ap_stat_device where pollutantId=#{pollid}
+	</delete>
+	
+	<delete id="deleteStatgov" parameterType="int">
+		delete from ap_stat_gov where pollutantId=#{pollid}
+	</delete>
+	
+	<delete id="deleteStatmotor" parameterType="int">
+		delete from ap_stat_motor where pollutantId=#{pollid}
+	</delete>
+	
+	<delete id="deleteStatpro" parameterType="int">
+		delete from ap_stat_product where pollutantId=#{pollid}
+	</delete>
+</mapper>

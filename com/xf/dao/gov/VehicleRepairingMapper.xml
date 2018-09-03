@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IVehicleRepairingDao">
+
+	<!-- resultMap -->
+	<resultMap type="VehicleRepairing" id="VehicleRepairingMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="class1Number" column="class1Number" />
+		<result property="class2Number" column="class2Number" />
+		<result property="class3Number" column="class3Number" />
+		<result property="addressStr" column="addressStr" />
+		<result property="he" column="he" />
+		<result property="status" column="status" />
+	</resultMap>
+
+
+	<select id="getAll" resultMap="VehicleRepairingMap">
+		SELECT a.* FROM ap_vehicle_repairing a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		WHERE a.fillyear=#{0} and a.`status`=3 AND e1.province>0
+	</select>
+	<select id="getAll2" resultMap="VehicleRepairingMap">
+		SELECT a.* FROM ap_vehicle_repairing a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		WHERE a.fillyear=#{0} and a.`status`=3 AND e1.province=0
+	</select>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="VehicleRepairingMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select districtName from ap_district where id=city) as cityName,
+			(class1Number + class2Number +class3Number) as he
+		from ap_vehicle_repairing where id=#{id}
+	</select>
+	<select id="getByField" parameterType="VehicleRepairing" resultMap="VehicleRepairingMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select districtName from ap_district where id=city) as cityName,
+			(class1Number + class2Number +class3Number) as he
+		 from ap_vehicle_repairing where fillyear=#{fillyear} and town=#{town} and accountid=#{accountid}
+	</select>
+	
+	<select id="getByTown" parameterType="VehicleRepairing" resultMap="VehicleRepairingMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select districtName from ap_district where id=city) as cityName
+		from ap_vehicle_repairing where fillyear=#{fillyear} and (town=#{town} or city=#{town}) and accountid=#{accountid}
+	</select>
+	
+	<select id="getByYear" parameterType="VehicleRepairing" resultMap="VehicleRepairingMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select districtName from ap_district where id=city) as cityName,
+			(class1Number + class2Number +class3Number) as he
+		from ap_vehicle_repairing where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_vehicle_repairing where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_vehicle_repairing set status=#{0} where accountid=#{1} and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_vehicle_repairing set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_vehicle_repairing set status=#{0} where accountid=#{1} and status=#{2} and fillyear=#{3}
+	</update>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_vehicle_repairing where id=#{id};
+	</delete>
+	<insert id="add" parameterType="VehicleRepairing" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_vehicle_repairing
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="class1Number >= 0">
+			class1Number=#{class1Number},
+		</if>
+		<if test="class2Number >= 0">
+			class2Number=#{class2Number},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="class3Number >= 0">
+			class3Number=#{class3Number}
+		</if>
+	</set>
+	</insert>
+
+	<!--修改 -->
+	<update id="update" parameterType="VehicleRepairing">
+		update ap_vehicle_repairing
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="class1Number != null">
+			class1Number=#{class1Number},
+		</if>
+		<if test="class2Number != null">
+			class2Number=#{class2Number},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="class3Number != null">
+			class3Number=#{class3Number}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

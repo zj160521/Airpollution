@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.INfertilizerDao">
+
+	<!-- resultMap -->
+	<resultMap type="Nfertilizer" id="NfertilizerMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="layingType" column="layingType" />
+		<result property="ferType" column="ferType" />
+		<result property="amountTotal" column="amountTotal" />
+		<result property="amountMu" column="amountMu" />
+		<result property="m1" column="m1" />
+		<result property="m2" column="m2" />
+		<result property="m3" column="m3" />
+		<result property="m4" column="m4" />
+		<result property="m5" column="m5" />
+		<result property="m6" column="m6" />
+		<result property="m7" column="m7" />
+		<result property="m8" column="m8" />
+		<result property="m9" column="m9" />
+		<result property="m10" column="m10" />
+		<result property="m11" column="m11" />
+		<result property="m12" column="m12" />
+		<result property="addressStr" column="addressStr" />
+		<result property="ferTypeName" column="ferTypeName" />
+		<result property="layingTypeName" column="layingTypeName" />
+		<result property="he" column="he" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="NfertilizerMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select name from ap_static where id=ferType) as ferTypeName,
+			(select districtName from ap_district where id=city) as cityName,
+			(select name from ap_static where id=layingType) as layingTypeName
+		 from ap_nfertilizer where id=#{id}
+	</select>
+	<select id="getByField" parameterType="Nfertilizer" resultMap="NfertilizerMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select name from ap_static where id=ferType) as ferTypeName,
+			(select districtName from ap_district where id=city) as cityName,
+			(select name from ap_static where id=layingType) as layingTypeName
+		from ap_nfertilizer where fillyear=#{fillyear} and ferType=#{ferType} and layingType=#{layingType} and accountid=#{accountid}
+	</select>
+	
+	<select id="getByFerType" parameterType="Nfertilizer" resultMap="NfertilizerMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select name from ap_static where id=ferType) as ferTypeName,
+			(select districtName from ap_district where id=city) as cityName,
+			(select name from ap_static where id=layingType) as layingTypeName
+		from ap_nfertilizer where fillyear=#{fillyear} and ferType=#{ferType} and layingType=#{layingType} and accountid=#{accountid}
+	</select>
+	
+	<select id="getByContion" parameterType="Nfertilizer" resultMap="NfertilizerMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select name from ap_static where id=ferType) as ferTypeName,
+			(select districtName from ap_district where id=city) as cityName,
+			(select name from ap_static where id=layingType) as layingTypeName
+		from ap_nfertilizer where fillyear=#{fillyear} and ferType=#{ferType} and layingType=#{layingType} and accountid=#{accountid}
+		and (town=#{town} or city=#{town})
+	</select>
+	
+	<select id="getByYear" parameterType="Nfertilizer" resultMap="NfertilizerMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select name from ap_static where id=ferType) as ferTypeName,
+			(select districtName from ap_district where id=city) as cityName,
+			(select name from ap_static where id=layingType) as layingTypeName
+		from ap_nfertilizer where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_nfertilizer where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_nfertilizer set status=#{0} where accountid=#{1} and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_nfertilizer set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_nfertilizer set status=#{0} where accountid=#{1} and status=#{2} and fillyear=#{3}
+	</update>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_nfertilizer where id=#{id};
+	</delete>
+	<insert id="add" parameterType="Nfertilizer" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_nfertilizer
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="layingType > 0">
+			layingType=#{layingType},
+		</if>
+		<if test="ferType > 0">
+			ferType=#{ferType},
+		</if>
+		<if test="amountTotal > 0">
+			amountTotal=#{amountTotal},
+		</if>
+		<if test="amountMu > 0">
+			amountMu=#{amountMu},
+		</if>
+		<if test="m1 > 0">
+			m1=#{m1},
+		</if>
+		<if test="m2 > 0">
+			m2=#{m2},
+		</if>
+		<if test="m3 > 0">
+			m3=#{m3},
+		</if>
+		<if test="m4 > 0">
+			m4=#{m4},
+		</if>
+		<if test="m5 > 0">
+			m5=#{m5},
+		</if>
+		<if test="m6 > 0">
+			m6=#{m6},
+		</if>
+		<if test="m7 > 0">
+			m7=#{m7},
+		</if>
+		<if test="m8 > 0">
+			m8=#{m8},
+		</if>
+		<if test="m9 > 0">
+			m9=#{m9},
+		</if>
+		<if test="m10 > 0">
+			m10=#{m10},
+		</if>
+		<if test="m11 > 0">
+			m11=#{m11},
+		</if>
+		<if test="m12 > 0">
+			m12=#{m12},
+		</if>
+		<if test="status > 0">
+			status=#{status}
+		</if>
+	</set>
+	</insert>
+
+	<!--修改 -->
+	<update id="update" parameterType="Nfertilizer">
+		update ap_nfertilizer
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="layingType > 0">
+			layingType=#{layingType},
+		</if>
+		<if test="ferType > 0">
+			ferType=#{ferType},
+		</if>
+		<if test="amountTotal > 0">
+			amountTotal=#{amountTotal},
+		</if>
+		<if test="amountMu != null">
+			amountMu=#{amountMu},
+		</if>
+		<if test="m1 != null">
+			m1=#{m1},
+		</if>
+		<if test="m2 != null">
+			m2=#{m2},
+		</if>
+		<if test="m3 != null">
+			m3=#{m3},
+		</if>
+		<if test="m4 != null">
+			m4=#{m4},
+		</if>
+		<if test="m5 != null">
+			m5=#{m5},
+		</if>
+		<if test="m6 != null">
+			m6=#{m6},
+		</if>
+		<if test="m7 != null">
+			m7=#{m7},
+		</if>
+		<if test="m8 != null">
+			m8=#{m8},
+		</if>
+		<if test="m9 != null">
+			m9=#{m9},
+		</if>
+		<if test="m10 != null">
+			m10=#{m10},
+		</if>
+		<if test="m11 != null">
+			m11=#{m11},
+		</if>
+		<if test="m12 != null">
+			m12=#{m12},
+		</if>
+		<if test="status > 0">
+			status=#{status}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

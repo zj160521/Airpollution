@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IAccountReportDao">
+
+	<!-- resultMap -->
+	<resultMap type="AccountReport" id="AccountReportMap">
+		<result property="id" column="id" />
+		<result property="typeid" column="typeid" />
+		<result property="reportname" column="reportname" />
+		<result property="isimport" column="isimport" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="AccountReportMap">
+		select * from ap_account_report where id=#{id}
+	</select>
+	<select id="getAll" resultMap="AccountReportMap">
+		select * from ap_account_report
+	</select>
+	<select id="getReports" parameterType="AccountReport" resultMap="AccountReportMap">
+		select distinct reportname, isimport from ap_account_report;
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="AccountReport" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_account_report
+		<set>
+		<if test="typeid >= 0">
+			typeid=#{typeid},
+		</if>
+		<if test="reportname != null">
+			reportname=#{reportname},
+		</if>
+		<if test="isimport >= 0">
+			isimport=#{isimport},
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_account_report where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="AccountReport">
+		update ap_account_report
+		<set>
+		<if test="typeid > 0">
+			typeid=#{typeid},
+		</if>
+		<if test="reportname != null">
+			reportname=#{reportname},
+		</if>
+		<if test="isimport > 0">
+			isimport=#{isimport},
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IProductFillDao">
+
+	<!-- resultMap -->
+	<resultMap type="productfill" id="productfillMap">
+		<result property="id" column="id" />
+		<result property="productId" column="productId" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="produceStepId" column="produceStepId" />
+		<result property="fillyear" column="fillyear" />
+		<result property="fillTime" column="fillTime" />
+		<result property="hoursPerDay" column="hoursPerDay" />
+		<result property="daysPerYear" column="daysPerYear" />
+		<result property="designOutput" column="designOutput" />
+		<result property="realOutput" column="realOutput" />
+		<result property="m1" column="m1" />
+		<result property="m2" column="m2" />
+		<result property="m3" column="m3" />
+		<result property="m4" column="m4" />
+		<result property="m5" column="m5" />
+		<result property="m6" column="m6" />
+		<result property="m7" column="m7" />
+		<result property="m8" column="m8" />
+		<result property="m9" column="m9" />
+		<result property="m10" column="m10" />
+		<result property="m11" column="m11" />
+		<result property="m12" column="m12" />
+		<result property="remark" column="remark" />
+		<result property="status" column="status" />
+		<result property="fuelId" column="fuelId" />
+		<result property="fuelName" column="fuelName" />
+		<result property="fuelunit" column="fuelunit" />
+		<result property="fuelValue" column="fuelValue" />
+	</resultMap>
+
+	<select id="getById" resultMap="productfillMap">
+		select * from ap_product_fill
+		where productId=#{0} and produceStepId=#{1} order by fillyear desc;
+	</select>
+	<select id="getById1" parameterType="int" resultMap="productfillMap">
+		select *,
+		(select name from ap_static where id=fuelId)fuelName
+		from ap_product_fill where id=#{pfillid};
+	</select>
+	<select id="getByProductId" parameterType="int" resultMap="productfillMap">
+		select * from ap_product_fill where productId=#{pid}
+	</select>
+	<select id="getByStepId" parameterType="int" resultMap="productfillMap">
+		select *
+		from ap_product_fill where produceStepId=#{stepid}
+	</select>
+	<select id="getByCompany" parameterType="int" resultMap="productfillMap">
+		select *
+		from ap_product_fill where enterpriceId=#{companyid}
+	</select>
+	<select id="getByYear" resultMap="productfillMap">
+		select *,
+		(select name from ap_static where id=fuelId)fuelName
+		from ap_product_fill
+		where fillyear=#{0} and enterpriceId=#{1}
+	</select>
+	<delete id="deletepfill">
+		delete from ap_product_fill where id=#{0}
+	</delete>
+	<select id="getRelation" resultType="int">
+		select count(*) from
+		ap_produce_product where productId=#{0} and stepId=#{1}
+	</select>
+	<insert id="addRelation" useGeneratedKeys="false">
+		insert into
+		ap_produce_product(productId, stepId) values(#{0}, #{1})
+	</insert>
+	<delete id="delRelation">
+		delete from ap_produce_product where productId=#{0}
+		and stepId=#{1}
+	</delete>
+	<delete id="delBycomIdYear" >
+		delete from ap_product_fill
+		where enterpriceId=#{0} and fillyear=#{1};
+	</delete>
+	<!-- 添加 -->
+	<insert id="add" parameterType="productfill" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_product_fill(productId, enterpriceId,
+		produceStepId, fillyear,
+		fillTime, hoursPerDay, daysPerYear,
+		designOutput, realOutput, m1, m2,
+		m3, m4, m5, m6, m7, m8, m9, m10, m11,
+		m12,fuelId,fuelunit,fuelValue,status)
+		values(#{productId}, #{enterpriceId},
+		#{produceStepId},
+		#{fillyear},
+		#{fillTime}, #{hoursPerDay},
+		#{daysPerYear},
+		#{designOutput}, #{realOutput}, #{m1}, #{m2},
+		#{m3},
+		#{m4}, #{m5},
+		#{m6}, #{m7}, #{m8}, #{m9}, #{m10}, #{m11},
+		#{m12},#{fuelId},#{fuelunit},#{fuelValue},#{status})
+	</insert>
+	<!--修改 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_product_fill set status=#{0} where enterpriceId=#{1} and
+		fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_product_fill set status=#{0} where enterpriceId=#{1} and
+		status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_product_fill set status=#{0} where enterpriceId=#{1} and
+		status=#{2} and fillyear=#{3}
+	</update>
+	<update id="unpass"> <!-- 参数0是status,参数1是companyid -->
+		update ap_product_fill set status=#{0} where id = #{1}
+		and status=#{2}
+	</update>
+	<update id="update" parameterType="productfill">
+		update ap_product_fill
+		<set>
+			<if test="productId > 0">
+				productId=#{productId},
+			</if>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="produceStepId > 0">
+				produceStepId=#{produceStepId},
+			</if>
+			<if test="fillyear > 0">
+				fillyear=#{fillyear},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime},
+			</if>
+			<if test="hoursPerDay != null">
+				hoursPerDay=#{hoursPerDay},
+			</if>
+			<if test="daysPerYear != null">
+				daysPerYear=#{daysPerYear},
+			</if>
+			<if test="designOutput > 0">
+				designOutput=#{designOutput},
+			</if>
+			<if test="realOutput > 0">
+				realOutput=#{realOutput},
+			</if>
+			<if test="m1 != null">
+				m1=#{m1},
+			</if>
+			<if test="m2 != null">
+				m2=#{m2},
+			</if>
+			<if test="m3 != null">
+				m3=#{m3},
+			</if>
+			<if test="m4 != null">
+				m4=#{m4},
+			</if>
+			<if test="m5 != null">
+				m5=#{m5},
+			</if>
+			<if test="m6 != null">
+				m6=#{m6},
+			</if>
+			<if test="m7 != null">
+				m7=#{m7},
+			</if>
+			<if test="m8 != null">
+				m8=#{m8},
+			</if>
+			<if test="m9 != null">
+				m9=#{m9},
+			</if>
+			<if test="m10 != null">
+				m10=#{m10},
+			</if>
+			<if test="m11 != null">
+				m11=#{m11},
+			</if>
+			<if test="m12 != null">
+				m12=#{m12},
+			</if>
+			<if test="status > 0">
+				status=#{status},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="fuelId>0">
+				fuelId=#{fuelId},
+			</if>
+			<if test="fuelunit!=null">
+				fuelunit=#{fuelunit},
+			</if>
+			<if test="fuelValue>0">
+				fuelValue=#{fuelValue}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<select id="getFillid" parameterType="int" resultMap="productfillMap">
+		SELECT * FROM ap_product_fill f JOIN ap_product p ON
+		p.enterpriceId=f.enterpriceId AND p.id=f.productId WHERE
+		f.fillyear=(select v from ap_config WHERE k='current_year') AND
+		p.id=#{id};
+	</select>
+	
+	<select id="getSmallpfill" parameterType="productfill" resultType="productfill">
+		SELECT *,(select productName from ap_product where id=productId)productName,
+		(select unit from ap_product where id=productId)productUnit,
+		(select name from ap_static where id=fuelId)fuelName,
+		(select materialName from ap_material where id=(select materialId 
+		from ap_material_fill where productFillId=pf.id LIMIT 1))materialName,
+		(select unit from ap_material_fill where productFillId=pf.id LIMIT 1)materialUnit
+		FROM `ap_product_fill` pf where pf.enterpriceId=#{enterpriceId} and pf.fillyear=#{fillyear}
+		<if test="status>0">
+			and pf.status=#{status}
+		</if>
+	</select>
+	<update id="smallSetstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_product_fill set status=#{0} where enterpriceId=#{1} and
+		fillyear=#{2}
+	</update>
+	<update id="smallSetstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_product_fill set status=#{0} where enterpriceId=#{1} and
+		status=#{2} and fillyear=#{3}
+	</update>
+	
+	<select id="getotalYear" parameterType="int" resultType="productfill">
+		select pf.*,sum(realOutput)totalYear from ap_product_fill pf
+		left join ap_enterprise e on pf.enterpriceId=e.id
+		where e.ismall=1 and pf.fillyear=#{fillyear} and pf.`status`=3 group by enterpriceId,productId
+	</select>
+	
+	<update id="update2" parameterType="productfill">
+		update ap_product_fill
+		<set>
+			<if test="produceStepId > 0">
+				produceStepId=#{produceStepId},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime},
+			</if>
+			<if test="hoursPerDay != null">
+				hoursPerDay=#{hoursPerDay},
+			</if>
+			<if test="daysPerYear != null">
+				daysPerYear=#{daysPerYear},
+			</if>
+			<if test="designOutput > 0">
+				designOutput=#{designOutput},
+			</if>
+			<if test="realOutput > 0">
+				realOutput=#{realOutput},
+			</if>
+			<if test="m1 != null">
+				m1=#{m1},
+			</if>
+			<if test="m2 != null">
+				m2=#{m2},
+			</if>
+			<if test="m3 != null">
+				m3=#{m3},
+			</if>
+			<if test="m4 != null">
+				m4=#{m4},
+			</if>
+			<if test="m5 != null">
+				m5=#{m5},
+			</if>
+			<if test="m6 != null">
+				m6=#{m6},
+			</if>
+			<if test="m7 != null">
+				m7=#{m7},
+			</if>
+			<if test="m8 != null">
+				m8=#{m8},
+			</if>
+			<if test="m9 != null">
+				m9=#{m9},
+			</if>
+			<if test="m10 != null">
+				m10=#{m10},
+			</if>
+			<if test="m11 != null">
+				m11=#{m11},
+			</if>
+			<if test="m12 != null">
+				m12=#{m12},
+			</if>
+			<if test="status > 0">
+				status=#{status},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="fuelId>0">
+				fuelId=#{fuelId},
+			</if>
+			<if test="fuelunit!=null">
+				fuelunit=#{fuelunit},
+			</if>
+			<if test="fuelValue>0">
+				fuelValue=#{fuelValue}
+			</if>
+		</set>
+		where productId=#{productId} and enterpriceId=#{enterpriceId} and fillyear=#{fillyear}
+	</update>
+</mapper>

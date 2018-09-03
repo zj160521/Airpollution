@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IOutletPollutantDao">
+
+	<!-- resultMap -->
+	<resultMap type="outletpollutant" id="outletpollutantMap">
+		<result property="id" column="id" />
+		<result property="outletfillId" column="outletfillId" />
+		<result property="pollutantId" column="pollutantId" />
+		<result property="s1Nongdu" column="s1Nongdu" />
+		<result property="s2Nongdu" column="s2Nongdu" />
+		<result property="s3Nongdu" column="s3Nongdu" />
+		<result property="s4Nongdu" column="s4Nongdu" />
+		<result property="yearNongdu" column="yearNongdu" />
+		<result property="totalAmount" column="totalAmount" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="outletpollutant"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into
+		ap_outlet_pollutant(outletfillId, pollutantId, s1Nongdu, s2Nongdu,
+		s3Nongdu,
+		s4Nongdu, yearNongdu, totalAmount)
+		values(#{outletfillId}, #{pollutantId},
+		#{s1Nongdu}, #{s2Nongdu}, #{s3Nongdu}, #{s4Nongdu},
+		#{yearNongdu}, #{totalAmount})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="outletpollutant">
+		delete from
+		ap_outlet_pollutant where id=#{id};
+	</delete>
+	<delete id="deleteBy" parameterType="outletpollutant">
+		delete from
+		ap_outlet_pollutant where pollutantId=#{pollutantId} and
+		outletfillId=#{outletfillId}
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="outletpollutant">
+		update ap_outlet_pollutant
+		<set>
+			<if test="outletfillId > 0">
+				outletfillId=#{outletfillId},
+			</if>
+			<if test="pollutantId > 0">
+				pollutantId=#{pollutantId},
+			</if>
+			<if test="s1Nongdu != null">
+				s1Nongdu=#{s1Nongdu},
+			</if>
+			<if test="s2Nongdu != null">
+				s2Nongdu=#{s2Nongdu},
+			</if>
+			<if test="s3Nongdu != null">
+				s3Nongdu=#{s3Nongdu},
+			</if>
+			<if test="s4Nongdu != null">
+				s4Nongdu=#{s4Nongdu},
+			</if>
+			<if test="yearNongdu != null">
+				yearNongdu=#{yearNongdu},
+			</if>
+			<if test="totalAmount != null">
+				totalAmount=#{totalAmount}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="outletpollutantMap">
+		select op.*,
+		p.pollutantName, p.pollutantType
+		from ap_outlet_pollutant op left outer
+		join ap_pollutant p on op.pollutantId=p.id where op.id=#{id}
+	</select>
+
+	<select id="getByOutletFill" parameterType="int" resultMap="outletpollutantMap">
+		select DISTINCT op.*, p.groupname pollutantName, p.pollutantType
+		from
+		ap_outlet_pollutant op left outer join ap_pollutant p on
+		op.pollutantId=p.groupid where outletfillId=#{outletfillid}
+	</select>
+
+</mapper>

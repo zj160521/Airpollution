@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.ISurfacePollutantDao">
+
+	<resultMap type="com.xf.vo.PollutantStat" id="pollutantMap">
+		<result property="districtName" column="districtName" />
+		<result property="pollutantName" column="pollutantName" />
+		<result property="firewoodName" column="firewoodName" />
+		<result property="groupName" column="groupname"/>
+		<result property="nfertigaName" column="nfertigaName" />
+		<result property="name" column="months" />
+		<result property="statvalue" column="statvalue" />
+	</resultMap>
+
+	<resultMap type="com.xf.vo.StatProd" id="yearMap">
+		<result property="fillyear" column="fillyear" />
+	</resultMap>
+
+	<select id="getYear" resultMap="yearMap">
+		select DISTINCT fillyear from
+		ap_stat_gov order by fillyear desc;
+	</select>
+
+	<select id="getPollutantBycity" resultMap="pollutantMap">
+		select
+		d.districtName,pol.pollutantName,ifnull(toa.statvalue,0)statvalue from
+		ap_district d
+		left join ap_pollutant pol
+		on pol.id>0 and pol.id&lt;11
+		left join
+		(select
+		s.city,s.pollutantId,SUM(s.statvalue)statvalue from ap_stat_gov s
+		where
+		s.fillyear=#{fillyear}
+		<if test="stattype!=null">
+			and s.stattype=#{stattype}
+		</if>
+		group by s.city,s.pollutantId)toa
+		on d.id=toa.city and
+		pol.id=toa.pollutantId
+		where d.districtLevel=1
+	</select>
+
+    <select id="getPollutantBycity2" resultMap="pollutantMap">
+		select
+		d.districtName,pol.pollutantName,ifnull(toa.statvalue,0)statvalue from
+		ap_district d
+		left join ap_pollutant pol
+		on pol.id>0 and pol.id&lt;11
+		left join
+		(select
+		s.city,s.pollutantId,SUM(s.statvalue)statvalue from ap_stat_gov_pc s
+		where
+		s.fillyear=#{fillyear}
+		<if test="stattype!=null">
+			and s.stattype=#{stattype}
+		</if>
+		group by s.city,s.pollutantId)toa
+		on d.id=toa.city and
+		pol.id=toa.pollutantId
+		where d.districtLevel=1
+	</select>
+
+	<select id="getRestaurant" parameterType="int" resultMap="pollutantMap">
+		select
+		d.districtName,pol.pollutantName,ifnull(toa.statvalue,0)statvalue from
+		ap_pollutant pol
+		left join ap_district d
+		on pol.id in (4,6,9)
+		left join
+		(select s.city,s.pollutantId,SUM(s.statvalue)statvalue from
+		ap_stat_gov s
+		where
+		s.fillyear=#{fillyear} and s.stattype='restaurant'
+		group by
+		s.city,s.pollutantId)toa
+		on d.id=toa.city and
+		pol.id=toa.pollutantId
+		where
+		d.districtLevel=1
+	</select>
+
+    <select id="getRestaurant2" parameterType="int" resultMap="pollutantMap">
+		select
+		d.districtName,pol.pollutantName,ifnull(toa.statvalue,0)statvalue from
+		ap_pollutant pol
+		left join ap_district d
+		on pol.id in (4,6,9)
+		left join
+		(select s.city,s.pollutantId,SUM(s.statvalue)statvalue from
+		ap_stat_gov_pc s
+		where
+		s.fillyear=#{fillyear} and s.stattype='restaurant'
+		group by
+		s.city,s.pollutantId)toa
+		on d.id=toa.city and
+		pol.id=toa.pollutantId
+		where
+		d.districtLevel=1
+	</select>
+
+	<select id="getFirewoodType" resultMap="pollutantMap">
+		select
+		p.pollutantName,st.`name`
+		firewoodName,ifnull(tal.statvalue,0)statvalue from
+		ap_static st
+		left
+		join ap_pollutant p
+		on p.id>0 and p.id&lt;11
+		left join
+		(select
+		s.pollutantId,s.stattype3,sum(s.statvalue)statvalue
+		from ap_stat_gov s
+		where fillyear=#{fillyear}
+		<if test="stattype!=null">
+			and s.stattype=#{stattype}
+		</if>
+		group by s.pollutantId,s.stattype3)tal
+		on p.id=tal.pollutantId and
+		st.`name`=tal.stattype3
+		where st.groupid=#{groupid}
+	</select>
+
+    <select id="getFirewoodType2" resultMap="pollutantMap">
+		select
+		p.pollutantName,st.`name`
+		firewoodName,ifnull(tal.statvalue,0)statvalue from
+		ap_static st
+		left
+		join ap_pollutant p
+		on p.id>0 and p.id&lt;11
+		left join
+		(select
+		s.pollutantId,s.stattype3,sum(s.statvalue)statvalue
+		from ap_stat_gov_pc s
+		where fillyear=#{fillyear}
+		<if test="stattype!=null">
+			and s.stattype=#{stattype}
+		</if>
+		group by s.pollutantId,s.stattype3)tal
+		on p.id=tal.pollutantId and
+		st.`name`=tal.stattype3
+		where st.groupid=#{groupid}
+	</select>
+
+	<select id="getNfertigation" parameterType="int" resultMap="pollutantMap">
+		select sta.`name`
+		months,p.pollutantName,ifnull(tal.statvalue,0)statvalue
+		from ap_static sta
+		left join ap_pollutant p
+		on p.id=10
+		left join
+		(select s.pollutantId,s.months,sum(s.statvalue)statvalue
+		from
+		ap_stat_gov s where s.fillyear=#{fillyear} and
+		s.stattype='nfertigation'
+		group
+		by s.months order by s.months)tal
+		on sta.name=tal.months and tal.pollutantId=p.id
+		where
+		sta.groupid=23
+	</select>
+
+    <select id="getNfertigation2" parameterType="int" resultMap="pollutantMap">
+		select sta.`name`
+		months,p.pollutantName,ifnull(tal.statvalue,0)statvalue
+		from ap_static sta
+		left join ap_pollutant p
+		on p.id=10
+		left join
+		(select s.pollutantId,s.months,sum(s.statvalue)statvalue
+		from
+		ap_stat_gov_pc s where s.fillyear=#{fillyear} and
+		s.stattype='nfertigation'
+		group
+		by s.months order by s.months)tal
+		on sta.name=tal.months and tal.pollutantId=p.id
+		where
+		sta.groupid=23
+	</select>
+
+	<select id="getCityNfertigation" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,sta.`name`
+		nfertigaName,tt.stattype3 firewoodName,ifnull(tal.statvalue,0)statvalue 
+		from ap_district d
+		left join ap_static sta
+		on sta.groupid=#{type}
+		left join ap_pollutant p
+		on p.id=#{pollutantId} 
+		left join(select distinct stattype3 from ap_stat_gov where stattype=#{stattype})tt 
+		on d.districtLevel=1 left join 
+		(select s.pollutantId,
+		s.city,s.stattype2,s.stattype3,sum(s.statvalue)statvalue from ap_stat_gov s
+		where s.fillyear=#{fillyear}
+		and s.stattype=#{stattype}
+		group by s.city,s.stattype2,s.stattype3)tal
+		on sta.id=tal.stattype2
+		and d.id=tal.city and p.id=tal.pollutantId and tal.stattype3=tt.stattype3
+		where d.districtLevel=1
+	</select>
+	
+	<select id="getCityNfertigation2" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,sta.`name`
+		nfertigaName,tt.stattype3 firewoodName,ifnull(tal.statvalue,0)statvalue 
+		from ap_district d
+		left join ap_static sta
+		on sta.groupid=#{type}
+		left join ap_pollutant p
+		on p.id=#{pollutantId} 
+		left join(select distinct stattype3 from ap_stat_gov where stattype=#{stattype})tt 
+		on d.districtLevel=1 left join 
+		(select s.pollutantId,
+		s.city,s.stattype2,s.stattype3,sum(s.statvalue)statvalue from ap_stat_gov_pc s
+		where s.fillyear=#{fillyear}
+		and s.stattype=#{stattype}
+		group by s.city,s.stattype2,s.stattype3)tal
+		on sta.id=tal.stattype2
+		and d.id=tal.city and p.id=tal.pollutantId and tal.stattype3=tt.stattype3
+		where d.districtLevel=1
+	</select>
+	
+	<select id="cityType" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,sta.`name`
+		nfertigaName,ifnull(tal.statvalue,0)statvalue 
+		from ap_district d
+		left join ap_static sta
+		on sta.groupid=#{type}
+		left join ap_pollutant p
+		on p.id=#{pollutantid} left join (select s.pollutantId,
+		s.city,s.stattype2,sum(s.statvalue)statvalue from ap_stat_gov s
+		where s.fillyear=#{fillyear} and s.stattype=#{stattype} group by s.city,s.stattype2)tal
+		on sta.id=tal.stattype2
+		and d.id=tal.city and p.id=tal.pollutantId
+		where d.districtLevel=1
+	</select>
+	
+	<select id="cityType2" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,sta.`name`
+		nfertigaName,ifnull(tal.statvalue,0)statvalue 
+		from ap_district d
+		left join ap_static sta
+		on sta.groupid=#{type}
+		left join ap_pollutant p
+		on p.id=#{pollutantid} left join (select s.pollutantId,
+		s.city,s.stattype2,sum(s.statvalue)statvalue from ap_stat_gov_pc s
+		where s.fillyear=#{fillyear} and s.stattype=#{stattype} group by s.city,s.stattype2)tal
+		on sta.id=tal.stattype2
+		and d.id=tal.city and p.id=tal.pollutantId
+		where d.districtLevel=1
+	</select>
+	
+	<select id="typeOffarming" resultMap="pollutantMap">
+		select d.districtName,sta.`name` nfertigaName,p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_district d
+		left join ap_pollutant p on p.id=#{pollutantId}
+		left join ap_static sta on sta.groupid=28
+		left join
+		(select s.city,s.pollutantId,s.stattype,sum(s.statvalue)statvalue 
+		from ap_stat_gov s where s.fillyear=#{fillyear}
+		group by s.stattype,s.city)tal
+		on tal.city=d.id and p.id=tal.pollutantId
+		and tal.stattype=sta.remark
+		where d.districtLevel=1
+	</select>
+	
+	<select id="typeOffarming2" resultMap="pollutantMap">
+		select d.districtName,sta.`name` nfertigaName,p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_district d
+		left join ap_pollutant p on p.id=#{pollutantId}
+		left join ap_static sta on sta.groupid=28
+		left join
+		(select s.city,s.pollutantId,s.stattype,sum(s.statvalue)statvalue 
+		from ap_stat_gov_pc s where s.fillyear=#{fillyear}
+		group by s.stattype,s.city)tal
+		on tal.city=d.id and p.id=tal.pollutantId
+		and tal.stattype=sta.remark
+		where d.districtLevel=1
+	</select>
+	
+	<select id="getCivilfuel" parameterType="int" resultMap="pollutantMap">
+		select p.pollutantName,st.`name`
+		firewoodName,ifnull(tal.statvalue,0)statvalue 
+		from ap_static st
+		left join ap_pollutant p
+		on p.id>0 and p.id&lt;11
+		left join
+		(select s.pollutantId,s.stattype2,sum(s.statvalue)statvalue
+		from ap_stat_gov s
+		where fillyear=#{0}
+		and s.stattype in ('dfuel','firewood')
+		group by s.pollutantId,s.stattype2)tal
+		on p.id=tal.pollutantId and
+		st.id=tal.stattype2
+		where st.groupid=#{1}
+	</select>
+	
+	<select id="getCivilfuel2" parameterType="int" resultMap="pollutantMap">
+		select p.pollutantName,st.`name`
+		firewoodName,ifnull(tal.statvalue,0)statvalue 
+		from ap_static st
+		left join ap_pollutant p
+		on p.id>0 and p.id&lt;11
+		left join
+		(select s.pollutantId,s.stattype2,sum(s.statvalue)statvalue
+		from ap_stat_gov_pc s
+		where fillyear=#{0}
+		and s.stattype in ('dfuel','firewood')
+		group by s.pollutantId,s.stattype2)tal
+		on p.id=tal.pollutantId and
+		st.id=tal.stattype2
+		where st.groupid=#{1}
+	</select>
+	
+	<select id="sourceValue" parameterType="int" resultMap="pollutantMap">
+		select p.pollutantName,s.groupname,ifnull(sum(tal.statvalue),0)statvalue from ap_pollutant p
+		left join ap_static s on s.groupid in (28,30,31,32,33,34,35,36)
+		left join
+		(select pollutantId,stattype,sum(statvalue)statvalue
+		from ap_stat_gov where fillyear=#{fillyear} group by stattype,pollutantId)tal
+		on p.id=tal.pollutantId and s.remark=tal.stattype
+		where p.id>0 and p.id&lt;11 group by groupname,pollutantName
+	</select>
+	
+	<select id="sourceValue2" parameterType="int" resultMap="pollutantMap">
+		select p.pollutantName,s.groupname,ifnull(sum(tal.statvalue),0)statvalue from ap_pollutant p
+		left join ap_static s on s.groupid in (28,30,31,32,33,34,35,36)
+		left join
+		(select pollutantId,stattype,sum(statvalue)statvalue
+		from ap_stat_gov_pc where fillyear=#{fillyear} group by stattype,pollutantId)tal
+		on p.id=tal.pollutantId and s.remark=tal.stattype
+		where p.id>0 and p.id&lt;11 group by groupname,pollutantName
+	</select>
+	
+	<select id="monthsPollutant" resultMap="pollutantMap">
+		select s.`name` months,p.pollutantName,ifnull(tal.statvalue,0)statvalue from ap_static s
+		left join ap_pollutant p on p.id>0 and p.id&lt;11
+		left join
+		(select months,pollutantId,sum(statvalue)statvalue 
+		from ap_stat_gov where fillyear=#{fillyear} and stattype=#{stattype} 
+		group by months,pollutantId)tal
+		on tal.months=s.`name` and tal.pollutantId=p.id
+		where s.groupid=23
+	</select>
+	
+	<select id="monthsPollutant2" resultMap="pollutantMap">
+		select s.`name` months,p.pollutantName,ifnull(tal.statvalue,0)statvalue from ap_static s
+		left join ap_pollutant p on p.id>0 and p.id&lt;11
+		left join
+		(select months,pollutantId,sum(statvalue)statvalue 
+		from ap_stat_gov_pc where fillyear=#{fillyear} and stattype=#{stattype} 
+		group by months,pollutantId)tal
+		on tal.months=s.`name` and tal.pollutantId=p.id
+		where s.groupid=23
+	</select>
+	
+	<select id="cityPollutantPm" resultMap="pollutantMap">
+		select
+		d.districtName,pol.pollutantName,ifnull(toa.statvalue,0)statvalue from
+		ap_district d
+		left join ap_pollutant pol
+		on pol.id in(4,5,6)
+		left join
+		(select
+		s.city,s.pollutantId,SUM(s.statvalue)statvalue from ap_stat_gov s
+		where
+		s.fillyear=#{fillyear}
+		<if test="stattype!=null">
+			and s.stattype=#{stattype}
+		</if>
+		group by s.city,s.pollutantId)toa
+		on d.id=toa.city and
+		pol.id=toa.pollutantId
+		where d.districtLevel=1
+	</select>
+	
+	<select id="cityPollutantPm2" resultMap="pollutantMap">
+		select
+		d.districtName,pol.pollutantName,ifnull(toa.statvalue,0)statvalue from
+		ap_district d
+		left join ap_pollutant pol
+		on pol.id in(4,5,6)
+		left join
+		(select
+		s.city,s.pollutantId,SUM(s.statvalue)statvalue from ap_stat_gov_pc s
+		where
+		s.fillyear=#{fillyear}
+		<if test="stattype!=null">
+			and s.stattype=#{stattype}
+		</if>
+		group by s.city,s.pollutantId)toa
+		on d.id=toa.city and
+		pol.id=toa.pollutantId
+		where d.districtLevel=1
+	</select>
+	
+	<select id="pollutantMachine" resultMap="pollutantMap">
+		select p.pollutantName,tol.stattype3 firewoodName,ifnull(tal.statvalue,0)statvalue 
+		from (select distinct stattype3 from ap_stat_gov 
+		where fillyear=#{fillyear} and stattype=#{stattype})tol
+		left join ap_pollutant p on p.id>0 and p.id&lt;11
+		left join
+		(select pollutantId,stattype3,sum(statvalue)statvalue from ap_stat_gov 
+		where fillyear=#{fillyear} and stattype=#{stattype} 
+		group by pollutantId,stattype3)tal
+		on p.id=tal.pollutantId and tol.stattype3=tal.stattype3
+	</select>
+	
+	<select id="pollutantMachine2" resultMap="pollutantMap">
+		select p.pollutantName,tol.stattype3 firewoodName,ifnull(tal.statvalue,0)statvalue 
+		from (select distinct stattype3 from ap_stat_gov 
+		where fillyear=#{fillyear} and stattype=#{stattype})tol
+		left join ap_pollutant p on p.id>0 and p.id&lt;11
+		left join
+		(select pollutantId,stattype3,sum(statvalue)statvalue from ap_stat_gov_pc 
+		where fillyear=#{fillyear} and stattype=#{stattype} 
+		group by pollutantId,stattype3)tal
+		on p.id=tal.pollutantId and tol.stattype3=tal.stattype3
+	</select>
+	
+	<select id="roaddustPollutant" parameterType="int" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,tol.stattype3 firewoodName,ifnull(tal.statvalue,0)statvalue 
+		from (select distinct stattype3 from ap_stat_gov 
+		where fillyear=#{fillyear} and stattype='roaddust')tol
+		left join ap_pollutant p on p.id in (4,5,6)
+		left join ap_district d on d.districtLevel=1
+		left join
+		(select city,pollutantId,stattype3,sum(statvalue)statvalue from ap_stat_gov 
+		where fillyear=#{fillyear} and stattype='roaddust' 
+		group by pollutantId,stattype3,city)tal
+		on p.id=tal.pollutantId and tol.stattype3=tal.stattype3 and tal.city=d.id
+	</select>
+	
+	<select id="roaddustPollutant2" parameterType="int" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,tol.stattype3 firewoodName,ifnull(tal.statvalue,0)statvalue 
+		from (select distinct stattype3 from ap_stat_gov 
+		where fillyear=#{fillyear} and stattype='roaddust')tol
+		left join ap_pollutant p on p.id in (4,5,6)
+		left join ap_district d on d.districtLevel=1
+		left join
+		(select city,pollutantId,stattype3,sum(statvalue)statvalue from ap_stat_gov_pc 
+		where fillyear=#{fillyear} and stattype='roaddust' 
+		group by pollutantId,stattype3,city)tal
+		on p.id=tal.pollutantId and tol.stattype3=tal.stattype3 and tal.city=d.id
+	</select>
+	
+	<select id="statDevice" parameterType="int" resultMap="pollutantMap">
+		select p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_pollutant p left join
+		(select pollutantId,sum(statvalue)statvalue
+		from ap_stat_device where fillyear=#{fillyear} 
+		group by pollutantId)tal
+		on p.id=tal.pollutantId 
+		where p.id>0 and p.id&lt;11
+	</select>
+	
+	<select id="statDevice2" parameterType="int" resultMap="pollutantMap">
+		select p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_pollutant p left join
+		(select pollutantId,sum(statvalue)statvalue
+		from ap_stat_device_pc where fillyear=#{fillyear} 
+		group by pollutantId)tal
+		on p.id=tal.pollutantId 
+		where p.id>0 and p.id&lt;11
+	</select>
+	
+	<select id="statProduct" parameterType="int" resultMap="pollutantMap">
+		select p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_pollutant p left join
+		(select pollutantId,sum(statvalue)statvalue
+		from ap_stat_product where fillyear=#{fillyear} 
+		group by pollutantId)tal
+		on p.id=tal.pollutantId 
+		where p.id>0 and p.id&lt;11
+	</select>
+	
+	<select id="statProduct2" parameterType="int" resultMap="pollutantMap">
+		select p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_pollutant p left join
+		(select pollutantId,sum(statvalue)statvalue
+		from ap_stat_product_pc where fillyear=#{fillyear} 
+		group by pollutantId)tal
+		on p.id=tal.pollutantId 
+		where p.id>0 and p.id&lt;11
+	</select>
+	
+	<select id="cityStatDevice" parameterType="int" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_pollutant p left join
+		ap_district d on d.districtLevel=1 left join
+		(select tol.city,tol.pollutantId,sum(tol.statvalue)statvalue 
+		from(select companyid,(select city from ap_enterprise 
+		where id=companyid)as city,pollutantId,sum(statvalue)statvalue
+		from ap_stat_device where fillyear=#{fillyear}
+		group by pollutantId,companyid)tol group by tol.city,tol.pollutantId)tal
+		on p.id=tal.pollutantId and tal.city=d.id
+		where p.id>0 and p.id&lt;11
+	</select>
+	
+	<select id="cityStatDevice2" parameterType="int" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_pollutant p left join
+		ap_district d on d.districtLevel=1 left join
+		(select tol.city,tol.pollutantId,sum(tol.statvalue)statvalue 
+		from(select companyid,(select city from ap_enterprise 
+		where id=companyid)as city,pollutantId,sum(statvalue)statvalue
+		from ap_stat_device_pc where fillyear=#{fillyear}
+		group by pollutantId,companyid)tol group by tol.city,tol.pollutantId)tal
+		on p.id=tal.pollutantId and tal.city=d.id
+		where p.id>0 and p.id&lt;11
+	</select>
+	
+	<select id="cityStatProduct" parameterType="int" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_pollutant p left join
+		ap_district d on d.districtLevel=1 left join
+		(select tol.city,tol.pollutantId,sum(tol.statvalue)statvalue 
+		from(select companyid,(select city from ap_enterprise 
+		where id=companyid)as city,pollutantId,sum(statvalue)statvalue
+		from ap_stat_product where fillyear=#{fillyear}
+		group by pollutantId,companyid)tol group by tol.city,tol.pollutantId)tal
+		on p.id=tal.pollutantId and tal.city=d.id
+		where p.id>0 and p.id&lt;11
+	</select>
+	
+	<select id="cityStatProduct2" parameterType="int" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,ifnull(tal.statvalue,0)statvalue 
+		from ap_pollutant p left join
+		ap_district d on d.districtLevel=1 left join
+		(select tol.city,tol.pollutantId,sum(tol.statvalue)statvalue 
+		from(select companyid,(select city from ap_enterprise 
+		where id=companyid)as city,pollutantId,sum(statvalue)statvalue
+		from ap_stat_product_pc where fillyear=#{fillyear}
+		group by pollutantId,companyid)tol group by tol.city,tol.pollutantId)tal
+		on p.id=tal.pollutantId and tal.city=d.id
+		where p.id>0 and p.id&lt;11
+	</select>
+	
+	<select id="citySourceAll" parameterType="int" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,s.groupname,ifnull(sum(tal.statvalue),0)statvalue from ap_district d
+		left join ap_pollutant p on p.id>0 and p.id&lt;11 
+		left join ap_static s on s.groupid in (28,30,31,32,33,34,35,36)
+		left join
+		(select city,pollutantId,stattype,sum(statvalue)statvalue
+		from ap_stat_gov where fillyear=#{fillyear} group by city,stattype,pollutantId)tal
+		on p.id=tal.pollutantId and s.remark=tal.stattype and tal.city=d.id
+		where d.districtLevel=1 group by districtName,groupname,pollutantName
+	</select>
+	
+	<select id="citySourceAll2" parameterType="int" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,s.groupname,ifnull(sum(tal.statvalue),0)statvalue from ap_district d
+		left join ap_pollutant p on p.id>0 and p.id&lt;11 
+		left join ap_static s on s.groupid in (28,30,31,32,33,34,35,36)
+		left join
+		(select city,pollutantId,stattype,sum(statvalue)statvalue
+		from ap_stat_gov_pc where fillyear=#{fillyear} group by city,stattype,pollutantId)tal
+		on p.id=tal.pollutantId and s.remark=tal.stattype and tal.city=d.id
+		where d.districtLevel=1 group by districtName,groupname,pollutantName
+	</select>
+	
+	<select id="getMotorpollutant"  parameterType="int" resultType="com.xf.vo.LookupCityFeulRes">
+		SELECT a.id AS cityid,a.districtName,c.pollutantName AS name,IFNULL(SUM(b.statvalue),0) AS sum
+        FROM ap_district a
+        LEFT JOIN ap_pollutant c
+        ON c.id=1 OR c.id=2 OR c.id=3 OR c.id=6 OR c.id=7 OR c.id=8 OR c.id=9 OR c.id=10
+        LEFT JOIN ap_stat_motor b
+        ON a.id=b.city AND c.id=b.pollutantId AND b.fillyear=#{year}
+        WHERE a.districtLevel=1
+        GROUP BY a.id,c.id
+	</select>
+	
+	<select id="getMotorpollutant2"  parameterType="int" resultType="com.xf.vo.LookupCityFeulRes">
+		SELECT a.id AS cityid,a.districtName,c.pollutantName AS name,IFNULL(SUM(b.statvalue),0) AS sum
+        FROM ap_district a
+        LEFT JOIN ap_pollutant c
+        ON c.id=1 OR c.id=2 OR c.id=3 OR c.id=6 OR c.id=7 OR c.id=8 OR c.id=9 OR c.id=10
+        LEFT JOIN ap_stat_motor_pc b
+        ON a.id=b.city AND c.id=b.pollutantId AND b.fillyear=#{year}
+        WHERE a.districtLevel=1
+        GROUP BY a.id,c.id
+	</select>
+	
+	<select id="getCityFirewoodType" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,st.`name`
+		firewoodName,ifnull(tal.statvalue,0)statvalue from
+		ap_static st left join ap_district d on st.groupid=#{groupid}
+		left join ap_pollutant p on p.id>0 and p.id&lt;11
+		left join(select city,s.pollutantId,s.stattype3,sum(s.statvalue)statvalue
+		from ap_stat_gov s
+		where fillyear=#{year} and s.stattype=#{stattype}
+		group by s.pollutantId,s.stattype3,s.city)tal on p.id=tal.pollutantId 
+		and	st.`name`=tal.stattype3 and d.id=tal.city
+		where d.districtLevel=1
+	</select>
+	
+	<select id="getCityFirewoodType2" resultMap="pollutantMap">
+		select d.districtName,p.pollutantName,st.`name`
+		firewoodName,ifnull(tal.statvalue,0)statvalue from
+		ap_static st left join ap_district d on st.groupid=#{groupid}
+		left join ap_pollutant p on p.id>0 and p.id&lt;11
+		left join(select city,s.pollutantId,s.stattype3,sum(s.statvalue)statvalue
+		from ap_stat_gov_pc s
+		where fillyear=#{year} and s.stattype=#{stattype}
+		group by s.pollutantId,s.stattype3,s.city)tal on p.id=tal.pollutantId 
+		and	st.`name`=tal.stattype3 and d.id=tal.city
+		where d.districtLevel=1
+	</select>
+</mapper>

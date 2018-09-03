@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IActRecordsDao">
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultType="ActRecords">
+		select * from ap_act_records where id=#{id}
+	</select>
+	<select id="getAll" resultType="ActRecords">
+		select * from ap_act_records
+	</select>
+	<select id="getByAct"  parameterType="ActRecords"  resultType="ActRecords">
+		select * from ap_act_records 
+		<where>
+		    <if test="processInstanceId > 0">
+			   processInstanceId=#{processInstanceId}
+		    </if>
+		    <if test="taskId > 0">
+			   and taskId=#{taskId}
+		    </if>
+		    <if test="userId > 0">
+			   and userId=#{userId}
+		    </if>
+		    <if test="enterpriceId > 0">
+			   and enterpriceId=#{enterpriceId}
+		    </if>
+		    <if test="accountId > 0">
+			   and accountId=#{accountId}
+		    </if>
+		    <if test="fillyear > 0">
+			   and fillyear=#{fillyear}
+		    </if>
+		</where>
+	</select>
+	<select id="getByProcessInstanceId" parameterType="int" resultType="ActRecords">
+		select * from ap_act_records where processInstanceId=#{processInstanceId};
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="ActRecords" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_act_records
+		<set>
+		<if test="processInstanceId != null">
+			processInstanceId=#{processInstanceId},
+		</if>
+		<if test="taskId != null">
+			taskId=#{taskId},
+		</if>
+		<if test="userId != null">
+			userId=#{userId},
+		</if>
+		<if test="enterpriceId != null">
+			enterpriceId=#{enterpriceId},
+		</if>
+		<if test="accountId != null">
+			accountId=#{accountId},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear}
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_act_records where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="ActRecords">
+		update ap_act_records
+		<set>
+		<if test="processInstanceId > 0">
+			processInstanceId=#{processInstanceId},
+		</if>
+		<if test="taskId > 0">
+			taskId=#{taskId},
+		</if>
+		<if test="userId > 0">
+			userId=#{userId},
+		</if>
+		<if test="enterpriceId > 0">
+			enterpriceId=#{enterpriceId},
+		</if>
+		<if test="accountId > 0">
+			accountId=#{accountId}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

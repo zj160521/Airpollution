@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IStaticDao">
+
+	<!-- resultMap -->
+	<resultMap type="Static" id="staticMap">
+		<result property="id" column="id" />
+		<result property="pid" column="pid" />
+		<result property="groupid" column="groupid" />
+		<result property="accountid" column="accountid" />
+		<result property="groupname" column="groupname" />
+		<result property="name" column="name" />
+		<result property="unit" column="unit" />
+		<result property="remark" column="remark" />
+	</resultMap>
+
+	<select id="getNames" resultType="String">
+		SELECT a.`name` FROM ap_static
+		a WHERE a.groupid=3
+	</select>
+	<select id="getAllNames" resultType="String">
+		SELECT a.`name` FROM
+		ap_static a
+	</select>
+	<select id="getById" parameterType="int" resultMap="staticMap">
+		select * from
+		ap_static where id=#{id}
+	</select>
+	<select id="getMaxId" parameterType="int" resultType="java.lang.Integer">
+		select
+		max(id)+1 from ap_static where groupid=#{groupid}
+	</select>
+	<select id="getAll" resultMap="staticMap">
+		select * from ap_static where
+		accountid=0 order by groupid, pid;
+	</select>
+	<select id="getGroup" parameterType="Static" resultMap="staticMap">
+		select *
+		from ap_static where groupid=#{groupid} and accountid in (0,
+		#{accountid})
+	</select>
+	<select id="getPid" parameterType="Static" resultMap="staticMap">
+		select *
+		from ap_static where pid=#{pid} and accountid in (0, #{accountid})
+	</select>
+	<select id="getGroupPid" parameterType="Static" resultMap="staticMap">
+		select *
+		from ap_static where groupid=#{groupid} and pid=#{pid} and
+		accountid in (0, #{accountid})
+	</select>
+	<select id="getType" resultMap="staticMap">
+		select * from ap_static
+	</select>
+	<select id="getTech1" resultType="com.xf.vo.IntString">
+		SELECT a.id it,a.`name` str
+		FROM ap_static a WHERE a.groupid=8
+	</select>
+	<select id="getByPid" parameterType="int" resultMap="staticMap">
+		SELECT *
+		FROM ap_static WHERE pid=#{pid}
+	</select>
+	<select id="getByPidAndIdIn2000" resultType="com.xf.vo.SecondLevelFuelFactorVo">
+		SELECT pid,sta.id productId,`name`,f.id factorId,pollutantId,factor,tradeid,isFollow
+		FROM ap_static sta
+		LEFT JOIN ap_factor f ON f.productId = sta.id and f.typeid = 1 AND f.tradeid = #{tradeId} AND formulaId = #{formulaId}
+		WHERE sta.id >= 2000 AND pid = #{pid}
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="Static" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_static
+		<set>
+			<if test="id > 0">
+				id=#{id},
+			</if>
+			<if test="pid >= 0">
+				pid=#{pid},
+			</if>
+			<if test="groupid > 0">
+				groupid=#{groupid},
+			</if>
+			<if test="groupname != null">
+				groupname=#{groupname},
+			</if>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="unit != null">
+				unit=#{unit},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="accountid >0">
+				accountid=#{accountid},
+			</if>
+		</set>
+	</insert>
+	<!--修改 -->
+	<update id="update" parameterType="Static">
+		update ap_static
+		<set>
+			<if test="pid > 0">
+				pid=#{pid},
+			</if>
+			<if test="groupid > 0">
+				groupid=#{groupid},
+			</if>
+			<if test="groupname != null">
+				groupname=#{groupname},
+			</if>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="unit != null">
+				unit=#{unit},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="accountid >0">
+				accountid=#{accountid},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<delete id="delete" parameterType="int">
+		delete from ap_static where
+		id=#{id};
+	</delete>
+
+	<delete id="deleteBypid" parameterType="int">
+		delete from ap_static
+		where pid=#{id}
+	</delete>
+
+	<select id="getByFuelName" parameterType="String" resultType="com.xf.entity.Static">
+		SELECT * FROM ap_static WHERE groupid=3 AND id BETWEEN 2000 AND 3000
+		AND name=#{name}
+	</select>
+	<select id="findType" resultMap="staticMap">
+		SELECT * FROM ap_static where
+		groupid =22
+	</select>
+
+	<select id="getProductfuel" parameterType="int" resultMap="staticMap">
+		SELECT s.* FROM ap_static s LEFT JOIN ap_devfill df ON s.id=df.fuelId
+		LEFT JOIN ap_devices de ON de.id=df.deviceId LEFT JOIN ap_product p ON
+		p.id=df.productId AND p.enterpriceId=de.enterpriceId WHERE
+		p.id=#{productid};
+	</select>
+
+	<select id="getFuel" resultMap="staticMap">
+		SELECT * FROM ap_static WHERE
+		groupid=3;
+	</select>
+	<select id="getGl" resultMap="staticMap">
+		select * from ap_static where
+		groupid=1 or groupid=4
+	</select>
+	<select id="getByRemark" resultMap="staticMap">
+		select * from ap_static where
+		remark=#{0}
+	</select>
+	<select id="getByName" resultMap="staticMap">
+		select * from ap_static where
+		name=#{0}
+	</select>
+
+	<update id="updateElec" parameterType="int">
+		update ap_elec_fill set
+		elecDeviceId=#{0} where elecDeviceId=#{1}
+	</update>
+
+	<update id="updateFac">
+		update ap_control_facilities
+		<set>
+			<if test="new1>0">
+				technique1=#{new1},
+			</if>
+			<if test="new2>=0">
+				technique2=#{new2},
+			</if>
+		</set>
+		where technique1=#{old1} and technique2=#{old2}
+	</update>
+	
+	<update id="updateDev" parameterType="int">
+		update ap_devfill set fuelId=#{newid} where fuelId=#{oldid}
+	</update>
+	
+	<update id="updateFire" parameterType="int">
+		update ap_firewood set cropType=#{newid} where cropType=#{oldid}
+	</update>
+	
+	<update id="updateGK" parameterType="int">
+		update ap_gknumber set gktype=#{newid} where gktype=#{oldid}
+	</update>
+	
+	<update id="updateNflay" parameterType="int">
+		update ap_nfertilizer set layingType=#{newid} where layingType=#{oldid}
+	</update>
+	
+	<update id="updateNffer" parameterType="int">
+		update ap_nfertilizer set ferType=#{newid} where ferType=#{oldid}
+	</update>
+	
+	<update id="updateOildev" parameterType="int">
+		update ap_oildepot set deviceType=#{newid} where deviceType=#{oldid}
+	</update>
+	
+	<update id="updateOilcon" parameterType="int">
+		update ap_oildepot set conveyType=#{newid} where conveyType=#{oldid}
+	</update>
+	
+	<update id="updateRoad" parameterType="int">
+		update ap_road_dust set controlType=#{newid} where controlType=#{oldid}
+	</update>
+	
+	<delete id="deleteStadev" parameterType="int">
+		delete from ap_stat_device where fuelid=#{id}
+	</delete>
+	
+	<delete id="deleteStagov" parameterType="int">
+		delete from ap_stat_gov where stattype2=#{id}
+	</delete>
+	
+	<delete id="deleteStamotor" parameterType="int">
+		delete from ap_stat_motor where standard=#{id}
+	</delete>
+	
+	<delete id="deleteStapro" parameterType="int">
+		delete from ap_stat_product where fuelid=#{id}
+	</delete>
+	
+	<update id="updateVehifac" parameterType="int">
+		update ap_vehicle_factor set standard=#{newid} where standard=#{oldid}
+	</update>
+	
+	<update id="updateVehistan" parameterType="int">
+		update ap_vehicle_standard set standard=#{newid} where standard=#{oldid}
+	</update>
+	
+	<select id="getNameByGroupid" parameterType="Static" resultType="java.lang.String"> 
+		select DISTINCT `name`
+		from ap_static where groupid=#{groupid} and accountid in (0,
+		#{accountid})
+	</select>
+	
+	<select id="getBygroupid" parameterType="int" resultMap="staticMap">
+		select * from ap_static where groupid=#{groupid}
+	</select>
+</mapper>

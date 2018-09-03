@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.CoalGlPercentDao">
+
+<select id="getData" resultType="com.xf.vo.CoalGlPercent">
+SELECT a.deviceTypeId2 id,c.`name`,SUM(b.mTotalYear) count
+ FROM ap_devices a
+LEFT JOIN ap_devfill b
+ON a.id=b.deviceId AND b.fillyear=#{0} AND b.deviceId AND b.`status`=3
+LEFT JOIN ap_static c
+ON a.deviceTypeId2=c.id
+WHERE (deviceTypeId2=1101 OR deviceTypeId2=1102 OR deviceTypeId2=1103) AND b.deviceId>0
+GROUP BY deviceTypeId2
+</select>
+
+</mapper>

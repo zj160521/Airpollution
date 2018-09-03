@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.DistrictStatDao">
+
+	<select id="getData" resultType="com.xf.vo.DistrictStat">
+select cityid id,city name, pollutantId, pollutantName, sum(total1) as total
+from
+(SELECT a.id cityid,a.districtName city,d.id pollutantId,d.pollutantName,IFNULL(SUM(c.statvalue),0) total1
+           FROM ap_district a
+           LEFT JOIN ap_pollutant d
+           ON d.id &lt; 11
+           LEFT JOIN ap_enterprise b
+           ON a.id=b.city and IFNULL(1/#{2},b.ismall=#{1})
+           LEFT JOIN ap_stat_product c
+           ON b.id=c.companyid AND c.fillyear=#{0} AND c.pollutantId=d.id
+WHERE a.districtlevel=1 
+GROUP BY a.id,d.id
+UNION ALL
+SELECT a.id cityid,a.districtName city,d.id pollutantId,d.pollutantName,IFNULL(SUM(c.statvalue),0) total1
+           FROM ap_district a
+           LEFT JOIN ap_pollutant d
+           ON d.id &lt; 11
+           LEFT JOIN ap_enterprise b
+           ON a.id=b.city and IFNULL(1/#{2},b.ismall=#{1})
+           LEFT JOIN ap_stat_device c
+           ON b.id=c.companyid AND c.fillyear=#{0} AND c.pollutantId=d.id
+WHERE a.districtlevel=1 
+GROUP BY a.id,d.id
+) stat
+group by cityid,pollutantId
+	</select>
+
+</mapper>

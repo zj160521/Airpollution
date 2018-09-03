@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IAnimalsParamDao">
+
+	<!-- resultMap -->
+	<resultMap type="AnimalsParam" id="AnimalsParamMap">
+		<result property="id" column="id" />
+		<result property="feedtype" column="feedtype" />
+		<result property="stattype" column="stattype" />
+		<result property="shitamount" column="shitamount" />
+		<result property="Nratio" column="Nratio" />
+		<result property="NH3ratio" column="NH3ratio" />
+		<result property="RoomRatio" column="RoomRatio" />
+		<result property="OutsideRatio" column="OutsideRatio" />
+		<result property="Rfeed" column="Rfeed" />
+		<result property="Xliquid" column="Xliquid" />
+		<result property="addressStr" column="addressStr" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="AnimalsParamMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_animals_param where id=#{id}
+	</select>
+	<select id="getByField" parameterType="AnimalsParam" resultMap="AnimalsParamMap">
+		select * from ap_animals_param where fillyear=#{fillyear} and 
+	</select>
+	<select id="getPara" resultMap="AnimalsParamMap">
+		select * from ap_animals_param where feedtype=#{0} and stattype=#{1}
+	</select>
+	<select id="getAll" resultMap="AnimalsParamMap">
+		select * from ap_animals_param
+	</select>
+	<select id="getByYear" parameterType="AnimalsParam" resultMap="AnimalsParamMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_animals_param where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" resultType="java.lang.Integer">
+		select distinct fillyear from ap_animals_param order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="AnimalsParam" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_animals_param
+		<set>
+		<if test="feedtype != null">
+			feedtype=#{feedtype},
+		</if>
+		<if test="stattype != null">
+			stattype=#{stattype},
+		</if>
+		<if test="shitamount >= 0">
+			shitamount=#{shitamount},
+		</if>
+		<if test="Nratio >= 0">
+			Nratio=#{Nratio},
+		</if>
+		<if test="NH3ratio >= 0">
+			NH3ratio=#{NH3ratio},
+		</if>
+		<if test="RoomRatio >= 0">
+			RoomRatio=#{RoomRatio},
+		</if>
+		<if test="OutsideRatio >= 0">
+			OutsideRatio=#{OutsideRatio},
+		</if>
+		<if test="Rfeed >= 0">
+			Rfeed=#{Rfeed},
+		</if>
+		<if test="Xliquid >= 0">
+			Xliquid=#{Xliquid},
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_animals_param where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="AnimalsParam">
+		update ap_animals_param
+		<set>
+		<if test="feedtype != null">
+			feedtype=#{feedtype},
+		</if>
+		<if test="stattype != null">
+			stattype=#{stattype},
+		</if>
+		<if test="shitamount > 0">
+			shitamount=#{shitamount},
+		</if>
+		<if test="Nratio > 0">
+			Nratio=#{Nratio},
+		</if>
+		<if test="NH3ratio > 0">
+			NH3ratio=#{NH3ratio},
+		</if>
+		<if test="RoomRatio > 0">
+			RoomRatio=#{RoomRatio},
+		</if>
+		<if test="OutsideRatio > 0">
+			OutsideRatio=#{OutsideRatio},
+		</if>
+		<if test="Rfeed > 0">
+			Rfeed=#{Rfeed},
+		</if>
+		<if test="Xliquid > 0">
+			Xliquid=#{Xliquid},
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

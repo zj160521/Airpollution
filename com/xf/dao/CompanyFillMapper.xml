@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.ICompanyFillDao">
+
+	<!-- resultMap -->
+	<resultMap type="companyfill" id="companyfillMap">
+		<result property="id" column="id" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="gdp" column="gdp" />
+		<result property="daysOfWork" column="daysOfWork" />
+		<result property="hoursOfDay" column="hoursOfDay" />
+		<result property="totalHour" column="totalHour" />
+		<result property="totalElec" column="totalElec" />
+		<result property="status" column="status" />
+		<result property="all_status" column="all_status" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="companyfill" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_enterprise_fill
+		<set>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="fillyear > 0">
+				fillyear=#{fillyear},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime},
+			</if>
+			<if test="gdp >= 0">
+				gdp=#{gdp},
+			</if>
+			<if test="daysOfWork >= 0">
+				daysOfWork=#{daysOfWork},
+			</if>
+			<if test="hoursOfDay >= 0">
+				hoursOfDay=#{hoursOfDay},
+			</if>
+			<if test="totalHour>0">
+				totalHour=#{totalHour},
+			</if>
+			<if test="totalElec>0">
+				totalElec=#{totalElec},
+			</if>
+			<if test="status > 0">
+				status=#{status},
+			</if>
+			<if test="all_status > 0">
+				all_status=#{all_status}
+			</if>
+		</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="companyfill">
+		delete from ap_enterprise_fill
+		where id=#{id};
+	</delete>
+	<delete id="delBycomIdYear" >
+		delete from ap_enterprise_fill
+		where enterpriceId=#{0} and fillyear=#{1};
+	</delete>
+	<!--修改 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_enterprise_fill set status=#{0} where enterpriceId=#{1} and
+		fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_enterprise_fill set status=#{0} where enterpriceId=#{1} and
+		status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_enterprise_fill set status=#{0} where enterpriceId=#{1} and
+		status=#{2} and fillyear=#{3}
+	</update>
+	<update id="update" parameterType="companyfill">
+		update ap_enterprise_fill
+		<set>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="fillyear > 0">
+				fillyear=#{fillyear},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime},
+			</if>
+			<if test="gdp >= 0">
+				gdp=#{gdp},
+			</if>
+			<if test="daysOfWork >= 0">
+				daysOfWork=#{daysOfWork},
+			</if>
+			<if test="hoursOfDay >= 0">
+				hoursOfDay=#{hoursOfDay},
+			</if>
+			<if test="totalHour>0">
+				totalHour=#{totalHour},
+			</if>
+			<if test="totalElec>0">
+				totalElec=#{totalElec},
+			</if>
+			<if test="status > 0">
+				status=#{status}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+
+	<select id="getById" parameterType="int" resultMap="companyfillMap">
+		select * from
+		ap_enterprise_fill where id=#{id}
+	</select>
+	<select id="getSmall" resultType="int">
+        SELECT ef.fillyear FROM ap_enterprise_fill ef
+        LEFT JOIN ap_enterprise e ON ef.enterpriceId=e.id
+        WHERE e.ismall=1 AND ef.fillyear is not null
+	</select>
+	<select id="getByCompanyYear" parameterType="CompanyFill" resultMap="companyfillMap">
+		select *
+		from ap_enterprise_fill where enterpriceId=#{enterpriceId} and
+		fillyear=#{fillyear} 
+		<if test="status>0">
+			and status=#{status}
+		</if>
+		order by fillyear desc
+	</select>
+	
+	<select id="getbyCompanyYear" parameterType="CompanyFill" resultMap="companyfillMap">
+		select *
+		from ap_enterprise_fill where enterpriceId=#{enterpriceId} 
+		<if test="fillyear>0">
+		    and fillyear=#{fillyear} limit 1
+		</if>
+		
+	</select>
+
+	<select id="getByCompany" parameterType="int" resultMap="companyfillMap">
+		select *
+		from ap_enterprise_fill where enterpriceId=#{companyid} order by
+		fillyear desc
+	</select>
+
+	<select id="yearFill" parameterType="int" resultMap="companyfillMap">
+		select *
+		from ap_enterprise_fill
+		where fillyear=#{fillyear} and
+		enterpriceId=#{companyid}
+	</select>
+
+	<select id="yearList" resultMap="companyfillMap">
+		select *
+		from ap_enterprise_fill
+		where fillyear=(select v from ap_config where
+		k='current_year')
+	</select>
+
+	<select id="getyearList" parameterType="Condition" resultMap="companyfillMap">
+		select *
+		from ap_enterprise_fill
+		<where>
+			<if test="fillyear>0">
+				fillyear=#{fillyear}
+			</if>
+		</where>
+	</select>
+	
+	<update id="smallSetstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_enterprise_fill set status=#{0},all_status=#{0} where enterpriceId=#{1} and
+		fillyear=#{2}
+	</update>
+	<update id="smallSetstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_enterprise_fill set status=#{0},all_status=#{0} where enterpriceId=#{1} and
+		status=#{2} and fillyear=#{3}
+	</update>
+	<update id="changeStatus">
+		update ap_enterprise_fill set all_status=2 where enterpriceId=#{0}
+	</update>
+</mapper>

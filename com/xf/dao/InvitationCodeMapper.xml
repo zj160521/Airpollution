@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IInvitationCodeDao">
+
+	<!-- resultMap -->
+	<resultMap type="InvitationCode" id="InvitationCodeMap">
+		<result property="id" column="id" />
+		<result property="invitationCode" column="invitationCode" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="InvitationCodeMap">
+		select * from ap_invitation_code where id=#{id}
+	</select>
+	<select id="getInvitationCode" parameterType="InvitationCode" resultMap="InvitationCodeMap">
+		select * from ap_invitation_code where invitationCode=#{invitationCode};
+	</select>
+	<select id="getAll" parameterType="InvitationCode" resultMap="InvitationCodeMap">
+		select * from ap_invitation_code
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="InvitationCode" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_invitation_code
+		<set>
+		<if test="invitationCode != null">
+			invitationCode=#{invitationCode},
+		</if>
+		<if test="status >= 0">
+			status=#{status},
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="InvitationCode">
+		delete from ap_invitation_code where invitationCode=#{invitationCode};
+	</delete>
+
+</mapper>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IFactorDao">
+
+	<!-- resultMap -->
+	<resultMap type="Factor" id="FactorMap">
+		<result property="id" column="id" />
+		<result property="typeid" column="typeid" />
+		<result property="pollutantId" column="pollutantId" />
+		<result property="productId" column="productId" />
+		<result property="factor" column="factor" />
+		<result property="addressStr" column="addressStr" />
+		<result property="materialId" column="materialId" />
+		<result property="groupid" column="groupid" />
+		<result property="formulaId" column="formulaId" />
+		<result property="tradeid" column="tradeid" />
+		<result property="isFollow" column="isFollow" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="FactorMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_factor where id=#{id}
+	</select>
+	<select id="getByField" parameterType="Factor" resultMap="FactorMap">
+		select * from ap_factor where fillyear=#{fillyear} and 
+	</select>
+	<select id="getByYear" parameterType="Factor" resultMap="FactorMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_factor where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" resultType="java.lang.Integer">
+		select distinct fillyear from ap_factor order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="Factor" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_factor
+		<set>
+		<if test="typeid >= 0">
+			typeid=#{typeid},
+		</if>
+		<if test="pollutantId >= 0">
+			pollutantId=#{pollutantId},
+		</if>
+		<if test="productId >= 0">
+			productId=#{productId},
+		</if>
+		<if test="factor >= 0">
+			factor=#{factor},
+		</if>
+		<if test="materialId >= 0">
+			materialId=#{materialId},
+		</if>
+		<if test="groupid >= 0">
+			groupid=#{groupid},
+		</if>
+		<if test="formulaId >= 0">
+			formulaId=#{formulaId},
+		</if>
+		<if test="tradeid >= 0">
+			tradeid=#{tradeid},
+		</if>
+		<if test="isFollow != null">
+			isFollow=#{isFollow}
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_factor where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="Factor">
+		update ap_factor
+		<set>
+		<if test="typeid > 0">
+			typeid=#{typeid},
+		</if>
+		<if test="pollutantId > 0">
+			pollutantId=#{pollutantId},
+		</if>
+		<if test="productId > 0">
+			productId=#{productId},
+		</if>
+		<if test="factor >= 0">
+			factor=#{factor},
+		</if>
+		<if test="materialId >=0">
+			materialId=#{materialId},
+		</if>
+		<if test="groupid >=0">
+			groupid=#{groupid},
+		</if>
+		<if test="formulaId >=0">
+			formulaId=#{formulaId},
+		</if>
+		<if test="tradeid >=0">
+			tradeid=#{tradeid},
+		</if>
+		<if test="isFollow != null">
+			isFollow=#{isFollow}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+	<!--更新因子和isFollow-->
+	<update id="updateIsFollow" parameterType="Factor">
+		update ap_factor
+		<set>
+		<if test="factor >= 0">
+			factor=#{factor},
+		</if>
+		<if test="isFollow != null">
+			isFollow=#{isFollow}
+		</if>
+		</set>
+		where id=#{id}
+	</update>
+	<select id="getByIdId" parameterType="Factor" resultType="com.xf.entity.gov.Factor">
+		select * from ap_factor a where a.pollutantId=#{pollutantId} 
+		and a.productId=#{productId} and a.tradeid=#{tradeid} and a.formulaId=#{formulaId}
+	</select>
+	
+	<select id="findFactor" parameterType="int" resultMap="FactorMap">
+		select * from ap_factor a where a.productId=#{0} and a.pollutantId=#{1}
+	</select>
+	<select id="findFactorBygroupId" parameterType="int" resultMap="FactorMap">
+		select * from ap_factor where groupid=#{0} and pollutantId=#{1}
+	</select>
+	
+	<insert id="addGroupfactor" parameterType="java.util.List">
+		insert into ap_factor(typeid,pollutantId,productId,materialId,formulaId,factor,groupid)  
+	    values
+	    <foreach collection="list" item="grofac" index="index" separator=",">
+	       (#{grofac.typeid},#{grofac.pollutantId},#{grofac.productId},#{grofac.materialId},
+	       #{grofac.formulaId},#{grofac.factor},#{grofac.groupid})
+	    </foreach>
+	</insert>
+	
+	<delete id="deleteGrf" parameterType="int">
+		delete from ap_factor where groupid=#{groupid}
+	</delete>
+	
+	<delete id="deleteFacBypid" parameterType="int">
+		delete from ap_factor where productId=#{productId}
+	</delete>
+	
+	<insert id="addFactor" parameterType="Factor" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_factor
+		<set>
+		<if test="typeid >=0">
+			typeid=#{typeid},
+		</if>
+		<if test="pollutantId >=0">
+			pollutantId=#{pollutantId},
+		</if>
+		<if test="productId >=0">
+			productId=#{productId},
+		</if>
+		<if test="factor >=0">
+			factor=#{factor},
+		</if>
+		<if test="materialId >=0">
+			materialId=#{materialId},
+		</if>
+		<if test="groupid >=0">
+			groupid=#{groupid},
+		</if>
+		<if test="formulaId >=0">
+			formulaId=#{formulaId},
+		</if>
+		<if test="tradeid >=0">
+			tradeid=#{tradeid},
+		</if>
+		<if test="isFollow != null">
+			isFollow=#{isFollow}
+		</if>
+		</set>
+	</insert>
+	
+	<select id="getSurefactor" parameterType="int" resultMap="FactorMap">
+		SELECT * FROM ap_group_factor WHERE pollutantId=#{0} AND groupid=#{1};
+	</select>
+	
+	<select id="getAll" resultMap="FactorMap">
+		select * from ap_factor
+	</select>
+	
+	<select id="getProductfactor" resultMap="FactorMap">
+		select * from ap_factor where (productId=#{groupid} or groupid=#{groupid}) and pollutantId=#{pollutantid}
+	</select>
+	
+	<select id="getFuelfactor" parameterType="int" resultMap="FactorMap">
+		select * from ap_factor where typeid=#{typeid}
+	</select>
+</mapper>

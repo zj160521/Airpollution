@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IMotorVehicleDao">
+
+	<!-- resultMap -->
+	<resultMap type="MotorVehicle" id="MotorVehicleMap">
+		<result property="id" column="id" />
+		<result property="districtId" column="districtId" />
+		<result property="city" column="city" />
+		<result property="cityName" column="cityName" />
+		<result property="statyear" column="statyear" />
+		<result property="standard" column="standard" />
+		<result property="status" column="status" />
+		<result property="importflag" column="importflag" />
+		<result property="variation" column="variation" />
+		<result property="vehiclemodel" column="vehiclemodel" />
+		<result property="holdings" column="holdings" />
+		<result property="addressStr" column="addressStr" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="MotorVehicleMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_motor_vehicle where id=#{id}
+	</select>
+	<select id="getByField" parameterType="MotorVehicle" resultMap="MotorVehicleMap">
+		select * from ap_motor_vehicle where fillyear=#{fillyear} and 
+	</select>
+	<select id="getByThree" resultType="com.xf.entity.gov.MotorVehicleDb">
+		select * from ap_motor_vehicle where districtId=#{0}  AND statyear=#{1}  AND standard=#{2} 
+	</select>
+	<select id="getByYear" resultType="com.xf.entity.gov.MotorVehicleDb">
+		select * from ap_motor_vehicle where statyear=#{0}
+	</select>
+	<select id="getByYear2" resultType="com.xf.entity.gov.MotorVehicleDb">
+		select * from ap_motor_vehicle_pc where statyear=#{0}
+	</select>
+	<select id="getYears" resultType="java.lang.Integer">
+		select distinct statyear from ap_motor_vehicle order by statyear desc;
+	</select>
+	<select id="getMaxYear" resultType="java.lang.Integer">
+		SELECT MAX(statyear) FROM ap_motor_vehicle;
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="MotorVehicle" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_motor_vehicle
+		<set>
+		<if test="districtId >= 0">
+			districtId=#{districtId},
+		</if>
+		<if test="city >= 0">
+			city=#{city},
+		</if>
+		<if test="cityName != null">
+			cityName=#{cityName},
+		</if>
+		<if test="statyear >= 0">
+			statyear=#{statyear},
+		</if>
+		<if test="standard >= 0">
+			standard=#{standard},
+		</if>
+		<if test="status >= 0">
+			status=#{status},
+		</if>
+		<if test="importflag >= 0">
+			importflag=#{importflag},
+		</if>
+		<if test="variation != null">
+			variation=#{variation},
+		</if>
+		<if test="vehiclemodel >= 0">
+			vehiclemodel=#{vehiclemodel},
+		</if>
+		<if test="holdings >= 0">
+			holdings=#{holdings},
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_motor_vehicle where id=#{id};
+	</delete>
+	<delete id="deleteByYear" parameterType="int">
+		delete from ap_motor_vehicle where statyear=#{0};
+	</delete>
+	<delete id="deleteByYear2" parameterType="int">
+		delete from ap_motor_vehicle_pc where statyear=#{0};
+	</delete>
+	<delete id="deleteAll" >
+		DELETE FROM ap_motor_vehicle;
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="MotorVehicle">
+		update ap_motor_vehicle
+		<set>
+		<if test="districtId > 0">
+			districtId=#{districtId},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="cityName != null">
+			cityName=#{cityName},
+		</if>
+		<if test="statyear > 0">
+			statyear=#{statyear},
+		</if>
+		<if test="standard > 0">
+			standard=#{standard},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="importflag > 0">
+			importflag=#{importflag},
+		</if>
+		<if test="variation != null">
+			variation=#{variation},
+		</if>
+		<if test="vehiclemodel > 0">
+			vehiclemodel=#{vehiclemodel},
+		</if>
+		<if test="holdings >= 0">
+			holdings=#{holdings},
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+	<select id="getVfactor" resultType="VehicleFactorvo">
+		SELECT CONCAT((select `name` from ap_static where id=vf.vehiclemodel),'_',
+		(select remark from ap_static where id=vf.vehiclemodel)) as vehiclemodel,
+		(select pollutantName from ap_pollutant where id=vf.pollutant)pollutantName,
+		(select `name` from ap_static where id=vf.standard)standard,factor
+		 FROM ap_vehicle_factor vf
+	</select>
+</mapper>

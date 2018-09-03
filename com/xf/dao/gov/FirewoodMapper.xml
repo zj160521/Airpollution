@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IFirewoodDao">
+
+	<!-- resultMap -->
+	<resultMap type="Firewood" id="FirewoodMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="cropType" column="cropType" />
+		<result property="cultivatedArea" column="cultivatedArea" />
+		<result property="yield" column="yield" />
+		<result property="utilizeRatio" column="utilizeRatio" />
+		<result property="addressStr" column="addressStr" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="FirewoodMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_firewood where id=#{id}
+	</select>
+	<select id="getByField" parameterType="Firewood" resultMap="FirewoodMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_firewood where fillyear=#{fillyear} and (town=#{town} or city=#{town}) and cropType=#{cropType} and accountid=#{accountid}
+	</select>
+	<select id="getByTown" parameterType="Firewood" resultMap="FirewoodMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_firewood where fillyear=#{fillyear} and (town=#{town} OR city=#{town}) and accountid=#{accountid}
+	</select>
+	<select id="getByYear" parameterType="Firewood" resultMap="FirewoodMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_firewood where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getTowns" parameterType="Firewood" resultType="com.xf.vo.IntString">
+		select DISTINCT ap_firewood.town it,(select districtName from ap_district where id=town) str
+		from ap_firewood where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getCitys" parameterType="Firewood" resultType="com.xf.vo.IntString">
+		select DISTINCT ap_firewood.city it,(select districtName from ap_district where id=city) str
+		from ap_firewood where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_firewood where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_firewood set status=#{0} where accountid=#{1} and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_firewood set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_firewood set status=#{0} where accountid=#{1} and status=#{2} and fillyear=#{3}
+	</update>
+	<update id="singleCheck"> <!-- 修改单条记录的status状态  -->
+		update ap_firewood set status=#{1} where id=#{0}
+	</update>
+	<!-- 删除 -->
+	<delete id="delete">
+		delete from ap_firewood where town=#{0} and fillyear=#{1}
+	</delete>
+	<delete id="delete2">
+		delete from ap_firewood where city=#{0} and accountid=#{1}
+	</delete>
+	<insert id="add" parameterType="Firewood" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_firewood
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="cropType > 0">
+			cropType=#{cropType},
+		</if>
+		<if test="cultivatedArea > 0">
+			cultivatedArea=#{cultivatedArea},
+		</if>
+		<if test="yield > 0">
+			yield=#{yield},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="utilizeRatio > 0">
+			utilizeRatio=#{utilizeRatio}
+		</if>
+	</set>
+	</insert>
+
+	<!--修改 -->
+	<update id="update" parameterType="Firewood">
+		update ap_firewood
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="cropType > 0">
+			cropType=#{cropType},
+		</if>
+		<if test="cultivatedArea != null">
+			cultivatedArea=#{cultivatedArea},
+		</if>
+		<if test="yield != null">
+			yield=#{yield},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="utilizeRatio != null">
+			utilizeRatio=#{utilizeRatio}
+		</if>
+	</set>
+		where accountid=#{accountid}
+		<if test="city > 0">
+			and city=#{city}
+		</if>
+		<if test="town > 0">
+			and town=#{town}
+		</if> 
+		and cropType=#{cropType}
+	</update>
+
+</mapper>

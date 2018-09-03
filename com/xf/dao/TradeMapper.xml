@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.ITradeDao">
+
+	<!-- resultMap -->
+	<resultMap type="trade" id="tradeMap">
+		<result property="id" column="id" />
+		<result property="parentId" column="parentId" />
+		<result property="tradeLevel" column="tradeLevel" />
+		<result property="tradeClass" column="tradeClass" />
+		<result property="tradeNo" column="tradeNo" />
+		<result property="tradeName" column="tradeName" />
+
+	</resultMap>
+
+	<select id="getById" parameterType="int" resultMap="tradeMap">
+		select * from ap_trade where id=#{id}
+	</select>
+
+	<select id="getByNo" parameterType="String" resultMap="tradeMap">
+		select * from ap_trade where tradeNo=#{tradeNo} limit 1;
+	</select>
+
+	<select id="getByParent" parameterType="int" resultMap="tradeMap">
+		select * from ap_trade where parentId=#{parentId}
+	</select>
+
+	<select id="getByLevel" parameterType="int" resultMap="tradeMap">
+		select * from ap_trade where tradeLevel=#{tradeLevel}
+	</select>
+
+	<select id="getByClass" parameterType="String" resultMap="tradeMap">
+		select * from ap_trade where tradeClass=#{tradeClass}
+	</select>
+
+	<select id="getAll" parameterType="trade" resultMap="tradeMap">
+		select * from ap_trade
+	</select>
+
+</mapper>

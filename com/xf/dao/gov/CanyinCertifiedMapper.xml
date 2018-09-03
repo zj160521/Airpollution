@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.ICanyinCertifiedDao">
+
+	<!-- resultMap -->
+	<resultMap type="CanyinCertified" id="CanyinCertifiedMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="storename" column="storename" />
+		<result property="storeaddr" column="storeaddr" />
+		<result property="legalPerson" column="legalPerson" />
+		<result property="legalPersonID" column="legalPersonID" />
+		<result property="contact" column="contact" />
+		<result property="contactNo" column="contactNo" />
+		<result property="staffNum" column="staffNum" />
+		<result property="certifiedID" column="certifiedID" />
+		<result property="certifiedType" column="certifiedType" />
+		<result property="certifiedGov" column="certifiedGov" />
+		<result property="Qlevel" column="Qlevel" />
+		<result property="incoming" column="incoming" />
+		<result property="tax" column="tax" />
+		<result property="remark" column="remark" />
+		<result property="addressStr" column="addressStr" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="CanyinCertifiedMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_canyin_certified where id=#{id}
+	</select>
+	<select id="getByField" parameterType="CanyinCertified" resultMap="CanyinCertifiedMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+			from ap_canyin_certified where fillyear=#{fillyear} and storename=#{storename} and accountid=#{accountid}
+	</select>
+	<select id="getByYear" parameterType="CanyinCertified" resultMap="CanyinCertifiedMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_canyin_certified where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<delete id="clearData" parameterType="CanyinCertified">
+		delete from ap_canyin_certified where fillyear=#{fillyear} and accountid=#{accountid}
+	</delete>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_canyin_certified where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_canyin_certified set status=#{0} where accountid=#{1} and fillyear=(select v from ap_config where k='current_year')
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_canyin_certified set status=#{0} where accountid=#{1} and fillyear=(select v from ap_config where k='current_year') and status=#{2}
+	</update>
+	<insert id="add" parameterType="CanyinCertified" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_canyin_certified
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="storename != null">
+			storename=#{storename},
+		</if>
+		<if test="storeaddr != null">
+			storeaddr=#{storeaddr},
+		</if>
+		<if test="legalPerson != null">
+			legalPerson=#{legalPerson},
+		</if>
+		<if test="legalPersonID != null">
+			legalPersonID=#{legalPersonID},
+		</if>
+		<if test="contact != null">
+			contact=#{contact},
+		</if>
+		<if test="contactNo != null">
+			contactNo=#{contactNo},
+		</if>
+		<if test="staffNum > 0">
+			staffNum=#{staffNum},
+		</if>
+		<if test="certifiedID != null">
+			certifiedID=#{certifiedID},
+		</if>
+		<if test="certifiedType != null">
+			certifiedType=#{certifiedType},
+		</if>
+		<if test="certifiedGov != null">
+			certifiedGov=#{certifiedGov},
+		</if>
+		<if test="Qlevel != null">
+			Qlevel=#{Qlevel},
+		</if>
+		<if test="incoming > 0">
+			incoming=#{incoming},
+		</if>
+		<if test="tax > 0">
+			tax=#{tax},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="remark != null">
+			remark=#{remark}
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_canyin_certified where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="CanyinCertified">
+		update ap_canyin_certified
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="storename != null">
+			storename=#{storename},
+		</if>
+		<if test="storeaddr != null">
+			storeaddr=#{storeaddr},
+		</if>
+		<if test="legalPerson != null">
+			legalPerson=#{legalPerson},
+		</if>
+		<if test="legalPersonID != null">
+			legalPersonID=#{legalPersonID},
+		</if>
+		<if test="contact != null">
+			contact=#{contact},
+		</if>
+		<if test="contactNo != null">
+			contactNo=#{contactNo},
+		</if>
+		<if test="staffNum > 0">
+			staffNum=#{staffNum},
+		</if>
+		<if test="certifiedID != null">
+			certifiedID=#{certifiedID},
+		</if>
+		<if test="certifiedType != null">
+			certifiedType=#{certifiedType},
+		</if>
+		<if test="certifiedGov != null">
+			certifiedGov=#{certifiedGov},
+		</if>
+		<if test="Qlevel != null">
+			Qlevel=#{Qlevel},
+		</if>
+		<if test="incoming > 0">
+			incoming=#{incoming},
+		</if>
+		<if test="tax > 0">
+			tax=#{tax},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="remark != null">
+			remark=#{remark}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

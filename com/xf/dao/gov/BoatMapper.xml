@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IBoatDao">
+
+	<!-- resultMap -->
+	<resultMap type="Boat" id="BoatMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="status" column="status" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="boattype" column="boattype" />
+		<result property="measuretype" column="measuretype" />
+		<result property="unit" column="unit" />
+		<result property="m1" column="m1" />
+		<result property="m2" column="m2" />
+		<result property="m3" column="m3" />
+		<result property="m4" column="m4" />
+		<result property="m5" column="m5" />
+		<result property="m6" column="m6" />
+		<result property="m7" column="m7" />
+		<result property="m8" column="m8" />
+		<result property="m9" column="m9" />
+		<result property="m10" column="m10" />
+		<result property="m11" column="m11" />
+		<result property="m12" column="m12" />
+		<result property="addressStr" column="addressStr" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getBoat" parameterType="Boat" resultMap="BoatMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_boat where accountid=#{accountid} and boattype=#{boattype} and measuretype=#{measuretype} and fillyear=#{fillyear} and city=#{city}
+	</select>
+	<select id="getByField" parameterType="Boat" resultMap="BoatMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_boat where fillyear=#{fillyear} and boattype=#{boattype} and measuretype=#{measuretype} and accountid=#{accountid} 
+	</select>
+	<select id="getByYear" parameterType="Boat" resultMap="BoatMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_boat where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getByCompany"  resultMap="BoatMap">
+		select * from ap_boat where accountid=#{0}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_boat where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_boat set status=#{0} where accountid=#{1} and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_boat set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_boat set status=#{0} where accountid=#{1} and status=#{2} and fillyear=#{3}
+	</update>
+	<!-- 添加 -->
+	<insert id="add" parameterType="Boat" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_boat
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="status >= 0">
+			status=#{status},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear >= 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province >= 0">
+			province=#{province},
+		</if>
+		<if test="city >= 0">
+			city=#{city},
+		</if>
+		<if test="town >= 0">
+			town=#{town},
+		</if>
+		<if test="country >= 0">
+			country=#{country},
+		</if>
+		<if test="street >= 0">
+			street=#{street},
+		</if>
+		<if test="boattype != null">
+			boattype=#{boattype},
+		</if>
+		<if test="measuretype != null">
+			measuretype=#{measuretype},
+		</if>
+		<if test="unit != null">
+			unit=#{unit},
+		</if>
+		<if test="m1 != null">
+			m1=#{m1},
+		</if>
+		<if test="m2 != null">
+			m2=#{m2},
+		</if>
+		<if test="m3 != null">
+			m3=#{m3},
+		</if>
+		<if test="m4 != null">
+			m4=#{m4},
+		</if>
+		<if test="m5 != null">
+			m5=#{m5},
+		</if>
+		<if test="m6 != null">
+			m6=#{m6},
+		</if>
+		<if test="m7 != null">
+			m7=#{m7},
+		</if>
+		<if test="m8 != null">
+			m8=#{m8},
+		</if>
+		<if test="m9 != null">
+			m9=#{m9},
+		</if>
+		<if test="m10 != null">
+			m10=#{m10},
+		</if>
+		<if test="m11 != null">
+			m11=#{m11},
+		</if>
+		<if test="m12 != null">
+			m12=#{m12},
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_boat where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="Boat">
+		update ap_boat
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="boattype != null">
+			boattype=#{boattype},
+		</if>
+		<if test="measuretype != null">
+			measuretype=#{measuretype},
+		</if>
+		<if test="unit != null">
+			unit=#{unit},
+		</if>
+		<if test="m1 != null">
+			m1=#{m1},
+		</if>
+		<if test="m2 != null">
+			m2=#{m2},
+		</if>
+		<if test="m3 != null">
+			m3=#{m3},
+		</if>
+		<if test="m4 != null">
+			m4=#{m4},
+		</if>
+		<if test="m5 != null">
+			m5=#{m5},
+		</if>
+		<if test="m6 != null">
+			m6=#{m6},
+		</if>
+		<if test="m7 != null">
+			m7=#{m7},
+		</if>
+		<if test="m8 != null">
+			m8=#{m8},
+		</if>
+		<if test="m9 != null">
+			m9=#{m9},
+		</if>
+		<if test="m10 != null">
+			m10=#{m10},
+		</if>
+		<if test="m11 != null">
+			m11=#{m11},
+		</if>
+		<if test="m12 != null">
+			m12=#{m12},
+		</if>
+	</set>
+		where accountid=#{accountid} and boattype=#{boattype} and measuretype=#{measuretype} and fillyear=#{fillyear} and city=#{city}
+	</update>
+
+</mapper>

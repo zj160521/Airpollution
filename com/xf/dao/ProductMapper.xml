@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IProductDao">
+
+	<!-- resultMap -->
+	<resultMap type="product" id="productMap">
+		<result property="id" column="id" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="productSerial" column="productSerial" />
+		<result property="productName" column="productName" />
+		<result property="remark" column="remark" />
+		<result property="trade1" column="trade1" />
+		<result property="trade2" column="trade2" />
+		<result property="trade3" column="trade3" />
+		<result property="trade4" column="trade4" />
+		<result property="groupid" column="groupid" />
+		<result property="unit" column="unit" />
+		<result property="pollutantId" column="pollutantId"/>
+		<result property="factor" column="factor"/>
+	</resultMap>
+	
+	<resultMap type="CompanyProduct" id="CompanyProductMap">
+		<result property="id" column="id"/>
+		<result property="enterpriceName" column="enterpriceName"/>
+		<result property="productId" column="productId"/>
+		<result property="productName" column="productName"/>
+		<result property="groupid" column="groupid"/>
+		<result property="groupName" column="groupName"/>
+		<result property="unit" column="unit"/>
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="product" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_product(enterpriceId, productSerial, productName, unit, groupid, trade1, trade2, trade3, trade4,
+		remark) values(#{enterpriceId}, #{productSerial}, #{productName}, #{unit}, #{groupid}, #{trade1}, #{trade2}, #{trade3}, #{trade4},
+		#{remark});
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_product where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="product">
+		update ap_product
+		<set>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="productSerial != null">
+				productSerial=#{productSerial},
+			</if>
+			<if test="productName != null">
+				productName=#{productName},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="trade1 > 0">
+				trade1=#{trade1}, 
+			</if>
+			<if test="trade2 > 0">
+				trade2=#{trade2}, 
+			</if>
+			<if test="trade3 > 0">
+				trade3=#{trade3}, 
+			</if>
+			<if test="trade4 > 0">
+				trade4=#{trade4}, 
+			</if>
+			<if test="groupid > 0">
+				groupid=#{groupid}, 
+			</if>
+			<if test="unit != null">
+				unit=#{unit}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<update id="updatePro" parameterType="product">
+		update ap_product
+		<set>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="productSerial != null">
+				productSerial=#{productSerial},
+			</if>
+			<if test="productName != null">
+				productName=#{productName},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="trade1 > 0">
+				trade1=#{trade1}, 
+			</if>
+			<if test="trade2 > 0">
+				trade2=#{trade2}, 
+			</if>
+			<if test="trade3 > 0">
+				trade3=#{trade3}, 
+			</if>
+			<if test="trade4 > 0">
+				trade4=#{trade4}, 
+			</if>
+			<if test="id > 0">
+				groupid=#{id}, 
+			</if>
+			<if test="unit != null">
+				unit=#{unit}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<select id="getAll" resultMap="productMap">
+		select * from ap_product;
+	</select>
+	
+	<select id="getById" parameterType="int" resultMap="productMap">
+		select * from ap_product where id=#{id};
+	</select>
+	
+	<select id="getByCompany" parameterType="int" resultMap="productMap">
+		select * from ap_product where enterpriceId=#{companyid}
+	</select>
+	
+	<select id="getByStep" parameterType="int" resultMap="productMap">
+		select p.* from ap_product p 
+		join ap_produce_product pp on p.id = pp.productId 
+		where pp.stepid=#{stepid};
+	</select>
+	
+	<select id="getCount" parameterType="int" resultType="int">
+		select COUNT(*) from ap_product where enterpriceId=#{companyid}
+	</select>
+	
+	<select id="findProduct" resultType="com.xf.entity.CompanyProduct">
+		select e.id,e.enterpriceName,tal.id productId,tal.productName,tal.groupid,
+		if(tal.id!=tal.groupid,(select productName from ap_product where id=tal.groupid),null) groupName,
+		tal.unit,tal.trade1,tal.trade2,tal.trade3,tal.trade4 from ap_enterprise e 
+		right join (select p.* from ap_product p
+		where p.isgroup=#{groupid} 
+		) tal on tal.enterpriceId=e.id 
+		LEFT JOIN ap_product_fill pf ON pf.productId=tal.id
+		<where>
+		<if test="isPass > 0">
+			pf.`status` = 3
+		</if>
+		<if test="districtid>0">
+			and (e.province=#{districtid} or e.city=#{districtid} or e.town=#{districtid})
+		</if>
+		<if test="tradeid>0">
+			and (e.trade1=#{tradeid} or e.trade2=#{tradeid} or e.trade3=#{tradeid} or e.trade4=#{tradeid} or
+			tal.trade1=#{tradeid} or tal.trade2=#{tradeid} or tal.trade3=#{tradeid} or tal.trade4=#{tradeid})
+		</if>
+		<if test="productName!=null">
+			and (e.enterpriceName like CONCAT('%',#{productName},'%') or tal.productName like CONCAT('%',#{productName},'%'))
+		</if>
+		</where>
+	</select>
+	
+	<select id="getGroupBytrade" parameterType="int" resultMap="productMap">
+		select * from ap_product where isgroup=1 and (trade1=#{tradeid} or trade2=#{tradeid} or trade3=#{tradeid} or trade4=#{tradeid})
+	</select>
+	
+	<select id="getProductfac" resultMap="productMap">
+		select * from ap_product p
+		left join ap_factor f
+		on f.productId=p.groupid or f.groupid=p.groupid
+		where p.isgroup=0 and f.typeid=2
+	</select>
+	
+	<select id="getByName" resultType="com.xf.entity.CompanyProduct" parameterType="com.xf.entity.CompanyProduct">
+	    SELECT * FROM ap_product p WHERE p.enterpriceId=#{enterpriceId} AND p.productName=#{productName}
+	</select>
+</mapper>

@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IDeviceDao">
+
+	<!-- resultMap -->
+	<resultMap type="Devices" id="deviceMap">
+		<result property="id" column="id" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="deviceSerial" column="deviceSerial" />
+		<result property="deviceName" column="deviceName" />
+		<result property="devClass" column="devClass" />
+		<result property="deviceTypeId" column="deviceTypeId" />
+		<result property="deviceTypeId2" column="deviceTypeId2" />
+		<result property="fuelTypeId" column="fuelTypeId" />
+		<result property="fuelTypeId2" column="fuelTypeId2" />
+		<result property="deviceModel" column="deviceModel" />
+		<result property="serviceLife" column="serviceLife" />
+		<result property="shippingTon" column="shippingTon" />
+		<result property="produceStepId" column="produceStepId" />
+		<result property="enabled" column="enabled" />
+		<result property="remark" column="remark" />
+		<result property="addressStr" column="addressStr" />
+
+		<result property="devicetypeName" column="devicetypeName" />
+		<result property="devicetypeName2" column="devicetypeName2" />
+		<result property="fueltypeName" column="fueltypeName" />
+		<result property="fueltypeName2" column="fueltypeName2" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="Devices" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_devices
+		<set>
+		<if test="enterpriceId >= 0">
+			enterpriceId=#{enterpriceId},
+		</if>
+		<if test="deviceSerial != null">
+			deviceSerial=#{deviceSerial},
+		</if>
+		<if test="deviceName != null">
+			deviceName=#{deviceName},
+		</if>
+		<if test="devClass >= 0">
+			devClass=#{devClass},
+		</if>
+		<if test="deviceTypeId >= 0">
+			deviceTypeId=#{deviceTypeId},
+		</if>
+		<if test="deviceTypeId2 >= 0">
+			deviceTypeId2=#{deviceTypeId2},
+		</if>
+		<if test="fuelTypeId >= 0">
+			fuelTypeId=#{fuelTypeId},
+		</if>
+		<if test="fuelTypeId2 >= 0">
+			fuelTypeId2=#{fuelTypeId2},
+		</if>
+		<if test="deviceModel != null">
+			deviceModel=#{deviceModel},
+		</if>
+		<if test="serviceLife != null">
+			serviceLife=#{serviceLife},
+		</if>
+		<if test="shippingTon >= 0">
+			shippingTon=#{shippingTon},
+		</if>
+		<if test="produceStepId >= 0">
+			produceStepId=#{produceStepId},
+		</if>
+		<if test="enabled > 0">
+			enabled=#{enabled},
+		</if>
+		<if test="unit != null">
+			unit=#{unit},
+		</if>
+		<if test="fuel > 0">
+			fuel=#{fuel},
+		</if>
+		<if test="remark != null">
+			remark=#{remark},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear}
+		</if>
+	</set>
+
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_devices where
+		id=#{id};
+	</delete>
+	<delete id="delBycomIdYear" >
+		delete from ap_devices
+		where enterpriceId=#{0} and fillyear=#{1};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="Devices">
+		update ap_devices
+		<set>
+		<if test="enterpriceId > 0">
+			enterpriceId=#{enterpriceId},
+		</if>
+		<if test="deviceSerial != null">
+			deviceSerial=#{deviceSerial},
+		</if>
+		<if test="deviceName != null">
+			deviceName=#{deviceName},
+		</if>
+		<if test="devClass > 0">
+			devClass=#{devClass},
+		</if>
+		<if test="deviceTypeId > 0">
+			deviceTypeId=#{deviceTypeId},
+		</if>
+		<if test="deviceTypeId2 > 0">
+			deviceTypeId2=#{deviceTypeId2},
+		</if>
+		<if test="fuelTypeId > 0">
+			fuelTypeId=#{fuelTypeId},
+		</if>
+		<if test="fuelTypeId2 > 0">
+			fuelTypeId2=#{fuelTypeId2},
+		</if>
+		<if test="deviceModel != null">
+			deviceModel=#{deviceModel},
+		</if>
+		<if test="serviceLife != null">
+			serviceLife=#{serviceLife},
+		</if>
+		<if test="shippingTon > 0">
+			shippingTon=#{shippingTon},
+		</if>
+		<if test="produceStepId > 0">
+			produceStepId=#{produceStepId},
+		</if>
+		<if test="enabled > 0">
+			enabled=#{enabled},
+		</if>
+		<if test="unit != null">
+			unit=#{unit},
+		</if>
+		<if test="fuel > 0">
+			fuel=#{fuel},
+		</if>
+		<if test="remark != null">
+			remark=#{remark}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+	<select id="getById" parameterType="int" resultMap="deviceMap">
+		select *,
+		(select status from ap_devfill where d.id=deviceId and
+		fillyear=#{fillyear}) status,
+		(select name from ap_static where
+		id=devicetypeid) as devicetypeName,
+		(select name from ap_static where
+		id=devicetypeid2) as devicetypeName2,
+		(select name from ap_static where
+		id=fueltypeid) as fueltypeName,
+		(select name from ap_static where
+		id=fueltypeid2) as fueltypeName2,
+		(select name from ap_static where
+		id=fuel) as fuelName,
+		(select fuelcost from ap_devfill where
+		d.id=deviceId and fillyear=#{fillyear}) as fuelcost
+		from ap_devices d where id=#{id};
+	</select>
+
+	<select id="getBydevId" parameterType="int" resultType="com.xf.entity.Devices">
+		select *,
+		(select name from ap_static where id=devicetypeid) as devicetypeName,
+		(select name from ap_static where id=devicetypeid2) as
+		devicetypeName2,
+		(select name from ap_static where id=fueltypeid) as
+		fueltypeName,
+		(select name from ap_static where id=fueltypeid2) as
+		fueltypeName2,
+		(select name from ap_static where id=fuel) as fuelName
+		from ap_devices d where id=#{id};
+	</select>
+
+    <select id="getBydevId2" parameterType="int" resultType="com.xf.entity.Devices">
+		select *,
+		(select name from ap_static where id=devicetypeid) as devicetypeName,
+		(select name from ap_static where id=devicetypeid2) as
+		devicetypeName2,
+		(select name from ap_static where id=fueltypeid) as
+		fueltypeName,
+		(select name from ap_static where id=fueltypeid2) as
+		fueltypeName2,
+		(select name from ap_static where id=fuel) as fuelName,
+		(select fuelcost from ap_devfill where
+		d.id=deviceId and fillyear=#{fillyear}) as fuelcost
+		from ap_devices d where id=#{id};
+	</select>
+
+	<select id="getByCompany" parameterType="int" resultType="com.xf.entity.Devices">
+		select
+		*,
+		(select status from ap_devfill where d.id=deviceId and
+		fillyear=#{fillyear}) status,
+		(select name from ap_static where
+		id=devicetypeid) as devicetypeName,
+		(select name from ap_static where
+		id=devicetypeid2) as devicetypeName2,
+		(select name from ap_static where
+		id=fueltypeid) as fueltypeName,
+		(select name from ap_static where
+		id=fueltypeid2) as fueltypeName2,
+		(select name from ap_static where
+		id=fuel) as fuelName,
+		(select fuelcost from ap_devfill where
+		d.id=deviceId and fillyear=#{fillyear}) as fuelcost
+		from ap_devices d
+		where enterpriceId=#{companyid}
+	</select>
+
+	<select id="getByCompanyId" parameterType="int"
+		resultType="com.xf.entity.Devices">
+		select *,
+		(select name from ap_static where id=devicetypeid)
+		as devicetypeName,
+		(select name from ap_static where id=devicetypeid2)
+		as devicetypeName2,
+		(select name from ap_static where id=fueltypeid) as
+		fueltypeName,
+		(select name from ap_static where id=fueltypeid2) as
+		fueltypeName2,
+		(select name from ap_static where id=fuel) as fuelName
+		from ap_devices d where enterpriceId=#{companyid}
+	</select>
+
+	<select id="getByStep" parameterType="int" resultMap="deviceMap">
+		select *,
+		(select status from ap_devfill where d.id=deviceId and
+		fillyear=#{fillyear}) status,
+		(select name from ap_static where
+		id=devicetypeid) as devicetypeName,
+		(select name from ap_static where
+		id=devicetypeid2) as devicetypeName2,
+		(select name from ap_static where
+		id=fueltypeid) as fueltypeName,
+		(select name from ap_static where
+		id=fueltypeid2) as fueltypeName2
+		from ap_devices d where
+		produceStepid=#{stepid}
+	</select>
+
+	<select id="getByStepId" parameterType="int" resultMap="deviceMap">
+		select *,
+		(select name from ap_static where id=devicetypeid) as devicetypeName,
+		(select name from ap_static where id=devicetypeid2) as
+		devicetypeName2,
+		(select name from ap_static where id=fueltypeid) as
+		fueltypeName,
+		(select name from ap_static where id=fueltypeid2) as
+		fueltypeName2
+		from ap_devices d where produceStepid=#{stepid}
+	</select>
+
+	<select id="getByFacility" parameterType="int" resultMap="deviceMap">
+		select
+		*,(select status from ap_product_fill where s.id=produceStepId and
+		fillyear=#{fillyear} limit 1) status,
+		(select name from ap_static where
+		id=devicetypeid) as devicetypeName,
+		(select name from ap_static where
+		id=devicetypeid2) as devicetypeName2
+		from ap_devices s join
+		ap_facility_device fs on s.id=fs.deviceId
+		where
+		fs.facilityId=#{facilityid}
+	</select>
+
+	<select id="yearList" parameterType="int" resultMap="deviceMap">
+		select
+		d.*,(select status from ap_devfill
+		where deviceid=d.id and
+		fillyear=#{fillyear}) as status
+		from ap_devices d;
+	</select>
+
+	<select id="getyearList" parameterType="Condition" resultMap="deviceMap">
+		select d.*,ifnull((select status from ap_devfill
+		where deviceid=d.id
+		<if test="fillyear>0">
+			and fillyear=#{fillyear}
+		</if>
+		limit 1),0) as status
+		from ap_devices d;
+	</select>
+	
+	<select id="getAll" resultType="com.xf.entity.Devices">
+		select * 
+		from ap_devices;
+	</select>
+
+	<select id="getByCompanyYear" parameterType="Devices" resultType="Devices">
+		select *,
+		(select name from ap_static where id=devicetypeid) as
+		devicetypeName,
+		(select name from ap_static where id=devicetypeid2) as
+		devicetypeName2,
+		(select name from ap_static where id=fueltypeid) as
+		fueltypeName,
+		(select name from ap_static where id=fueltypeid2) as
+		fueltypeName2,
+		(select name from ap_static where id=fuel) as fuelName,
+        (select pid from ap_static where id=fuel) as fuelId2
+		from ap_devices d
+		left join ap_devfill df on d.id=df.deviceId
+		where
+		d.enterpriceId=#{enterpriceId} and df.fillyear=#{fillyear}
+		<if test="status>0">
+			and df.`status`=#{status}
+		</if>
+	</select>
+	
+	<select id="getByCompanyYear2" parameterType="Devices" resultType="Devices">
+		select *,
+		(select name from ap_static where id=devicetypeid) as
+		devicetypeName,
+		(select name from ap_static where id=devicetypeid2) as
+		devicetypeName2,
+		(select name from ap_static where id=fueltypeid) as
+		fueltypeName,
+		(select name from ap_static where id=fueltypeid2) as
+		fueltypeName2,
+		(select name from ap_static where id=fuel) as fuelName,
+        (select pid from ap_static where id=fuel) as fuelId2
+		from ap_devices d
+		where d.enterpriceId=#{enterpriceId} and d.fillyear=#{fillyear}
+	</select>
+	
+	<select id="getotalYear" parameterType="int" resultType="Devices">
+		select d.id,d.fillyear,d.enterpriceId,d.fuel,
+		(select pid from ap_static where id=d.fuel)parentId,d.remark
+    from ap_devices d
+    left join ap_enterprise e on d.enterpriceId=e.id
+		left join ap_enterprise_fill ef on d.enterpriceId=ef.enterpriceId and ef.fillyear=d.fillyear
+		where e.ismall=1 and d.fillyear=#{fillyear} and ef.all_status=3
+	</select>
+</mapper>

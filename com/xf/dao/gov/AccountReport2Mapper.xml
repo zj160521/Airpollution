@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IAccountReportDao2">
+
+	<!-- resultMap -->
+	<resultMap type="AccountReport2" id="AccountReportMap">
+		<result property="id" column="id" />
+		<result property="typeid" column="typeid" />
+		<result property="address" column="address" />
+		<result property="reportname" column="reportname" />
+		<result property="reportdesp" column="reportdesp" />
+		<result property="isimport" column="isimport" />
+		<result property="addressStr" column="addressStr" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="AccountReportMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_account_report where id=#{id}
+	</select>
+	
+	<select id="getByTypeId" resultMap="AccountReportMap">
+		select * from ap_account_report where typeid=#{typeid}
+	</select>
+	
+	<select id="getByYear" parameterType="AccountReport" resultMap="AccountReportMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_account_report where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" resultType="java.lang.Integer">
+		select distinct fillyear from ap_account_report order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="AccountReport" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_account_report
+		<set>
+		<if test="typeid >= 0">
+			typeid=#{typeid},
+		</if>
+		<if test="address != null">
+			address=#{address},
+		</if>
+		<if test="reportname != null">
+			reportname=#{reportname},
+		</if>
+		<if test="reportdesp != null">
+			reportdesp=#{reportdesp},
+		</if>
+		<if test="isimport >= 0">
+			isimport=#{isimport},
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_account_report where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="AccountReport">
+		update ap_account_report
+		<set>
+		<if test="typeid > 0">
+			typeid=#{typeid},
+		</if>
+		<if test="address != null">
+			address=#{address},
+		</if>
+		<if test="reportname != null">
+			reportname=#{reportname},
+		</if>
+		<if test="reportdesp != null">
+			reportdesp=#{reportdesp},
+		</if>
+		<if test="isimport > 0">
+			isimport=#{isimport},
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

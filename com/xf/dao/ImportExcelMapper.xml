@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IImportExcelDao">
+	<resultMap type="District" id="DistrictMap">
+		<result property="id" column="id" />
+		<result property="parentId" column="parentId" />
+		<result property="districtLevel" column="districtLevel" />
+		<result property="districtNo" column="districtNo" />
+		<result property="districtName" column="districtName" />
+	</resultMap>
+
+	<insert id="addGkbatch" parameterType="java.util.List">
+		insert into
+		ap_gknumber(accountid,fillyear,province,city,town,companyName,
+		model,gktype,shippingTon,fuelType,yearlyFuel,unit,dateUsed,height,countryname,
+		steetname,status,importflag)
+		values
+		<foreach collection="list" item="gknu" index="index"
+			separator=",">
+			(#{gknu.accountid},#{gknu.fillyear},#{gknu.province},#{gknu.city},
+			#{gknu.town},#{gknu.companyName},#{gknu.model},#{gknu.gktype},#{gknu.shippingTon},
+			#{gknu.fuelType},#{gknu.yearlyFuel},#{gknu.unit},#{gknu.dateUsed},#{gknu.height},
+			#{gknu.countryname},#{gknu.streetname},#{gknu.status},#{gknu.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addInbatch" parameterType="java.util.List">
+		insert into ap_industry(accountid,fillyear,companyName,industryCode,
+		province,city,town,openStatus,coalConsumption,countryname,steetname,status,importflag)
+		values
+		<foreach collection="list" index="index" item="indu"
+			separator=",">
+			(#{indu.accountid},#{indu.fillyear},#{indu.companyName},
+			#{indu.industryCode},#{indu.province},#{indu.city},#{indu.town},#{indu.openStatus},
+			#{indu.coalConsumption},#{indu.countryname},#{indu.streetname},#{indu.status},#{indu.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addCanyinCert" parameterType="java.util.List">
+		insert into
+		ap_canyin_certified(accountid,fillyear,province,city,storename,storeaddr,
+		legalPerson,legalPersonID,contact,contactNo,certifiedID,staffNum,certifiedType,certifiedGov,
+		Qlevel,incoming,tax,remark,status,importflag)
+		values
+		<foreach collection="list" item="canyincert" index="index"
+			separator=",">
+			(#{canyincert.accountid},#{canyincert.fillyear},#{canyincert.province},
+			#{canyincert.city},#{canyincert.storename},#{canyincert.storeaddr},#{canyincert.legalPerson},
+			#{canyincert.legalPersonID},#{canyincert.contact},#{canyincert.contactNo},
+			#{canyincert.certifiedID},#{canyincert.staffNum},#{canyincert.certifiedType},
+			#{canyincert.certifiedGov},#{canyincert.Qlevel},#{canyincert.incoming},
+			#{canyincert.tax},#{canyincert.remark},#{canyincert.status},#{canyincert.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addCanyinNocert" parameterType="java.util.List">
+		insert into
+		ap_canyin_nocert(accountid,fillyear,province,city,shoptype,shopaddr,
+		name,idnum,homeaddr,telephone,incoming,productType,districtId,remark,status,importflag)
+		values
+		<foreach collection="list" item="canyin" index="index"
+			separator=",">
+			(#{canyin.accountid},#{canyin.fillyear},#{canyin.province},#{canyin.city},#{canyin.shoptype},
+			#{canyin.shopaddr},#{canyin.name},#{canyin.idnum},#{canyin.homeaddr},#{canyin.telephone},#{canyin.incoming},
+			#{canyin.productType},#{canyin.districtId},#{canyin.remark},#{canyin.status},#{canyin.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addAnimalsFarm" parameterType="java.util.List">
+		insert into
+		ap_animals_farm(farmname,accountid,fillyear,province,city,town,method,beef,
+		beefcycle,cow,cowcycle,goat,goatcycle,sheep,sheepcycle,pig,pigcycle,chicken,chickencycle,
+		duck,duckcycle,goose,goosecycle,hen,layingduck,layinggoose,sow,rabbit,horse,countryname,
+		steetname,status,importflag)
+		values
+		<foreach collection="list" item="anfa" index="index"
+			separator=",">
+			(#{anfa.farmname},#{anfa.accountid},#{anfa.fillyear},#{anfa.province},#{anfa.city},#{anfa.town},#{anfa.method},
+			#{anfa.beef},#{anfa.beefcycle},#{anfa.cow},#{anfa.cowcycle},#{anfa.goat},#{anfa.goatcycle},
+			#{anfa.sheep},#{anfa.sheepcycle},#{anfa.pig},#{anfa.pigcycle},#{anfa.chicken},#{anfa.chickencycle},
+			#{anfa.duck},#{anfa.duckcycle},#{anfa.goose},#{anfa.goosecycle},#{anfa.hen},#{anfa.layingduck},#{anfa.layinggoose},
+			#{anfa.sow},#{anfa.rabbit},#{anfa.horse},#{anfa.countryname},#{anfa.streetname},#{anfa.status},#{anfa.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addAnimalsWild" parameterType="java.util.List">
+		insert into
+		ap_animals_wild(accountid,fillyear,province,city,town,beef,beefcycle,cow,cowcycle,
+		goat,goatcycle,sheep,sheepcycle,pig,pigcycle,chicken,chickencycle,duck,duckcycle,goose,
+		goosecycle,hen,layingduck,layinggoose,sow,rabbit,horse,status,importflag)
+		values
+		<foreach collection="list" item="anwi" index="index"
+			separator=",">
+			(#{anwi.accountid},#{anwi.fillyear},#{anwi.province},#{anwi.city},#{anwi.town},#{anwi.beef},#{anwi.beefcycle},
+			#{anwi.cow},#{anwi.cowcycle},#{anwi.goat},#{anwi.goatcycle},#{anwi.sheep},#{anwi.sheepcycle},#{anwi.pig},
+			#{anwi.pigcycle},#{anwi.chicken},#{anwi.chickencycle},#{anwi.duck},#{anwi.duckcycle},#{anwi.goose},
+			#{anwi.goosecycle},#{anwi.hen},#{anwi.layingduck},#{anwi.layinggoose},
+			#{anwi.sow},#{anwi.rabbit},#{anwi.horse},#{anwi.status},#{anwi.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addCanyinStat" parameterType="java.util.List">
+		insert into
+		ap_canyin_stat(accountid,fillyear,province,city,town,certified,total,canguan_huge,canguan_big,
+		canguan_mid,canguan_small,snack,fastfood,milk,drink,shitang_shiye,shitang_school,shitang_gongdi,
+		incoming,status,importflag)
+		values
+		<foreach collection="list" item="cansta" index="index"
+			separator=",">
+			(#{cansta.accountid},#{cansta.fillyear},#{cansta.province},#{cansta.city},#{cansta.town},#{cansta.certified},
+			#{cansta.total},#{cansta.canguan_huge},#{cansta.canguan_big},#{cansta.canguan_mid},
+			#{cansta.canguan_small},#{cansta.snack},#{cansta.fastfood},#{cansta.milk},#{cansta.drink},
+			#{cansta.shitang_shiye},#{cansta.shitang_school},#{cansta.shitang_gongdi},#{cansta.incoming},
+			#{cansta.status},#{cansta.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addGasstation" parameterType="java.util.List">
+		insert into
+		ap_gasstation(accountid,fillyear,province,gasStationName,city,town,gasolineGross,
+		dieselGross,natgasGross,gasolineSellMonth,dieselSellMonth,natgasSellMonth,gasolineSpear,
+		dieselSpear,natgasSpear,recycleDevice,recovery,countryname,steetname,status,importflag)
+		values
+		<foreach collection="list" item="cass" index="index"
+			separator=",">
+			(#{cass.accountid},#{cass.fillyear},#{cass.province},#{cass.gasStationName},#{cass.city},
+			#{cass.town},#{cass.gasolineGross},#{cass.dieselGross},#{cass.natgasGross},#{cass.gasolineSellMonth},
+			#{cass.dieselSellMonth},#{cass.natgasSellMonth},#{cass.gasolineSpear},
+			#{cass.dieselSpear},#{cass.natgasSpear},#{cass.recycleDevice},#{cass.recovery},
+			#{cass.countryname},#{cass.streetname},#{cass.status},#{cass.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addOildepot" parameterType="java.util.List">
+		insert into
+		ap_oildepot(accountid,fillyear,province,city,town,oildepotName,gasolineGross,dieselGross,
+		way,recycleDevice,deviceType,recovery,conveyType,countryname,steetname,status,importflag)
+		values
+		<foreach collection="list" item="oild" index="index"
+			separator=",">
+			(#{oild.accountid},#{oild.fillyear},#{oild.province},#{oild.city},#{oild.town},#{oild.oildepotName},
+			#{oild.gasolineGross},#{oild.dieselGross},#{oild.way},#{oild.recycleDevice},#{oild.deviceType},
+			#{oild.recovery},#{oild.conveyType},#{oild.countryname},#{oild.streetname},#{oild.status},#{oild.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addPlane" parameterType="java.util.List">
+		insert into
+		ap_plane(accountid,fillyear,province,city,airport,factory,planemodel,numbers,status,importflag,usages)
+		values
+		<foreach collection="list" item="plane" index="index"
+			separator=",">
+			(#{plane.accountid},#{plane.fillyear},#{plane.province},#{plane.city},#{plane.airport},#{plane.factory},
+			#{plane.planemodel},#{plane.numbers},#{plane.status},#{plane.importflag},#{plane.usages})
+		</foreach>
+	</insert>
+
+	<insert id="addVehicl" parameterType="java.util.List">
+		insert into
+		ap_vehicle_action(accountid,fillyear,province,city,town,serial,vehicletype,platescolor,
+		registerdate,checkdate,mileage,gastype,status,importflag)
+		values
+		<foreach collection="list" item="vehi" index="index"
+			separator=",">
+			(#{vehi.accountid},#{vehi.fillyear},#{vehi.province},#{vehi.city},#{vehi.town},#{vehi.serial},
+			#{vehi.vehicletype},#{vehi.platescolor},#{vehi.registerdate},#{vehi.checkdate},
+			#{vehi.mileage},#{vehi.gastype},#{vehi.status},#{vehi.importflag})
+		</foreach>
+	</insert>
+	<insert id="addDumpField" parameterType="java.util.List">
+		insert into
+		ap_dump_field(accountid,fillyear,province,city,town,factoryname,factorytype,rubbish_burn,
+		rubbish_bury,rubbish_hill,rubbish_capability,rubbish_used,sewerage_total,country,street,status,importflag)
+		values
+		<foreach collection="list" item="dump" index="index"
+			separator=",">
+			(#{dump.accountid},#{dump.fillyear},#{dump.province},#{dump.city},#{dump.town},#{dump.factoryname},
+			#{dump.factorytype},#{dump.rubbish_burn},#{dump.rubbish_bury},#{dump.rubbish_hill},#{dump.rubbish_capability},
+			#{dump.rubbish_used},#{dump.sewerage_total},#{dump.country},#{dump.street},#{dump.status},#{dump.importflag})
+		</foreach>
+	</insert>
+
+	<insert id="addFactor" parameterType="java.util.List">
+		insert into
+		ap_vehicle_factor(pollutant,standard,vehiclemodel,factor)
+		values
+		<foreach collection="list" item="fac" index="index" separator=",">
+			(#{fac.pollutantId},#{fac.standardId},#{fac.vehiclemodel},#{fac.factor})
+		</foreach>
+	</insert>
+	
+	<insert id="addMotor" parameterType="java.util.List">
+		insert into
+		ap_motor_vehicle(city,status,importflag,variation,standard,districtId,cityName,statyear,vehiclemodel,holdings)
+		values
+		<foreach collection="list" item="moto" index="index" separator=",">
+			(#{moto.city},#{moto.status},#{moto.importflag},#{moto.variation},#{moto.standard},#{moto.districtId},#{moto.cityName}
+			,#{moto.statyear},#{moto.vehiclemodel},#{moto.holdings})
+		</foreach>
+	</insert>
+
+    <insert id="addMotor2" parameterType="java.util.List">
+		insert into
+		ap_motor_vehicle_pc(city,status,importflag,variation,standard,districtId,cityName,statyear,vehiclemodel,holdings)
+		values
+		<foreach collection="list" item="moto" index="index" separator=",">
+			(#{moto.city},#{moto.status},#{moto.importflag},#{moto.variation},#{moto.standard},#{moto.districtId},#{moto.cityName}
+			,#{moto.statyear},#{moto.vehiclemodel},#{moto.holdings})
+		</foreach>
+	</insert>
+
+	<delete id="deleteCanyinCert" parameterType="int">
+		delete from ap_canyin_certified where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteCanyinNoCert" parameterType="int">
+		delete from ap_canyin_nocert where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteCanyinStat" parameterType="int">
+		delete from ap_canyin_stat where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteOilepot" parameterType="int">
+		delete from ap_oildepot where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteGasstation" parameterType="int">
+		delete from ap_gasstation where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteIndustry" parameterType="int">
+		delete from ap_industry where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteAnimalsFarm" parameterType="int">
+		delete from ap_animals_farm where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteAnimalsWild" parameterType="int">
+		delete from ap_animals_wild where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteGknumber" parameterType="int">
+		delete from ap_gknumber where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deletePlane" parameterType="int">
+		delete from ap_plane where accountid=#{accountid} and fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteVehicl" parameterType="int">
+		delete from ap_vehicle_action where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteDumpField" parameterType="int">
+		delete from ap_dump_field where accountid=#{accountid} and
+		fillyear=#{fillyear}
+	</delete>
+	<delete id="deleteFactor">
+		delete from ap_vehicle_factor
+	</delete>
+	
+	<delete id="deleteMoto">
+		delete from ap_motor_vehicle
+	</delete>
+
+	<select id="findByCity" parameterType="int" resultMap="DistrictMap">
+		select * from ap_district where parentId=#{parentId}
+	</select>
+
+</mapper>

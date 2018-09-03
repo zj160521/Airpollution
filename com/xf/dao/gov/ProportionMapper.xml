@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IProportionDao">
+
+	<update id="update" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index">
+        UPDATE ap_proportion SET proportion=#{item.proportion} WHERE id=#{item.id}
+        </foreach>  
+	</update>
+	<!-- 添加 -->
+	<insert id="addup" parameterType="java.util.List">
+		insert into ap_proportion(name,months,proportion) values
+		<foreach collection="list" item="item" index="index" separator=",">  
+	       (#{item.name},#{item.months},#{item.proportion})
+	    </foreach>
+		on duplicate key update proportion=VALUES(proportion)
+	</insert>
+	<select id="getAll" resultType="com.xf.entity.Proportion">
+	    SELECT * FROM ap_proportion
+	</select>
+	<select id="getByName" resultType="com.xf.entity.Proportion">
+	    SELECT * FROM ap_proportion where name=#{0}
+	</select>
+
+</mapper>

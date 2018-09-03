@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.LookupData2Dao">
+
+	<resultMap type="com.xf.vo.PollutantStat" id="pollutantMap">
+		<result property="districtName" column="districtName" />
+		<result property="name" column="name" />
+		<result property="value" column="avgmile" />
+	</resultMap>
+
+    <select id="getNfertilizerByType" parameterType="int" resultType="com.xf.vo.LookupFeulTypeRes">
+       SELECT a.id,a.`name`,IFNULL(SUM(b.amountTotal),0) AS count
+       FROM ap_static a
+       LEFT JOIN ap_nfertilizer b
+       ON b.ferType=a.id AND b.fillyear=#{year}
+       left join ap_enterprise c
+       on c.id=b.accountid
+       WHERE a.groupid=11 and c.province>0
+       GROUP BY a.id
+    </select>
+    
+    <select id="getNfertilizerByType2" parameterType="int" resultType="com.xf.vo.LookupFeulTypeRes">
+       SELECT a.id,a.`name`,IFNULL(SUM(b.amountTotal),0) AS count
+       FROM ap_static a
+       LEFT JOIN ap_nfertilizer b
+       ON b.ferType=a.id AND b.fillyear=#{year}
+       left join ap_enterprise c
+       on c.id=b.accountid
+       WHERE a.groupid=11 and c.province=0
+       GROUP BY a.id
+    </select>
+    
+    <select id="getNfertilizerByMonth" parameterType="int" resultType="com.xf.vo.CityProdSumRes">
+       SELECT a.id,a.`name` as districtName,IFNULL(avg(b.m1),0) AS m1,IFNULL(avg(b.m2),0) AS m2,IFNULL(avg(b.m3),0) AS m3,IFNULL(avg(b.m4),0) AS m4,IFNULL(avg(b.m5),0) AS m5,IFNULL(avg(b.m6),0) AS m6,IFNULL(avg(b.m7),0) AS m7,IFNULL(avg(b.m8),0) AS m8,IFNULL(avg(b.m9),0) AS m9,IFNULL(avg(b.m10),0) AS m10,IFNULL(avg(b.m11),0) AS m11,IFNULL(avg(b.m12),0) AS m12
+       FROM ap_static a
+       LEFT JOIN ap_nfertilizer b
+       ON b.ferType=a.id AND b.fillyear=#{year}
+       left join ap_enterprise en
+       on b.accountid=en.id
+       WHERE a.groupid=11 and en.province=0
+       GROUP BY a.id
+    </select>
+    
+    <select id="getNfertilizerByMonth2" parameterType="int" resultType="com.xf.vo.CityProdSumRes">
+       SELECT a.id,a.`name` as districtName,IFNULL(avg(b.m1),0) AS m1,IFNULL(avg(b.m2),0) AS m2,IFNULL(avg(b.m3),0) AS m3,IFNULL(avg(b.m4),0) AS m4,IFNULL(avg(b.m5),0) AS m5,IFNULL(avg(b.m6),0) AS m6,IFNULL(avg(b.m7),0) AS m7,IFNULL(avg(b.m8),0) AS m8,IFNULL(avg(b.m9),0) AS m9,IFNULL(avg(b.m10),0) AS m10,IFNULL(avg(b.m11),0) AS m11,IFNULL(avg(b.m12),0) AS m12
+       FROM ap_static a
+       LEFT JOIN ap_nfertilizer b
+       ON b.ferType=a.id AND b.fillyear=#{year}
+       left join ap_enterprise en
+       on b.accountid=en.id
+       WHERE a.groupid=11 and en.province=0
+       GROUP BY a.id
+    </select>
+    
+    <select id="getGasStationByCity" parameterType="int" resultType="com.xf.vo.GasStationByCity">
+       SELECT a.id,a.districtName,IFNULL(SUM(b.dieselGross),0) AS dieselGross,IFNULL(SUM(b.gasolineGross),0) AS gasolineGross,IFNULL(SUM(b.natgasGross),0) AS natgasGross
+       FROM ap_district a
+       LEFT JOIN (SELECT g.* FROM ap_gasstation g left join ap_enterprise en
+       on en.id=g.accountid WHERE en.province>0) b
+       ON a.id=b.city AND b.fillyear=#{year}
+       WHERE a.districtLevel=1 
+       GROUP BY a.id
+    </select>
+    
+    <select id="getGasStationByCity2" parameterType="int" resultType="com.xf.vo.GasStationByCity">
+       SELECT a.id,a.districtName,IFNULL(SUM(b.dieselGross),0) AS dieselGross,IFNULL(SUM(b.gasolineGross),0) AS gasolineGross,IFNULL(SUM(b.natgasGross),0) AS natgasGross
+       FROM ap_district a
+       LEFT JOIN (SELECT g.* FROM ap_gasstation g left join ap_enterprise en
+       on en.id=g.accountid WHERE en.province=0) b
+       ON a.id=b.city AND b.fillyear=#{year}
+       WHERE a.districtLevel=1 
+       GROUP BY a.id
+    </select>
+    
+    <select id="getNfertilizerByCity" parameterType="int" resultType="com.xf.vo.NfertilizerByCityRes">
+       SELECT a.districtName,b.`name`,IFNULL(SUM(c.amountTotal),0) AS sumValue,(IFNULL(SUM(c.amountTotal)/SUM(c.amountMu),0)) AS avgValue
+       FROM ap_district a
+       LEFT JOIN ap_static b
+       ON b.groupid=11
+       LEFT JOIN (SELECT n.* FROM ap_nfertilizer n left join ap_enterprise en
+       on en.id=n.accountid WHERE en.province>0) c
+       ON c.ferType=b.id AND a.id=c.city AND c.fillyear=#{year}
+       WHERE a.districtLevel=1
+       GROUP BY a.id,b.id
+    </select>
+    
+    <select id="getNfertilizerByCity2" parameterType="int" resultType="com.xf.vo.NfertilizerByCityRes">
+       SELECT a.districtName,b.`name`,IFNULL(SUM(c.amountTotal),0) AS sumValue,(IFNULL(SUM(c.amountTotal)/SUM(c.amountMu),0)) AS avgValue
+       FROM ap_district a
+       LEFT JOIN ap_static b
+       ON b.groupid=11
+       LEFT JOIN (SELECT n.* FROM ap_nfertilizer n left join ap_enterprise en
+       on en.id=n.accountid WHERE en.province=0) c
+       ON c.ferType=b.id AND a.id=c.city AND c.fillyear=#{year}
+       WHERE a.districtLevel=1
+       GROUP BY a.id,b.id
+    </select>
+    
+    <select id="getOildepot" parameterType="int" resultType="com.xf.vo.GasStationByCity">
+       SELECT a.id,a.districtName,IFNULL(SUM(b.dieselGross),0) AS dieselGross,IFNULL(SUM(b.gasolineGross),0) AS gasolineGross
+       FROM ap_district a
+       LEFT JOIN (SELECT o.* FROM ap_oildepot o left join ap_enterprise en
+       on en.id=o.accountid WHERE en.province>0) b
+       ON a.id=b.city AND b.`status`=3 AND b.fillyear=#{year}
+       WHERE a.districtLevel=1 
+       GROUP BY a.id
+    </select>
+    
+    <select id="getOildepot2" parameterType="int" resultType="com.xf.vo.GasStationByCity">
+       SELECT a.id,a.districtName,IFNULL(SUM(b.dieselGross),0) AS dieselGross,IFNULL(SUM(b.gasolineGross),0) AS gasolineGross
+       FROM ap_district a
+       LEFT JOIN (SELECT o.* FROM ap_oildepot o left join ap_enterprise en
+       on en.id=o.accountid WHERE en.province=0) b
+       ON a.id=b.city AND b.`status`=3 AND b.fillyear=#{year}
+       WHERE a.districtLevel=1 
+       GROUP BY a.id
+    </select>
+    
+    <select id="getGknumber" parameterType="int" resultType="com.xf.entity.gov.Gknumber">
+       SELECT *
+       FROM ap_gknumber a
+       left join ap_enterprise en
+       on a.accountid=en.id
+       WHERE a.`status`=3 AND a.fillyear=#{year} and en.province>0
+    </select>
+    
+    <select id="getGknumber2" parameterType="int" resultType="com.xf.entity.gov.Gknumber">
+       SELECT *
+       FROM ap_gknumber a
+       left join ap_enterprise en
+       on a.accountid=en.id
+       WHERE a.`status`=3 AND a.fillyear=#{year} and en.province=0
+    </select>
+    
+    <select id="getGknumberBytype" resultType="com.xf.entity.gov.Gknumber">
+       SELECT *
+       FROM ap_gknumber a
+       WHERE a.`status`=3 AND a.fillyear=#{year} AND a.shippingTon&lt;#{end} AND a.shippingTon>=#{start}
+    </select>
+    
+    <select id="getGknumberByCity" resultType="com.xf.vo.NameValue">
+       SELECT a.id,a.districtName AS name,COUNT(b.shippingTon) AS value
+       FROM ap_district a
+       LEFT JOIN (SELECT g.* FROM ap_gknumber g left join ap_enterprise en
+       on en.id=g.accountid WHERE en.province>0) b
+       ON a.id=b.city AND b.`status`=3 AND b.fillyear=#{year} AND b.shippingTon>=#{start} AND b.shippingTon&lt;#{end}
+       WHERE a.districtLevel=1 
+       GROUP BY a.id
+    </select>
+    
+    <select id="getGknumberByCity2" resultType="com.xf.vo.NameValue">
+       SELECT a.id,a.districtName AS name,COUNT(b.shippingTon) AS value
+       FROM ap_district a
+       LEFT JOIN (SELECT g.* FROM ap_gknumber g left join ap_enterprise en
+       on en.id=g.accountid WHERE en.province=0) b
+       ON a.id=b.city AND b.`status`=3 AND b.fillyear=#{year} AND b.shippingTon>=#{start} AND b.shippingTon&lt;#{end}
+       WHERE a.districtLevel=1 
+       GROUP BY a.id
+    </select>
+    
+    <select id="getCanyinByCity" resultType="com.xf.vo.CityNumber">
+       SELECT a.id,a.districtName,IFNULL(SUM(b.canguan_huge),0) AS huge,IFNULL(SUM(b.canguan_big),0) AS big,IFNULL(SUM(b.canguan_mid),0) AS mid,IFNULL(SUM(b.canguan_small),0) AS small,IFNULL((SUM(b.shitang_gongdi)+SUM(b.shitang_school)+SUM(b.shitang_shiye)),0) AS shitang
+       FROM ap_district a
+       LEFT JOIN (SELECT s.* FROM ap_canyin_stat s left join ap_enterprise en
+       on en.id=s.accountid WHERE en.province>0) b
+       ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+       WHERE a.districtLevel=1 
+       GROUP BY a.id
+    </select>
+    
+    <select id="getCanyinByCity2" resultType="com.xf.vo.CityNumber">
+       SELECT a.id,a.districtName,IFNULL(SUM(b.canguan_huge),0) AS huge,IFNULL(SUM(b.canguan_big),0) AS big,IFNULL(SUM(b.canguan_mid),0) AS mid,IFNULL(SUM(b.canguan_small),0) AS small,IFNULL((SUM(b.shitang_gongdi)+SUM(b.shitang_school)+SUM(b.shitang_shiye)),0) AS shitang
+       FROM ap_district a
+       LEFT JOIN (SELECT s.* FROM ap_canyin_stat s left join ap_enterprise en
+       on en.id=s.accountid WHERE en.province=0) b
+       ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+       WHERE a.districtLevel=1 
+       GROUP BY a.id
+    </select>
+    
+     <select id="getWoodByType" resultType="com.xf.vo.NameFirewood">
+       SELECT c.id AS districtId,c.districtName,d.id,d.`name`,IFNULL(f.yield,0) AS yield,IFNULL(f.utilizeRatio,0) AS utilizeRatio
+       FROM ap_district c
+       LEFT JOIN ap_static d ON d.groupid=13
+       LEFT JOIN (SELECT a.id AS districtId,a.districtName,b.id,b.`name`,IFNULL(SUM(e.yield),0) AS yield,IFNULL(avg(e.utilizeRatio),0) AS utilizeRatio
+       FROM ap_district a
+       LEFT JOIN ap_static b ON b.groupid=13
+       LEFT JOIN ap_firewood e ON b.id=e.cropType
+       WHERE a.districtLevel=#{city} AND e.`status`=3 AND e.fillyear=#{year} AND (a.id=e.city OR a.id=e.province) and e.town>0
+       GROUP BY a.id,b.id) f
+       ON c.id=f.districtId AND d.id=f.id
+       WHERE c.districtLevel=#{city}
+    </select>
+    
+    <select id="getWoodByType2" resultType="com.xf.vo.NameFirewood">
+       SELECT c.id AS districtId,c.districtName,d.id,d.`name`,IFNULL(f.yield,0) AS yield,IFNULL(f.utilizeRatio,0) AS utilizeRatio
+       FROM ap_district c
+       LEFT JOIN ap_static d ON d.groupid=13
+       LEFT JOIN (SELECT a.id AS districtId,a.districtName,b.id,b.`name`,IFNULL(SUM(e.yield),0) AS yield,IFNULL(avg(e.utilizeRatio),0) AS utilizeRatio
+       FROM ap_district a
+       LEFT JOIN ap_static b ON b.groupid=13
+       LEFT JOIN ap_firewood e ON b.id=e.cropType
+       WHERE a.districtLevel=#{city} AND e.`status`=3 AND e.fillyear=#{year} AND (a.id=e.city OR a.id=e.province) and e.town=null
+       GROUP BY a.id,b.id) f
+       ON c.id=f.districtId AND d.id=f.id
+       WHERE c.districtLevel=#{city}
+    </select>
+    
+     <select id="getPlaneByType" parameterType="int" resultType="com.xf.vo.NameValue">
+       SELECT a.city AS id,a.airport AS name,IFNULL(SUM(a.numbers),0) AS value
+       FROM ap_plane a
+       WHERE a.`status`=3 AND a.fillyear=#{year}
+       GROUP BY a.airport
+    </select>
+    
+    <select id="getRoaddustByCity" parameterType="int" resultType="com.xf.vo.NameValue">
+       SELECT a.id,a.districtName AS name,IFNULL(IFNULL(SUM(b.cgCement),0)+IFNULL(SUM(b.cgPitch),0)+IFNULL(SUM(b.ksCement),0)+IFNULL(SUM(b.ksPitch),0)+IFNULL(SUM(b.zCement),0)+IFNULL(SUM(b.zgCement),0)+IFNULL(SUM(b.zgPitch),0)+IFNULL(SUM(b.zPitch),0)+IFNULL(SUM(b.cgNotShop),0)+IFNULL(SUM(b.ksNotShop),0)+IFNULL(SUM(b.zgNotShop),0)+IFNULL(SUM(b.zNotShop),0),0) AS value
+       FROM ap_district a
+       LEFT JOIN (select r.* from ap_road_dust r left join ap_enterprise en on r.accountid=en.id where en.province>0) b
+       ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+       WHERE a.districtLevel=1
+       GROUP BY a.id
+    </select>
+    
+    <select id="getRoaddustByCity2" parameterType="int" resultType="com.xf.vo.NameValue">
+       SELECT a.id,a.districtName AS name,IFNULL(IFNULL(SUM(b.cgCement),0)+IFNULL(SUM(b.cgPitch),0)+IFNULL(SUM(b.ksCement),0)+IFNULL(SUM(b.ksPitch),0)+IFNULL(SUM(b.zCement),0)+IFNULL(SUM(b.zgCement),0)+IFNULL(SUM(b.zgPitch),0)+IFNULL(SUM(b.zPitch),0)+IFNULL(SUM(b.cgNotShop),0)+IFNULL(SUM(b.ksNotShop),0)+IFNULL(SUM(b.zgNotShop),0)+IFNULL(SUM(b.zNotShop),0),0) AS value
+       FROM ap_district a
+       LEFT JOIN (select r.* from ap_road_dust r left join ap_enterprise en on r.accountid=en.id where en.province=0) b
+       ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+       WHERE a.districtLevel=1
+       GROUP BY a.id
+    </select>
+    
+    <select id="getRoaddustBytype" parameterType="int" resultType="com.xf.vo.LookupCityFeulRes">
+	   SELECT a.id,a.districtName,b.pollutantName AS name,IFNULL(SUM(c.statvalue),0) AS sum
+       FROM ap_district a
+       LEFT JOIN ap_pollutant b
+       ON b.id=4 OR b.id=6
+       LEFT JOIN ap_stat_gov c
+       ON c.stattype='roaddust' AND a.id=c.city AND b.id=c.pollutantId AND c.fillyear=#{year}
+       WHERE a.districtLevel=1
+       GROUP BY a.id,b.id
+	</select>
+	
+	<select id="getRoaddustBytype2" parameterType="int" resultType="com.xf.vo.LookupCityFeulRes">
+	   SELECT a.id,a.districtName,b.pollutantName AS name,IFNULL(SUM(c.statvalue),0) AS sum
+       FROM ap_district a
+       LEFT JOIN ap_pollutant b
+       ON b.id=4 OR b.id=6
+       LEFT JOIN ap_stat_gov_pc c
+       ON c.stattype='roaddust' AND a.id=c.city AND b.id=c.pollutantId AND c.fillyear=#{year}
+       WHERE a.districtLevel=1
+       GROUP BY a.id,b.id
+	</select>
+	
+	 <select id="getRoaddustByPitch" parameterType="int" resultType="com.xf.vo.CityPitchType">
+	   SELECT a.id,a.districtName AS name,IFNULL((SUM(b.ksCement)+SUM(b.ksPitch)+SUM(b.ksNotShop)),0) AS ksPitch,IFNULL((SUM(b.zgCement)+SUM(b.zgPitch)+SUM(b.zgNotShop)),0) AS zgPitch,IFNULL((SUM(b.cgCement)+SUM(b.cgPitch)+SUM(b.cgNotShop)),0) AS cgPitch,IFNULL((SUM(b.zCement)+SUM(b.zPitch)+SUM(b.zNotShop)),0) AS zPitch
+       FROM ap_district a
+       LEFT JOIN ap_road_dust b
+       ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+       WHERE a.districtLevel=1
+       GROUP BY a.id
+	</select>
+	
+	<select id="getConstructionByCity" parameterType="int" resultType="com.xf.vo.NameValue2">
+       SELECT a.id,a.districtName AS name,IFNULL(SUM(b.constructArea),0) AS value1,IFNULL(SUM(b.buildingArea),0) AS value2
+       FROM ap_district a
+       LEFT JOIN ap_constructiondust b
+       ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+       left join ap_enterprise en
+       on en.id=b.accountid
+       WHERE a.districtLevel=1 and en.province>0
+       GROUP BY a.id
+    </select>
+    
+    <select id="getConstructionByCity_pc" parameterType="int" resultType="com.xf.vo.NameValue2">
+       SELECT a.id,a.districtName AS name,IFNULL(SUM(b.constructArea),0) AS value1,IFNULL(SUM(b.buildingArea),0) AS value2
+       FROM ap_district a
+       LEFT JOIN ap_constructiondust b
+       ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+       left join ap_enterprise en
+       on en.id=b.accountid
+       WHERE a.districtLevel=1 and en.province=0
+       GROUP BY a.id
+    </select>
+    
+    <select id="getConstructionByCity2" parameterType="int" resultType="com.xf.vo.NameValue2">
+       SELECT a.id,a.districtName AS name,IFNULL(SUM(b.hasStartedArea),0) AS value1,IFNULL(SUM(b.notStartArea),0) AS value2
+       FROM ap_district a
+       LEFT JOIN ap_constructiondust b
+       ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+       WHERE a.districtLevel=1
+       GROUP BY a.id
+    </select>
+    
+    <select id="getConstructionByCity3" parameterType="int" resultType="com.xf.vo.NameValue2">
+      SELECT a.id,a.districtName AS name,IFNULL(SUM(b.hasStartNumber),0) AS value1,IFNULL(SUM(b.notStartNumber),0) AS value2
+      FROM ap_district a
+      LEFT JOIN ap_constructiondust b
+      ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+      WHERE a.districtLevel=1
+      GROUP BY a.id
+    </select>
+    
+    <select id="getFarmingByType" parameterType="int" resultType="com.xf.vo.NameValue">
+      SELECT CONCAT(a.farmtype,a.farmtype2) AS name,a.enumber AS value
+      FROM ap_equipment_farm a
+      LEFT JOIN ap_enterprise en
+      ON en.id=a.accountid
+      WHERE a.fillyear=#{year} AND a.`status`=3 AND en.province>0
+      GROUP BY CONCAT(a.farmtype,a.farmtype2)
+    </select>
+    
+    <select id="getFarmingByType_pc" parameterType="int" resultType="com.xf.vo.NameValue">
+      SELECT CONCAT(a.farmtype,a.farmtype2) AS name,a.enumber AS value
+      FROM ap_equipment_farm a
+      LEFT JOIN ap_enterprise en
+      ON en.id=a.accountid
+      WHERE a.fillyear=#{year} AND a.`status`=3 AND en.province=0
+      GROUP BY CONCAT(a.farmtype,a.farmtype2)
+    </select>
+    
+    <select id="getFarmingByType2" parameterType="int" resultType="com.xf.vo.NameValue">
+      SELECT CONCAT(a.farmtype,a.farmtype2) AS name,a.ekw AS value
+      FROM ap_equipment_farm a
+      LEFT JOIN ap_enterprise en
+      ON en.id=a.accountid
+      WHERE a.fillyear=#{year} AND a.`status`=3 AND en.province>0
+      GROUP BY CONCAT(a.farmtype,a.farmtype2)
+    </select>
+    
+    <select id="getFarmingByType2_pc" parameterType="int" resultType="com.xf.vo.NameValue">
+      SELECT CONCAT(a.farmtype,a.farmtype2) AS name,a.ekw AS value
+      FROM ap_equipment_farm a
+      LEFT JOIN ap_enterprise en
+      ON en.id=a.accountid
+      WHERE a.fillyear=#{year} AND a.`status`=3 AND en.province=0
+      GROUP BY CONCAT(a.farmtype,a.farmtype2)
+    </select>
+    
+    <select id="getFarmingByType3" parameterType="int" resultType="com.xf.vo.NameValue">
+      SELECT CONCAT(a.farmtype,a.farmtype2) AS name,a.fuelconsume AS value
+      FROM ap_equipment_farm a
+      LEFT JOIN ap_enterprise en
+      ON en.id=a.accountid
+      WHERE a.fillyear=#{year} AND a.`status`=3 AND en.province>0
+      GROUP BY CONCAT(a.farmtype,a.farmtype2)
+    </select>
+    
+    <select id="getFarmingByType3_pc" parameterType="int" resultType="com.xf.vo.NameValue">
+      SELECT CONCAT(a.farmtype,a.farmtype2) AS name,a.fuelconsume AS value
+      FROM ap_equipment_farm a
+      LEFT JOIN ap_enterprise en
+      ON en.id=a.accountid
+      WHERE a.fillyear=#{year} AND a.`status`=3 AND en.province=0
+      GROUP BY CONCAT(a.farmtype,a.farmtype2)
+    </select>
+    
+    <select id="getRoadType" parameterType="int" resultType="com.xf.vo.FourValues">
+      SELECT IFNULL((SUM(a.ksCement)+SUM(a.ksPitch)),0) AS kssum,IFNULL((SUM(a.cgCement)+SUM(a.cgPitch)),0) AS cgsum,IFNULL((SUM(a.zgCement)+SUM(a.zgPitch)),0) AS zgsum,IFNULL((SUM(a.zCement)+SUM(a.zPitch)),0) AS zsum
+      FROM ap_road_dust a
+      left join ap_enterprise en
+      on a.accountid=en.id
+      WHERE a.fillyear=#{year} AND a.`status`=3 and en.province>0
+    </select>
+    
+    <select id="getRoadType2" parameterType="int" resultType="com.xf.vo.FourValues">
+      SELECT IFNULL((SUM(a.ksCement)+SUM(a.ksPitch)),0) AS kssum,IFNULL((SUM(a.cgCement)+SUM(a.cgPitch)),0) AS cgsum,IFNULL((SUM(a.zgCement)+SUM(a.zgPitch)),0) AS zgsum,IFNULL((SUM(a.zCement)+SUM(a.zPitch)),0) AS zsum
+      FROM ap_road_dust a
+      left join ap_enterprise en
+      on a.accountid=en.id
+      WHERE a.fillyear=#{year} AND a.`status`=3 and en.province=0
+    </select>
+    
+    <select id="getRoadCity" parameterType="int" resultType="com.xf.entity.gov.RoadDust">
+      SELECT a.id,a.districtName AS addressStr,IFNULL(SUM(b.ksCement),0) AS ksCement,IFNULL(SUM(b.ksPitch),0) AS ksPitch,IFNULL(SUM(b.zgCement),0) AS zgCement,IFNULL(SUM(b.zgPitch),0) AS zgPitch,IFNULL(SUM(b.cgCement),0) AS cgCement,IFNULL(SUM(b.cgPitch),0) AS cgPitch,IFNULL(SUM(b.zCement),0) AS zCement,IFNULL(SUM(b.zPitch),0) AS zPitch,IFNULL(SUM(b.ksNotShop),0) AS ksNotShop
+      FROM ap_district a
+      LEFT JOIN (SELECT d.* FROM ap_road_dust d left join ap_enterprise en
+      on en.id=d.accountid WHERE en.province>0) b
+      ON a.id=b.city AND b.`status`=3 AND b.fillyear=#{year}
+      WHERE a.districtLevel=1
+      GROUP BY a.id
+    </select>
+    
+    <select id="getRoadCity2" parameterType="int" resultType="com.xf.entity.gov.RoadDust">
+      SELECT a.id,a.districtName AS addressStr,IFNULL(SUM(b.ksCement),0) AS ksCement,IFNULL(SUM(b.ksPitch),0) AS ksPitch,IFNULL(SUM(b.zgCement),0) AS zgCement,IFNULL(SUM(b.zgPitch),0) AS zgPitch,IFNULL(SUM(b.cgCement),0) AS cgCement,IFNULL(SUM(b.cgPitch),0) AS cgPitch,IFNULL(SUM(b.zCement),0) AS zCement,IFNULL(SUM(b.zPitch),0) AS zPitch,IFNULL(SUM(b.ksNotShop),0) AS ksNotShop
+      FROM ap_district a
+      LEFT JOIN (SELECT d.* FROM ap_road_dust d left join ap_enterprise en
+      on en.id=d.accountid WHERE en.province=0) b
+      ON a.id=b.city AND b.`status`=3 AND b.fillyear=#{year}
+      WHERE a.districtLevel=1
+      GROUP BY a.id
+    </select>
+    
+    <select id="getRoadByCity" parameterType="int" resultType="com.xf.entity.gov.RoadDust">
+      SELECT a.id,a.districtName AS addressStr,IFNULL(SUM(b.ksCement)+SUM(b.ksPitch),0) AS ksPitch,IFNULL(SUM(b.cgCement)+SUM(b.cgPitch),0) AS cgPitch,IFNULL(SUM(b.zgCement)+SUM(b.zgPitch),0) AS zgPitch,IFNULL(SUM(b.zCement)+SUM(b.zPitch),0) AS zPitch
+      FROM ap_district a
+      LEFT JOIN ap_road_dust b
+      ON a.id=b.city AND b.fillyear=#{year} AND b.`status`=3
+      WHERE a.districtLevel=1
+      GROUP BY a.id
+    </select>
+    
+    <select id="motorCity" parameterType="int" resultMap="pollutantMap">
+    	select d.districtName,sta.name,ifnull(tal.avgmile,0)avgmile from ap_district d left join 
+		(select DISTINCT `name` from ap_static s where groupid=37)sta
+		on d.districtLevel=1 left join
+		(select city,vehicletype,AVG(avgmile) avgmile
+		from ap_vehicle_action where `status`=3 and fillyear=#{year}
+		group by city,vehicletype)tal
+		on sta.name=tal.vehicletype and d.id=tal.city
+		where d.districtLevel=1 group by sta.name,d.districtName
+		ORDER BY districtName
+    </select>
+    
+    <select id="motorType" parameterType="int" resultMap="pollutantMap">
+    	select sta.unit name,ifnull(sum(tal.avgmile),0)avgmile 
+		from (select DISTINCT unit from ap_static s where s.groupid=37)sta left join
+		(select vehicletype,SUM(avgmile)avgmile from ap_vehicle_action 
+		where fillyear=#{year} and `status`=3
+		group by vehicletype)tal
+		on sta.unit=tal.vehicletype
+		group by unit
+    </select>
+    
+    <select id="getMotorStat" parameterType="int" resultType="com.xf.vo.LookupMotorStatRes">
+    	SELECT CONCAT(a.`name`,'_',a.remark) AS `name`,b.`name` AS standard,d.pollutantName,IFNULL(c.statvalue,0) AS statvalue
+        FROM ap_static a
+        LEFT JOIN ap_static b
+        ON b.groupid=38
+        LEFT JOIN ap_pollutant d
+        ON d.id=1 OR d.id=2 OR d.id=3 OR d.id=6 OR d.id=7 OR d.id=8 OR d.id=9 OR d.id=10
+        LEFT JOIN ap_stat_motor c
+        ON c.vehiclemodel=a.id AND b.id=c.standard AND d.id=c.pollutantId AND c.fillyear=#{year}
+        WHERE a.groupid=37
+    </select>
+    
+    <select id="getMotorstatByGas" parameterType="int" resultType="com.xf.vo.LookupCityFeulRes">
+	   SELECT a.id,a.districtName,b.remark AS name,IFNULL(SUM(c.statvalue),0) AS sum
+       FROM ap_district a
+       LEFT JOIN ap_static b
+       ON b.groupid=37 AND b.id=29005 OR b.id=29006 OR b.id=29007 
+       LEFT JOIN ap_stat_motor c
+       ON a.id=c.city AND (SELECT e.remark FROM ap_static e WHERE e.id=c.vehiclemodel)=b.remark AND c.fillyear=#{year}
+       WHERE a.districtLevel=1
+       GROUP BY a.id,b.remark
+	</select>
+	
+	<select id="getMotorstatByGas2" parameterType="int" resultType="com.xf.vo.LookupCityFeulRes">
+	   SELECT a.id,a.districtName,b.remark AS name,IFNULL(SUM(c.statvalue),0) AS sum
+       FROM ap_district a
+       LEFT JOIN ap_static b
+       ON b.groupid=37 AND b.id=29005 OR b.id=29006 OR b.id=29007 
+       LEFT JOIN ap_stat_motor_pc c
+       ON a.id=c.city AND (SELECT e.remark FROM ap_static e WHERE e.id=c.vehiclemodel)=b.remark AND c.fillyear=#{year}
+       WHERE a.districtLevel=1
+       GROUP BY a.id,b.remark
+	</select>
+	
+	<select id="getMotorstatByMotorType" parameterType="int" resultType="com.xf.vo.LookupCityTradeASRes">
+		SELECT DISTINCT d.districtName,a.pollutantName,b.unit AS tradeName,IFNULL(SUM(c.statvalue),0) AS sum
+        FROM ap_district d
+		left join ap_pollutant a on d.districtLevel=1
+        LEFT JOIN ap_static b
+        ON b.groupid=37
+        LEFT JOIN ap_stat_motor c
+        ON a.id=c.pollutantId AND b.id=c.vehiclemodel AND d.id=c.city and c.fillyear=#{year}
+        WHERE a.id=1 OR a.id=2 OR a.id=3 OR a.id=6 OR a.id=7 OR a.id=8 OR a.id=9 OR a.id=10
+        GROUP BY d.districtName,a.pollutantName,b.unit order by d.id,a.id,b.id
+	</select>
+	
+	<select id="getMotorstatByMotorType2" parameterType="int" resultType="com.xf.vo.LookupCityTradeASRes">
+		SELECT DISTINCT d.districtName,a.pollutantName,b.unit AS tradeName,IFNULL(SUM(c.statvalue),0) AS sum
+        FROM ap_district d
+		left join ap_pollutant a on d.districtLevel=1
+        LEFT JOIN ap_static b
+        ON b.groupid=37
+        LEFT JOIN ap_stat_motor_pc c
+        ON a.id=c.pollutantId AND b.id=c.vehiclemodel AND d.id=c.city and c.fillyear=#{year}
+        WHERE a.id=1 OR a.id=2 OR a.id=3 OR a.id=6 OR a.id=7 OR a.id=8 OR a.id=9 OR a.id=10
+        GROUP BY d.districtName,a.pollutantName,b.unit order by d.id,a.id,b.id
+	</select>
+</mapper>

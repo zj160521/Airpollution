@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IUserDao">
+
+	<!-- resultMap -->
+	<resultMap type="user" id="userMap">
+		<result property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="typeid" column="typeid" />
+		<result property="usertype" column="usertype" />
+		<result property="password" column="password" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="remark" column="remark" />
+		<result property="town" column="town" />
+		<result property="menuitems" column="menuitems" />
+		<result property="role_id" column="role_id" />
+		<result property="role_name" column="role_name" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="user" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_user(username,typeid,usertype,password,province,city,remark,town,menuitems,role_id)
+		values(#{username},#{typeid},#{usertype},#{password},#{province},#{city},#{remark},#{town},#{menuitems},#{role_id})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="user">
+		delete from ap_user where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="user">
+		update ap_user 
+		<set>
+		<if test="typeid > 0">
+			typeid=#{typeid},
+		</if>
+		<if test="username != null">
+			username=#{username},
+		</if>
+		<if test="usertype > 0">
+			usertype=#{usertype},
+		</if>
+		<if test="password != null">
+			password=#{password},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="remark != null">
+			remark=#{remark},
+		</if>
+		<if test="town!=null">
+			town=#{town},
+		</if>
+		<if test="menuitems != null">
+			menuitems=#{menuitems},
+		</if>
+		<if test="role_id > 0">
+			role_id=#{role_id}
+		</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="userMap">
+		select * from ap_user where id=#{id}
+	</select>
+
+	<select id="getByName" parameterType="String" resultMap="userMap">
+		select u.*,r.name as role_name from ap_user u left join t_role r on u.role_id=r.id where username=#{name}
+	</select>
+
+    <select id="getByName2" parameterType="String" resultType="User">
+		select * from ap_user where username like #{name}
+	</select>
+
+	<!--查询所有 -->
+	<select id="getAll" resultType="com.xf.entity.User">
+		select u.*,r.name as role_name from ap_user u left join t_role r on u.role_id=r.id
+	</select>
+
+    <select id="getPermission" parameterType="int" resultType="com.xf.entity.Permission">
+	     SELECT u.id AS userid,u.username,r.id AS roleid,r.`name` AS rolename,p.id,p.pid,p.`name` AS pname  
+        FROM ap_user u
+        LEFT JOIN t_role r
+        ON u.role_id=r.id
+        LEFT JOIN t_mid_permission m
+        ON r.id=m.role_id
+        LEFT JOIN t_permission p
+        ON m.permission_id=p.id
+        WHERE u.id=#{id}
+	</select>
+</mapper>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IPlaneDao">
+
+	<!-- resultMap -->
+	<resultMap type="Plane" id="PlaneMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="status" column="status" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="airport" column="airport" />
+		<result property="factory" column="factory" />
+		<result property="planemodel" column="planemodel" />
+		<result property="numbers" column="numbers" />
+		<result property="addressStr" column="addressStr" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="PlaneMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_plane where id=#{id}
+	</select>
+	<select id="getByField" parameterType="Plane" resultMap="PlaneMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_plane where fillyear=#{fillyear} and airport=#{airport} and accountid=#{accountid}
+	</select>
+	<select id="getByYear" parameterType="Plane" resultMap="PlaneMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_plane where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<delete id="clearData" parameterType="Plane">
+		delete from ap_plane where fillyear=#{fillyear} and accountid=#{accountid}
+	</delete>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_plane where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<select id="getAll" resultMap="PlaneMap">
+		select a.id,a.accountid,a.`status`,a.importflag,a.fillTime,a.fillyear,a.province,a.city,a.town,a.country,a.street,a.airport,a.factory,a.planemodel,SUM(IFNULL(a.numbers,0)) numbers
+        from ap_plane a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        where a.fillyear =#{0} and a.`status`=3 AND e1.province>0
+        GROUP BY a.airport
+	</select>
+	<select id="getAll2" resultMap="PlaneMap">
+		select a.id,a.accountid,a.`status`,a.importflag,a.fillTime,a.fillyear,a.province,a.city,a.town,a.country,a.street,a.airport,a.factory,a.planemodel,SUM(IFNULL(a.numbers,0)) numbers
+        from ap_plane a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        where a.fillyear =#{0} and a.`status`=3 AND e1.province=0
+        GROUP BY a.airport
+	</select>
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_plane set status=#{0} where accountid=#{1}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_plane set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<!-- 添加 -->
+	<insert id="add" parameterType="Plane" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_plane
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="status >= 0">
+			status=#{status},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear >= 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province >= 0">
+			province=#{province},
+		</if>
+		<if test="city >= 0">
+			city=#{city},
+		</if>
+		<if test="town >= 0">
+			town=#{town},
+		</if>
+		<if test="country >= 0">
+			country=#{country},
+		</if>
+		<if test="street >= 0">
+			street=#{street},
+		</if>
+		<if test="airport != null">
+			airport=#{airport},
+		</if>
+		<if test="factory != null">
+			factory=#{factory},
+		</if>
+		<if test="planemodel != null">
+			planemodel=#{planemodel},
+		</if>
+		<if test="numbers >= 0">
+			numbers=#{numbers},
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_plane where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="Plane">
+		update ap_plane
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="airport != null">
+			airport=#{airport},
+		</if>
+		<if test="factory != null">
+			factory=#{factory},
+		</if>
+		<if test="planemodel != null">
+			planemodel=#{planemodel},
+		</if>
+		<if test="numbers > 0">
+			numbers=#{numbers},
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.GlPollutantStatDao">
+
+	<select id="getData" resultType="com.xf.vo.DistrictStat">
+       
+    SELECT aa.id ,aa.`name`,aa.pid,aa.groupid,aa.pollutantId1 pollutantId,aa.pollutantName,IFNULL(SUM(aa.total),0) total FROM (
+      SELECT g.id,g.`name`,g.pid,g.groupid,h.id pollutantId1,h.pollutantName,c.id deviceid1,c.deviceSerial,c.deviceTypeId,b.deviceid,b.pollutantId,b.statvalue
+       ,SUM(b.statvalue) total
+       ,b.statmonth,b.fillyear
+       FROM ap_static g
+       LEFT JOIN ap_pollutant h
+       ON h.id &lt; 11
+       LEFT JOIN ap_devices c
+       ON g.id=c.deviceTypeId OR g.id=c.deviceTypeId2
+       LEFT JOIN ap_enterprise e
+       ON c.enterpriceId=e.id AND IFNULL(1/#{2},e.ismall=#{1})
+       LEFT JOIN ap_stat_device b
+       ON b.deviceid=c.id AND b.pollutantId=h.id AND b.fillyear=#{0} AND b.companyid = e.id 
+       WHERE g.groupid=1 OR g.groupid=4  
+       GROUP BY g.id,h.id,b.pollutantId
+       ) aa WHERE aa.id>0
+       GROUP BY aa.id,aa.pollutantId1
+	</select>
+
+</mapper>

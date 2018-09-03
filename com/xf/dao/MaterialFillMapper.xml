@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IMaterialFillDao">
+
+	<!-- resultMap -->
+	<resultMap type="materialfill" id="materialfillMap">
+		<result property="id" column="id" />
+		<result property="productFillId" column="productFillId" />
+		<result property="materialId" column="materialId" />
+		<result property="fillyear" column="fillyear" />
+		<result property="fillTime" column="fillTime" />
+		<result property="consumeOfYear" column="consumeOfYear" />
+		<result property="unit" column="unit" />
+		<result property="remark" column="remark" />
+		<result property="status" column="status" />
+
+	</resultMap>
+
+	<select id="getByMaterialId" parameterType="int" resultMap="materialfillMap">
+		select * from ap_material_fill where materialId=#{mid}
+	</select>
+	<select id="getByProductFillId" parameterType="int" resultMap="materialfillMap">
+		select * from ap_material_fill where fillyear=#{fillyear} and productFillId=#{pfid}
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="materialfill" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_material_fill(productFillId,materialId,fillyear,fillTime,consumeOfYear,unit,remark)
+		values(#{productFillId},#{materialId},#{fillyear},#{fillTime},#{consumeOfYear},#{unit},#{remark})
+	</insert>
+	<delete id="delete" parameterType="materialfill">
+		delete from ap_material_fill where id=#{id};
+	</delete>
+	<delete id="deletepfill" parameterType="materialfill">
+		delete from ap_material_fill where productFillId=#{0};
+	</delete>
+	<!--修改 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_material_fill set status=#{0} where productFillId in (select id from ap_product_fill where enterpriceId=#{1}) and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_material_fill set status=#{0} where productFillId in (select id from ap_product_fill where enterpriceId=#{1})
+		and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_material_fill set status=#{0} where productFillId in (select id from ap_product_fill where enterpriceId=#{1})
+		and status=#{2} and fillyear=#{3}
+	</update>
+	<update id="update" parameterType="materialfill">
+		update ap_material_fill
+		<set>
+			<if test="productFillId > 0">
+				productFillId=#{productFillId},
+			</if>
+			<if test="materialId > 0">
+				materialId=#{materialId},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime},
+			</if>
+			<if test="fillyear > 0">
+				fillyear=#{fillyear},
+			</if>
+			<if test="consumeOfYear > 0">
+				consumeOfYear=#{consumeOfYear},
+			</if>
+			<if test="unit != null">
+				unit=#{unit},
+			</if>
+			<if test="status > 0">
+				status=#{status},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+</mapper>

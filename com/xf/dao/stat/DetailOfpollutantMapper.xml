@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xf.dao.stat.IDetailOfpollutantDao">
+
+	<resultMap type="com.xf.vo.Details" id="DetailsMap">
+		<result property="districtName1" column="districtName1" />
+		<result property="districtName2" column="districtName2" />
+		<result property="districtName3" column="districtName3" />
+		<result property="tradeName" column="tradeName" />
+		<result property="tradeNo" column="tradeNo"/>
+		<result property="companyName" column="companyName" />
+		<result property="e_point" column="e_point" />
+		<result property="n_point" column="n_point" />
+		<result property="deviceName" column="deviceName" />
+		<result property="pollutantName" column="pollutantName" />
+		<result property="fuelName" column="fuelName" />
+		<result property="productName" column="productName" />
+		<result property="materialName" column="materialName" />
+		<result property="fillyear" column="fillyear" />
+		<result property="month" column="month" />
+		<result property="statvalue" column="statvalue" />
+		<result property="exp" column="stat_exp" />
+		<result property="factor" column="stat_factor" />
+		<result property="valtype" column="stat_valtype" />
+		<result property="value" column="stat_value" />
+		<result property="dsrate" column="stat_dsrate" />
+	</resultMap>
+
+	<select id="getDetailDevice" parameterType="Condition"
+		resultMap="DetailsMap">
+		select (select districtName from ap_district where id=e.province)as districtName1,
+		(select districtName from ap_district where id=e.city)as districtName2,
+		(select districtName from ap_district where id=e.town)as districtName3,
+		if(e.trade3=0,(select tradeName from ap_trade where id=e.trade2),
+		(if(e.trade4=0,(select tradeName from ap_trade where id=e.trade3),
+		(select tradeName from ap_trade where id=e.trade4))))as tradeName,
+		if(e.trade3=0,(select tradeNo from ap_trade where
+		id=e.trade2),(if(e.trade4=0,(select tradeNo from ap_trade where
+		id=e.trade3),(select tradeNo from ap_trade where id=e.trade4))))as tradeNo,
+		e.enterpriceName as companyName,e.e_point,e.n_point,
+		(select
+		name from ap_static where
+		id=(select deviceTypeId2 from ap_devices
+		where id=s.deviceid))as deviceName,
+		(select pollutantName from
+		ap_pollutant where
+		id=s.pollutantId)as pollutantName,
+		(select name from ap_static
+		where id=s.fuelid)as
+		fuelName,s.statmonth
+		month,s.statvalue,s.stat_exp,s.stat_factor,s.stat_valtype,s.stat_value,s.stat_dsrate
+		from ap_stat_device s
+		left join ap_enterprise e on e.id=s.companyid
+		left join ap_devices d on d.id=s.deviceid
+		<where>
+			<if test="tradeid1>0">
+				e.trade1=#{tradeid1}
+			</if>
+			<if test="tradeid2>0">
+				and e.trade2=#{tradeid2}
+			</if>
+			<if test="province>0">
+				and e.province=#{province}
+			</if>
+			<if test="cityid>0">
+				and e.city=#{cityid}
+			</if>
+			<if test="townid>0">
+				and e.town=#{townid}
+			</if>
+			<if test="companyName!=null">
+				and e.enterpriceName like CONCAT('%',#{companyName},'%')
+			</if>
+			<if test="deviceSerial!=null">
+				and d.deviceSerial like CONCAT('%',#{deviceSerial},'%')
+			</if>
+			<if test="pollutantId>0">
+				and s.pollutantId=#{pollutantId}
+			</if>
+			<if test="fillyear>0">
+				and s.fillyear=#{fillyear}
+			</if>
+			<if test="month>0">
+				and s.statmonth=#{month}
+			</if>
+		</where>
+		order by companyName,deviceName,pollutantName,month
+	</select>
+
+	<select id="getDetailProduct" parameterType="Condition"
+		resultMap="DetailsMap">
+		select (select districtName from ap_district where id=e.province)as
+		districtName1,
+		(select districtName from ap_district where id=e.city)as
+		districtName2,
+		(select districtName from ap_district where id=e.town)as
+		districtName3,
+		if(e.trade3=0,(select tradeName from ap_trade where
+		id=e.trade2),(if(e.trade4=0,(select tradeName from ap_trade where
+		id=e.trade3),(select tradeName from ap_trade where id=e.trade4))))as
+		tradeName,
+		if(e.trade3=0,(select tradeNo from ap_trade where
+		id=e.trade2),(if(e.trade4=0,(select tradeNo from ap_trade where
+		id=e.trade3),(select tradeNo from ap_trade where id=e.trade4))))as
+		tradeNo,
+		e.enterpriceName as companyName,e.e_point,e.n_point,
+		(select
+		productName from ap_product where
+		id=s.productid)as productName,
+		(select pollutantName from ap_pollutant
+		where id=s.pollutantId)as
+		pollutantName,
+		(select name from ap_static
+		where id=s.fuelid)as
+		fuelName,
+		(select materialName from ap_material
+		where id=s.materialid)as
+		materialName,s.statmonth
+		month,s.statvalue,s.stat_exp,s.stat_factor,s.stat_valtype,s.stat_value,s.stat_dsrate
+		from ap_stat_product s left join
+		ap_enterprise e on e.id=s.companyid
+		left join ap_product p on p.id=s.productid
+		<where>
+			<if test="tradeid1>0">
+				e.trade1=#{tradeid1}
+			</if>
+			<if test="tradeid2>0">
+				and e.trade2=#{tradeid2}
+			</if>
+			<if test="tradeid3>0">
+				and e.trade3=#{tradeid3}
+			</if>
+			<if test="tradeid4>0">
+				and e.trade4=#{tradeid4}
+			</if>
+			<if test="province>0">
+				and e.province=#{province}
+			</if>
+			<if test="cityid>0">
+				and e.city=#{cityid}
+			</if>
+			<if test="townid>0">
+				and e.town=#{townid}
+			</if>
+			<if test="companyName!=null">
+				and e.enterpriceName like CONCAT('%',#{companyName},'%')
+			</if>
+			<if test="productName!=null">
+				and p.productName like CONCAT('%',#{productName},'%')
+			</if>
+			<if test="pollutantId>0">
+				and s.pollutantId=#{pollutantId}
+			</if>
+			<if test="fillyear>0">
+				and s.fillyear=#{fillyear}
+			</if>
+			<if test="month>0">
+				and s.statmonth=#{month}
+			</if>
+		</where>
+		order by companyName,productName,pollutantName,month
+	</select>
+</mapper>

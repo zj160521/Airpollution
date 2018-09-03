@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IFileUploadDao">
+
+	<insert id="add" parameterType="FileUpload" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_fileupload
+		<set>
+			<if test="fillTime != null">
+				fillTime = #{fillTime},
+			</if>
+			<if test="fillyear >= 0 ">
+				fillyear = #{fillyear},
+			</if>
+			<if test="accountid >= 0">
+				accountid = #{accountid},
+			</if>
+			<if test="imported >= 0 ">
+				imported = #{imported},
+			</if>
+			<if test="checkFile != null ">
+				checkFile = #{checkFile},
+			</if>
+			<if test="importFile != null ">
+				importFile = #{importFile},
+			</if>
+			<if test="tabletype !=null">
+				tabletype=#{tabletype}
+			</if>
+		</set>
+	</insert>
+
+	<update id="update" parameterType="FileUpload">
+		update ap_fileupload set
+		importFile = #{importFile},
+		imported = #{imported}
+		where
+		accountid=#{accountid} and tabletype=#{tabletype} and fillyear=#{fillyear}
+	</update>
+
+	<update id="updatecheck" parameterType="FileUpload">
+		update ap_fileupload
+		<set>
+			fillTime = now(),
+			<if test="fillyear >= 0 ">
+				fillyear = #{fillyear},
+			</if>
+			<if test="accountid >= 0">
+				accountid = #{accountid},
+			</if>
+			<if test="imported >= 0 ">
+				imported = #{imported},
+			</if>
+			<if test="checkFile != null ">
+				checkFile = #{checkFile},
+			</if>
+			<if test="importFile != null ">
+				importFile = #{importFile},
+			</if>
+		</set>
+		where tabletype=#{tabletype} and accountid=#{accountid} and fillyear=#{fillyear}
+	</update>
+
+	<select id="findFile" parameterType="FileUpload" resultType="FileUpload">
+		select * from ap_fileupload where accountid=#{accountid} and
+		tabletype=#{tabletype} and fillyear=#{fillyear}
+	</select>
+</mapper>

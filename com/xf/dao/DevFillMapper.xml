@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IDevFillDao">
+
+	<!-- resultMap -->
+	<resultMap type="devfill" id="devfillMap">
+		<result property="id" column="id" />
+		<result property="deviceId" column="deviceId" />
+		<result property="fuelId" column="fuelId" />
+		<result property="fuelPid" column="fuelPid" />
+		<result property="fuelName" column="fuelName" />
+		<result property="fuelPname" column="fuelPname" />
+		<result property="fuelUnit" column="fuelUnit" />
+		<result property="fuelPlace" column="fuelPlace" />
+		<result property="fillyear" column="fillyear" />
+		<result property="fillTime" column="fillTime" />
+		<result property="SContent" column="SContent" />
+		<result property="AshContent" column="AshContent" />
+		<result property="VocContent" column="VocContent" />
+		<result property="hoursPerDay" column="hoursPerDay" />
+		<result property="daysPerYear" column="daysPerYear" />
+		<result property="mTotalYear" column="mTotalYear" />
+		<result property="materialId" column="materialId" />
+		<result property="materialName" column="materialName1" />
+		<result property="materialConsume" column="materialConsume" />
+		<result property="productId" column="productId" />
+		<result property="productName" column="productName1" />
+		<result property="productTotalYear" column="productTotalYear" />
+		<result property="m1" column="m1" />
+		<result property="m2" column="m2" />
+		<result property="m3" column="m3" />
+		<result property="m4" column="m4" />
+		<result property="m5" column="m5" />
+		<result property="m6" column="m6" />
+		<result property="m7" column="m7" />
+		<result property="m8" column="m8" />
+		<result property="m9" column="m9" />
+		<result property="m10" column="m10" />
+		<result property="m11" column="m11" />
+		<result property="m12" column="m12" />
+		<result property="remark" column="remark" />
+		<result property="status" column="status" />
+		<result property="materialUnit" column="materialUnit" />
+		<result property="productUnit" column="productUnit" />
+	</resultMap>
+
+	<select id="getByDevId1" parameterType="int" resultMap="devfillMap">
+		select
+		df.*, s2.id as fuelPid, s1.name as fuelName, s2.name as fuelPname
+		from
+		ap_devfill df left outer join ap_static s1 on df.fuelId=s1.id
+		left
+		outer join ap_static s2 on s1.pid = s2.id
+		where deviceId=#{devid} order
+		by fillyear desc
+	</select>
+
+	<select id="getByDevId" parameterType="int" resultMap="devfillMap">
+		select
+		df.*, s2.id as fuelPid, s1.name as fuelName, s2.name as fuelPname
+		from
+		ap_devfill df left outer join ap_static s1 on df.fuelId=s1.id
+		left
+		outer join ap_static s2 on s1.pid = s2.id
+		where deviceId=#{devid} AND
+		fillyear=#{fillyear} order by fillyear desc
+	</select>
+	<select id="getCuryearFill" parameterType="int" resultMap="devfillMap">
+		select df.*, s2.id as fuelPid, s1.name as fuelName, s2.name as
+		fuelPname,s1.unit as fuelUnit,
+		(select p.productName from ap_product p
+		where id=df.productId) as productName1,
+		(select m.materialName from
+		ap_material m where id=df.materialId) as materialName1
+		from ap_devfill
+		df left outer join ap_static s1 on df.fuelId=s1.id
+		left outer join
+		ap_static s2 on s1.pid = s2.id
+		where deviceId=#{devid} and
+		fillyear=#{fillyear}
+	</select>
+	<!-- 添加 -->
+	<insert id="add" parameterType="devfill" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_devfill set
+		deviceId=#{deviceId},
+		fuelId=#{fuelId},
+		fuelPlace=#{fuelPlace},
+		fillyear=#{fillyear},
+		fillTime=#{fillTime},
+		SContent=#{SContent},
+		AshContent=#{AshContent},
+		VocContent=#{VocContent},
+		hoursPerDay=#{hoursPerDay},
+		daysPerYear=#{daysPerYear},
+		materialId=#{materialId},
+		materialName=#{materialName},
+		materialConsume=#{materialConsume},
+		productId=#{productId},
+		productName=#{productName},
+		productTotalYear=#{productTotalYear},
+		mTotalYear=#{mTotalYear},
+		m1=#{m1},
+		m2=#{m2},
+		m3=#{m3},
+		m4=#{m4},
+		m5=#{m5},
+		m6=#{m6},
+		m7=#{m7},
+		m8=#{m8},
+		m9=#{m9},
+		m10=#{m10},
+		m11=#{m11},
+		m12=#{m12},
+		status=#{status},
+		fuelcost=#{fuelcost},
+		remark=#{remark},
+		materialUnit=#{materialUnit},
+		productUnit=#{productUnit}
+	</insert>
+	<!--修改 -->
+	<select id="yearFill" parameterType="int" resultType="devfill">
+		select df.*
+		from ap_devices d left outer join ap_devfill df on df.enterpriceId =
+		d.id
+		where fillyear=(select v from ap_config where k='current_year') and
+		d.id=#{companyid}
+	</select>
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_devfill set status=#{0} where deviceId in (select id from
+		ap_devices where enterpriceId=#{1} and enabled>0) and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_devfill set status=#{0} where deviceId in (select id from
+		ap_devices where enterpriceId=#{1} and enabled>0)
+		and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_devfill set status=#{0} where deviceId in (select id from
+		ap_devices where enterpriceId=#{1} and enabled>0)
+		and status=#{2} and
+		fillyear=#{3}
+	</update>
+	<update id="unpass"> <!-- 参数0是status,参数1是companyid -->
+		update ap_devfill set status=#{0} where id = #{1}
+		and status=#{2}
+	</update>
+	<update id="update" parameterType="devfill">
+		update ap_devfill
+		<set>
+			<if test="deviceId > 0">
+				deviceId=#{deviceId},
+			</if>
+			<if test="fuelId > 0">
+				fuelId=#{fuelId},
+			</if>
+			<if test="fuelPlace != null">
+				fuelPlace=#{fuelPlace},
+			</if>
+			<if test="fillyear > 0">
+				fillyear=#{fillyear},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime},
+			</if>
+			<if test="SContent != null">
+				SContent=#{SContent},
+			</if>
+			<if test="AshContent != null">
+				AshContent=#{AshContent},
+			</if>
+			<if test="VocContent != null">
+				VocContent=#{VocContent},
+			</if>
+			<if test="hoursPerDay != null">
+				hoursPerDay=#{hoursPerDay},
+			</if>
+			<if test="daysPerYear != null">
+				daysPerYear=#{daysPerYear},
+			</if>
+			<if test="materialId > 0">
+				materialId=#{materialId},
+			</if>
+			<if test="materialName != null">
+				materialName=#{materialName},
+			</if>
+			<if test="materialConsume != null">
+				materialConsume=#{materialConsume},
+			</if>
+			<if test="productId > 0">
+				productId=#{productId},
+			</if>
+			<if test="productName != null">
+				productName=#{productName},
+			</if>
+			<if test="productTotalYear != null">
+				productTotalYear=#{productTotalYear},
+			</if>
+			<if test="mTotalYear > 0">
+				mTotalYear=#{mTotalYear},
+			</if>
+			<if test="m1 != null">
+				m1=#{m1},
+			</if>
+			<if test="m2 != null">
+				m2=#{m2},
+			</if>
+			<if test="m3 != null">
+				m3=#{m3},
+			</if>
+			<if test="m4 != null">
+				m4=#{m4},
+			</if>
+			<if test="m5 != null">
+				m5=#{m5},
+			</if>
+			<if test="m6 != null">
+				m6=#{m6},
+			</if>
+			<if test="m7 != null">
+				m7=#{m7},
+			</if>
+			<if test="m8 != null">
+				m8=#{m8},
+			</if>
+			<if test="m9 != null">
+				m9=#{m9},
+			</if>
+			<if test="m10 != null">
+				m10=#{m10},
+			</if>
+			<if test="m11 != null">
+				m11=#{m11},
+			</if>
+			<if test="m12 != null">
+				m12=#{m12},
+			</if>
+			<if test="status > 0">
+				status=#{status},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="materialUnit != null">
+				materialUnit=#{materialUnit},
+			</if>
+			<if test="fuelcost > 0">
+				fuelcost=#{fuelcost},
+			</if>
+			<if test="productUnit != null">
+				productUnit=#{productUnit}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<select id="getfuelByname" parameterType="java.lang.String"
+		resultMap="devfillMap">
+		SELECT DISTINCT fuelId FROM ap_devfill WHERE fillyear=(select v from
+		ap_config where k='current_year') productName=#{productName};
+	</select>
+
+	<select id="getByfuelId" parameterType="int" resultMap="devfillMap">
+		SELECT * FROM ap_devfill d join ap_devices s ON d.deviceId=s.id where
+		d.fillyear=(select v from ap_config where k='current_year') and
+		d.fuelId=#{0} and s.enterpriceId=(SELECT enterpriceId from ap_product
+		where id=#{1});
+	</select>
+
+	<select id="getById" resultType="com.xf.entity.DevFill">
+		SELECT a.* FROM ap_devfill a WHERE a.id =#{0}
+	</select>
+	
+	<select id="getByCompanyId" resultType="com.xf.entity.DevFill">
+		select df.*	from ap_devfill df
+        LEFT JOIN ap_devices dev ON df.deviceId=dev.id
+		where dev.enterpriceId=#{companyid} AND df.fillyear=#{fillyear}
+		<if test="status > 0">
+		and df.status=#{status}
+		</if>
+		order by df.fillyear desc
+	</select>
+	
+	<update id="smallSetstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_devfill set status=#{0} where deviceId in (select id from
+		ap_devices where enterpriceId=#{1} and enabled>0) and fillyear=#{2}
+	</update>
+	<update id="smallSetstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_devfill set status=#{0} where deviceId in (select id from
+		ap_devices where enterpriceId=#{1} and enabled>0)
+		and status=#{2} and
+		fillyear=#{3}
+	</update>
+</mapper>

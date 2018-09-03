@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.ICompanyDao">
+
+	<!-- resultMap -->
+	<resultMap type="company" id="companyMap">
+		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="password" column="password" />
+		<result property="companyName" column="enterpriceName" />
+		<result property="companySerial" column="enterpriceSerial" />
+		<result property="trade1" column="trade1" />
+		<result property="trade2" column="trade2" />
+		<result property="trade3" column="trade3" />
+		<result property="trade4" column="trade4" />
+		<result property="contact" column="contact" />
+		<result property="contactNo" column="contactNo" />
+		<result property="legalPerson" column="legalPerson" />
+		<result property="legalPersonPhone" column="legalPersonPhone" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="e_point" column="e_point" />
+		<result property="n_point" column="n_point" />
+		<result property="completedTime" column="completedTime" />
+		<result property="remark" column="remark" />
+		<result property="tradeStr" column="tradeStr" />
+		<result property="addressStr" column="addressStr" />
+		<result property="typeid" column="typeid" />
+		<result property="typename" column="typename" />
+		<result property="groupname" column="groupname" />
+		<result property="address" column="address" />
+		<result property="code" column="code" />
+		<result property="companyCode" column="companyCode"/>
+		<result property="industrialPark" column="industrialPark"/>
+		<result property="buildTime" column="buildTime"/>
+		<result property="ismall" column="ismall"/>
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="company" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_enterprise
+		<set>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="password != null">
+				password=#{password},
+			</if>
+			<if test="companyName != null">
+				enterpriceName=#{companyName},
+			</if>
+			<if test="companySerial != null">
+				enterpriceSerial=#{companySerial},
+			</if>
+			<if test="trade1 >= 0">
+				trade1=#{trade1},
+			</if>
+			<if test="trade2 >= 0">
+				trade2=#{trade2},
+			</if>
+			<if test="trade3 >= 0">
+				trade3=#{trade3},
+			</if>
+			<if test="trade4 >= 0">
+				trade4=#{trade4},
+			</if>
+			<if test="contact != null">
+				contact=#{contact},
+			</if>
+			<if test="contactNo != null">
+				contactNo=#{contactNo},
+			</if>
+			<if test="legalPerson != null">
+				legalPerson=#{legalPerson},
+			</if>
+			<if test="legalPersonPhone != null">
+				legalPersonPhone=#{legalPersonPhone},
+			</if>
+			<if test="province >= 0">
+				province=#{province},
+			</if>
+			<if test="city >= 0">
+				city=#{city},
+			</if>
+			<if test="town >= 0">
+				town=#{town},
+			</if>
+			<if test="country >= 0">
+				country=#{country},
+			</if>
+			<if test="street >= 0">
+				street=#{street},
+			</if>
+			<if test="e_point >= 0.0">
+				e_point=#{e_point},
+			</if>
+			<if test="n_point >= 0.0">
+				n_point=#{n_point},
+			</if>
+			<if test="typeid >= 0">
+				typeid=#{typeid},
+			</if>
+			<if test="address != null">
+				address=#{address},
+			</if>
+			<if test="completedTime != null">
+				completedTime=#{completedTime},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="code != null">
+				code=#{code},
+			</if>
+			<if test="companyCode != null">
+				companyCode=#{companyCode},
+			</if>
+			<if test="industrialPark != null">
+				industrialPark=#{industrialPark},
+			</if>
+			<if test="buildTime != null">
+				buildTime=#{buildTime},
+			</if>
+			<if test="ismall > 0">
+				ismall=#{ismall}
+			</if>
+		</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="company">
+		delete from ap_enterprise
+		where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="company">
+		update ap_enterprise
+		<set>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="password != null">
+				password=#{password},
+			</if>
+			<if test="companyName != null">
+				enterpriceName=#{companyName},
+			</if>
+			<if test="companySerial != null">
+				enterpriceSerial=#{companySerial},
+			</if>
+			<if test="trade1 >= 0">
+				trade1=#{trade1},
+			</if>
+			<if test="trade2 >= 0">
+				trade2=#{trade2},
+			</if>
+			<if test="trade3 >= 0">
+				trade3=#{trade3},
+			</if>
+			<if test="trade4 >= 0">
+				trade4=#{trade4},
+			</if>
+			<if test="contact != null">
+				contact=#{contact},
+			</if>
+			<if test="contactNo != null">
+				contactNo=#{contactNo},
+			</if>
+			<if test="legalPerson != null">
+				legalPerson=#{legalPerson},
+			</if>
+			<if test="legalPersonPhone != null">
+				legalPersonPhone=#{legalPersonPhone},
+			</if>
+			<if test="province > 0">
+				province=#{province},
+			</if>
+			<if test="city > 0">
+				city=#{city},
+			</if>
+			<if test="town > 0">
+				town=#{town},
+			</if>
+			<if test="country > 0">
+				country=#{country},
+			</if>
+			<if test="street > 0">
+				street=#{street},
+			</if>
+			<if test="e_point > 0.0">
+				e_point=#{e_point},
+			</if>
+			<if test="n_point > 0.0">
+				n_point=#{n_point},
+			</if>
+			<if test="typeid > 0">
+				typeid=#{typeid},
+			</if>
+			<if test="address != null">
+				address=#{address},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="code != null">
+				code=#{code},
+			</if>
+			<if test="companyCode != null">
+				companyCode=#{companyCode},
+			</if>
+			<if test="industrialPark != null">
+				industrialPark=#{industrialPark},
+			</if>
+			<if test="buildTime != null and buildTime !='' ">
+				buildTime=#{buildTime}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<update id="updateRemark" parameterType="int">
+		update ap_enterprise set remark = NULL where id=#{id}
+	</update>
+	
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="companyMap">
+		select e.*,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		ifnull((select districtName from ap_district where id=town),''), ' ',
+		ifnull((select districtName from ap_district where id=country),'')) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		where e.id=#{id}
+	</select>
+
+	<!--根据id查询全部 -->
+	<select id="CName" parameterType="int" resultMap="companyMap">
+		select
+		e.*,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		(select districtName from ap_district where id=town), ' ',
+		(select districtName from ap_district where id=country), ' ',
+		(select districtName from ap_district where id=street)) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		where e.typeid=#{typeid}
+	</select>
+
+	<select id="getByName" parameterType="String" resultMap="companyMap">
+		select
+		e.*,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		(select districtName from ap_district where id=town), ' ',
+		(select districtName from ap_district where id=country), ' ',
+		(select districtName from ap_district where id=street)) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		where e.name=#{name}
+	</select>
+
+	<select id="getCode" parameterType="String" resultMap="companyMap">
+		select *
+		from ap_enterprise e where e.code=#{code}
+	</select>
+	<!--查询所有 -->
+	<select id="getAll" parameterType="int" resultMap="companyMap">
+		select e.*,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		(select districtName from ap_district where id=town), ' ',
+		(select districtName from ap_district where id=country), ' ',
+		(select districtName from ap_district where id=street)) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		where e.typeid = 2
+		<if test="_parameter > 0">and city=#{_parameter}</if>
+	</select>
+	
+	<select id="getAll2" parameterType="com.xf.entity.Searchform" resultType="com.xf.entity.CompanyVo">
+		select e.id,e.name,e.enterpriceName companyName,e.contact,e.contactNo,e.completedTime,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		(select districtName from ap_district where id=town), ' ',
+		(select districtName from ap_district where id=country), ' ',
+		(select districtName from ap_district where id=street)) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		where e.typeid = 2
+		<if test="areaId > 0">
+		and city = #{areaId} or town = #{areaId}
+		</if>
+		limit #{id},#{page_rows}
+	</select>
+	
+	<select id="getTotalRecs" parameterType="com.xf.entity.Searchform" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM ap_enterprise e
+		WHERE e.typeid = 2
+		<if test="areaId > 0">
+		and city = #{areaId} or town = #{areaId}
+		</if>
+	</select>
+	
+	<select id="getByantistop" parameterType="java.lang.String" resultMap="companyMap">
+		select e.*,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		(select districtName from ap_district where id=town), ' ',
+		(select districtName from ap_district where id=country), ' ',
+		(select districtName from ap_district where id=street)) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		where e.typeid = 2
+		<if test="_parameter!=null">
+		and (e.id like CONCAT('%',#{_parameter},'%') 
+		or e.`name` like CONCAT('%',#{_parameter},'%') 
+		or e.enterpriceName like CONCAT('%',#{_parameter},'%') 
+		or e.contact like CONCAT('%',#{_parameter},'%') 
+		or e.contactNo like CONCAT('%',#{_parameter},'%') 
+		or e.completedTime like CONCAT('%',#{_parameter},'%'))
+		</if>
+	</select>
+
+	<select id="getCityTown" parameterType="Condition" resultMap="companyMap">
+		select e.*,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		(select districtName from ap_district where id=town), ' ',
+		(select districtName from ap_district where id=country), ' ',
+		(select districtName from ap_district where id=street)) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		<where>
+			e.typeid = 2
+			<if test="ismall>=0">
+				and e.ismall=#{ismall}
+			</if>
+			<if test="companyName!=null and companyName!=''">
+				and e.enterpriceName like CONCAT('%',#{companyName},'%')
+			</if>
+			<if test="province>0">
+				and e.province=#{province}
+			</if>
+			<if test="cityid>0">
+				and e.city=#{cityid}
+			</if>
+			<if test="townid>0">
+				and e.town=#{townid}
+			</if>
+			<if test="tradeid1>0">
+				and e.trade1=#{tradeid1}
+			</if>
+			<if test="tradeid2>0">
+				and e.trade2=#{tradeid2}
+			</if>
+			<if test="tradeid3>0">
+				and e.trade3=#{tradeid3}
+			</if>
+			<if test="tradeid4>0">
+				and e.trade4=#{tradeid4}
+			</if>
+		</where>
+	</select>
+
+	<select id="getGov" parameterType="company" resultMap="companyMap">
+		select
+		e.*,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		(select districtName from ap_district where id=town), ' ',
+		(select districtName from ap_district where id=country), ' ',
+		(select districtName from ap_district where id=street)) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		where e.typeid > 2
+	</select>
+	
+	<select id="getGovby" parameterType="java.lang.String" resultMap="companyMap">
+		select
+		e.*,concat(
+		(select tradename from ap_trade where id=trade1), ' ',
+		(select tradename from ap_trade where id=trade2), ' ',
+		(select tradename from ap_trade where id=trade3), ' ',
+		(select tradename from ap_trade where id=trade4)) as tradeStr,
+		concat(
+		(select districtName from ap_district where id=province), ' ',
+		(select districtName from ap_district where id=city), ' ',
+		(select districtName from ap_district where id=town), ' ',
+		(select districtName from ap_district where id=country), ' ',
+		(select districtName from ap_district where id=street)) as addressStr,
+		a.typename,a.groupname
+		from ap_enterprise e left outer join
+		ap_accountype a on e.typeid=a.id
+		where e.typeid > 2
+		<if test="_parameter!=null">
+			and (e.id like CONCAT('%',#{_parameter},'%') 
+			or e.`name` like CONCAT('%',#{_parameter},'%') 
+			or e.contact like CONCAT('%',#{_parameter},'%') 
+			or e.contactNo like CONCAT('%',#{_parameter},'%') 
+			or e.address like CONCAT('%',#{_parameter},'%'))
+		</if>
+	</select>
+	
+	<select id="getByContact" parameterType="String" resultMap="companyMap">
+		select * from ap_enterprise e where e.contact=#{contact}
+	</select>
+
+	<select id="findCompany" parameterType="int" resultMap="companyMap">
+		SELECT * FROM ap_enterprise WHERE trade2=#{tradeid}
+	</select>
+
+	<select id="getCompany" resultMap="companyMap">
+		select * from ap_enterprise where trade1=#{tradeid} or trade2=#{tradeid} or trade3=#{tradeid} or trade4=#{tradeid}
+	</select>
+
+	<select id="getByCity" resultMap="companyMap">
+		SELECT * FROM ap_enterprise WHERE city=#{0} and typeid=2
+	</select>
+	
+	<select id="getCompanyCount" parameterType="int" resultMap="companyMap">
+		select * from ap_enterprise where trade1=#{id} or trade2=#{id} or trade3=#{id} or trade4=#{id}
+	</select>
+	
+	<select id="getProvince" parameterType="int" resultType="company">
+	    select * from ap_enterprise where province=0 and city=0 and typeid=#{typeid}
+	</select>
+	
+	<select id="getDisByPath" resultType="com.xf.entity.SysArea">
+	    SELECT * FROM sys_area WHERE name_path = #{0}
+	</select>
+	
+	<select id="getTraByPath" resultType="com.xf.entity.VocsTrade">
+	    SELECT * FROM vocs_trade WHERE trade_name_path = #{0}
+	</select>
+	
+	<select id="getByAreaId" parameterType="int" resultType="com.xf.entity.CompanyVo">
+		select e.id,e.`name`,e.enterpriceName companyName,e.contact,e.contactNo,e.completedTime,e.city,e.town 
+		from ap_enterprise e 
+		where e.typeid = 2 AND e.province=#{0} or e.city=#{0} or e.town=#{0}
+	</select>
+	
+	<select id="getBoth" parameterType="com.xf.entity.Role" resultType="com.xf.entity.CompanyVo">
+		select e.id,e.`name`,e.enterpriceName companyName,e.contact,e.contactNo,e.completedTime,e.city,e.town
+		from ap_enterprise e
+		where e.typeid = 2 AND (e.province = #{id} or e.city = #{id} or e.town = #{id})
+		AND (e.`name` like CONCAT('%',#{name},'%') 
+				or e.enterpriceName like CONCAT('%',#{name},'%') 
+				or e.contact like CONCAT('%',#{name},'%') 
+				or e.contactNo like CONCAT('%',#{name},'%'))
+	</select>
+	
+	<update id="updatePwd" parameterType="com.xf.vo.ListInteger">
+		update ap_enterprise
+		<set>
+			<if test="pwd != null">
+				password = #{pwd},
+			</if>
+		</set>
+		where 
+		<foreach collection="list" item="id" separator="or">  
+			id = #{id}
+		</foreach>
+	</update>
+	
+</mapper>

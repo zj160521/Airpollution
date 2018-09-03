@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.GisStatDao">
+
+	<select id="getNewData" resultType="com.xf.vo.GisStatistic">
+
+		SELECT
+		a.id,a.enterpriceName,a.fillyear,a.statmonth,a.pollutantId,a.pollutantName,a.e_point,a.n_point,SUM(a.total1)
+		total FROM
+		(SELECT companyid id,e.enterpriceName,fillyear,statmonth,pollutantId,pollutantName,e.e_point,e.n_point,IFNULL(SUM(statvalue),0)
+		total1
+		FROM ap_stat_device
+		LEFT JOIN ap_enterprise e
+		ON companyid=e.id AND e.typeid=2
+		<where>
+			fillyear=#{0} AND pollutantId=#{1}
+			<if test="tradeid > 0">
+				AND (e.trade1=#{tradeid} OR e.trade2=#{tradeid} OR e.trade3=#{tradeid} OR e.trade4=#{tradeid})
+			</if>
+		</where>
+		GROUP BY companyid,statmonth
+		UNION ALL
+		SELECT companyid
+		id,e.enterpriceName,fillyear,statmonth,pollutantId,p.pollutantName,e.e_point,e.n_point,IFNULL(SUM(statvalue),0)
+		total1
+		FROM ap_stat_product
+		LEFT JOIN ap_enterprise e
+		ON companyid=e.id AND e.typeid=2
+		LEFT JOIN ap_pollutant p
+		ON pollutantId = p.id
+		<where>
+			fillyear=#{0} AND pollutantId=#{1}
+			<if test="tradeid > 0">
+				AND (e.trade1=#{tradeid} OR e.trade2=#{tradeid} OR e.trade3=#{tradeid} OR e.trade4=#{tradeid})
+			</if>
+		</where>
+		GROUP BY companyid,statmonth)a GROUP BY a.id,a.statmonth
+
+	</select>
+
+
+	<select id="makeUpByTrade"  parameterType="com.xf.vo.Gis" resultType="com.xf.vo.GisTrade">
+
+		SELECT id,tradeName,IFNULL(SUM(total),0) total
+		FROM ap_trade tra
+		LEFT JOIN (SELECT e.id cid,e.enterpriceName,sd.pollutantId,sd.pollutantName,e.e_point,e.n_point
+		,IFNULL(SUM(statvalue),0) total,e.trade1,e.trade2,e.trade3,e.trade4
+				FROM ap_stat_device sd
+				LEFT JOIN ap_enterprise e
+				ON sd.companyid=e.id AND e.typeid=2
+		WHERE sd.pollutantId = #{pollutantid} AND e.city = #{cityId}
+		GROUP BY companyid
+		UNION ALL
+		SELECT sp.companyid cid,e.enterpriceName,sp.pollutantId,p.pollutantName,e.e_point,e.n_point
+		,IFNULL(SUM(statvalue),0) total1,e.trade1,e.trade2,e.trade3,e.trade4
+				FROM ap_stat_product sp
+				LEFT JOIN ap_enterprise e
+				ON companyid=e.id AND e.typeid=2
+				LEFT JOIN ap_pollutant p
+				ON pollutantId = p.id
+		WHERE sp.pollutantId = #{pollutantid} AND e.city = #{cityId}
+		GROUP BY companyid) dp
+		ON (tra.id = dp.trade1 OR tra.id = dp.trade2 OR tra.id = dp.trade3 OR tra.id = dp.trade4)
+		WHERE parentId = #{tradeid}
+		GROUP BY id
+
+	</select>
+	
+	<select id="getCompanyGisByTradeAndDistrict"  parameterType="com.xf.vo.Gis" resultType="com.xf.vo.GisCompany">
+
+		SELECT companyid id,e.enterpriceName,fillyear,e.e_point,e.n_point
+				FROM ap_stat_device
+				LEFT JOIN ap_enterprise e
+				ON companyid=e.id AND e.typeid=2
+		<where>
+			(e.province = #{cityId} or e.city = #{cityId} or e.town = #{cityId} or e.country = #{cityId})
+			<if test="tradeid > 0">
+				AND (e.trade1=#{tradeid} OR e.trade2=#{tradeid} OR e.trade3=#{tradeid} OR e.trade4=#{tradeid})
+			</if>
+		</where>
+			GROUP BY companyid
+		UNION
+		SELECT companyid id,e.enterpriceName,fillyear,e.e_point,e.n_point
+				FROM ap_stat_product
+				LEFT JOIN ap_enterprise e
+				ON companyid=e.id AND e.typeid=2
+		<where>
+			(e.province = #{cityId} or e.city = #{cityId} or e.town = #{cityId} or e.country = #{cityId})
+			<if test="tradeid > 0">
+				AND (e.trade1=#{tradeid} OR e.trade2=#{tradeid} OR e.trade3=#{tradeid} OR e.trade4=#{tradeid})
+			</if>
+		</where>
+			GROUP BY companyid
+
+	</select>
+	
+	<select id="getBoilerGisByDistrict"  parameterType="com.xf.vo.Gis" resultType="com.xf.vo.GisBoiler">
+
+		SELECT e.id,e.enterpriceName,d.deviceSerial,d.deviceModel,d.shippingTon,e.e_point,e.n_point
+		FROM ap_devices d
+		LEFT JOIN ap_enterprise e
+		ON d.enterpriceId = e.id
+		<where>
+			<if test="shippingTon == 0">
+				d.shippingTon &lt; 10 AND d.shippingTon >= 0
+			</if>
+			<if test="shippingTon == 10">
+				d.shippingTon &lt; 20 AND d.shippingTon >= 10
+			</if>
+			<if test="shippingTon == 20">
+				d.shippingTon &lt;= 35 AND d.shippingTon >= 20
+			</if>
+			<if test="shippingTon == 35">
+				d.shippingTon > 35
+			</if>
+			AND deviceSerial LIKE "GL%"
+			AND (e.province = #{cityId} or e.city = #{cityId} or e.town = #{cityId} or e.country = #{cityId})
+		</where>
+
+	</select>
+	
+</mapper>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IFileDownloadDao">
+	<select id="findByid" parameterType="FileUpload" resultType="java.lang.String">
+		select checkFile from ap_fileupload where tabletype=#{tabletype} and accountid=#{accountid} and fillyear=#{fillyear}
+	</select>
+</mapper>

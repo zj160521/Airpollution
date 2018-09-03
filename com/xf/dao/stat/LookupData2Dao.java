@@ -1,0 +1,72 @@
+package com.xf.dao.stat;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.xf.entity.gov.Gknumber;
+import com.xf.entity.gov.RoadDust;
+import com.xf.vo.CityNumber;
+import com.xf.vo.CityPitchType;
+import com.xf.vo.CityProdSumRes;
+import com.xf.vo.FourValues;
+import com.xf.vo.GasStationByCity;
+import com.xf.vo.LookupCityFeulRes;
+import com.xf.vo.LookupCityTradeASRes;
+import com.xf.vo.LookupFeulTypeRes;
+import com.xf.vo.LookupMotorStatRes;
+import com.xf.vo.NameFirewood;
+import com.xf.vo.NameValue;
+import com.xf.vo.NameValue2;
+import com.xf.vo.NfertilizerByCityRes;
+import com.xf.vo.PollutantStat;
+
+public interface LookupData2Dao {
+	public List<LookupFeulTypeRes> getNfertilizerByType(int year);
+	public List<LookupFeulTypeRes> getNfertilizerByType2(int year);
+	public List<CityProdSumRes> getNfertilizerByMonth(int year);
+	public List<CityProdSumRes> getNfertilizerByMonth2(int year);
+	public List<GasStationByCity> getGasStationByCity(int year);
+	public List<GasStationByCity> getGasStationByCity2(int year);
+	public List<NfertilizerByCityRes> getNfertilizerByCity(int year);
+	public List<NfertilizerByCityRes> getNfertilizerByCity2(int year);
+	public List<GasStationByCity> getOildepot(int year);
+	public List<GasStationByCity> getOildepot2(int year);
+	public List<Gknumber> getGknumber(int year);
+	public List<Gknumber> getGknumber2(int year);
+	public List<Gknumber> getGknumberBytype(@Param(value = "year")int year,@Param(value = "start")int start,@Param(value = "end")int end);
+	public List<NameValue> getGknumberByCity(@Param(value = "year")int year,@Param(value = "start")int start,@Param(value = "end")int end);
+	public List<NameValue> getGknumberByCity2(@Param(value = "year")int year,@Param(value = "start")int start,@Param(value = "end")int end);
+	public List<CityNumber> getCanyinByCity(int year);
+	public List<CityNumber> getCanyinByCity2(int year);
+	public List<NameFirewood> getWoodByType(@Param(value = "year")int year,@Param(value = "city")int city);
+	public List<NameFirewood> getWoodByType2(@Param(value = "year")int year,@Param(value = "city")int city);
+	public List<NameValue> getPlaneByType(int year);
+	public List<NameValue> getRoaddustByCity(int year);
+	public List<NameValue> getRoaddustByCity2(int year);
+	public List<LookupCityFeulRes> getRoaddustBytype(int year);
+	public List<LookupCityFeulRes> getRoaddustBytype2(int year);
+	public List<CityPitchType> getRoaddustByPitch(int year);
+	public List<NameValue2> getConstructionByCity(int year);
+	public List<NameValue2> getConstructionByCity_pc(int year);
+	public List<NameValue2> getConstructionByCity2(int year);
+	public List<NameValue2> getConstructionByCity3(int year);
+	public List<NameValue> getFarmingByType(int year);
+	public List<NameValue> getFarmingByType2(int year);
+	public List<NameValue> getFarmingByType3(int year);
+	public List<NameValue> getFarmingByType_pc(int year);
+	public List<NameValue> getFarmingByType2_pc(int year);
+	public List<NameValue> getFarmingByType3_pc(int year);
+	public List<FourValues> getRoadType(int year);
+	public List<FourValues> getRoadType2(int year);
+	public List<RoadDust> getRoadCity(int year);
+	public List<RoadDust> getRoadCity2(int year);
+	public List<RoadDust> getRoadByCity(int year);
+	public List<PollutantStat> motorCity(int year);
+	public List<PollutantStat> motorType(int year);
+	public List<LookupMotorStatRes> getMotorStat(int year);
+	public List<LookupCityFeulRes> getMotorstatByGas(int year);
+	public List<LookupCityFeulRes> getMotorstatByGas2(int year);
+	public List<LookupCityTradeASRes> getMotorstatByMotorType(int year);
+	public List<LookupCityTradeASRes> getMotorstatByMotorType2(int year);
+}

@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xf.dao.stat.IDetailOfindustryDao">
+	<resultMap type="com.xf.vo.DetailsOfindustry" id="industryMap">
+		<result property="id" column="id"/>
+		<result property="companyId" column="companyId" />
+		<result property="companyName" column="enterpriceName" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="tradeName" column="tradeName" />
+		<result property="fillyear" column="fillyear" />
+		<result property="GDP" column="GDP" />
+		<result property="daysOfWork" column="daysOfWork" />
+		<result property="hoursOfDay" column="hoursOfDay" />
+		<result property="deviceSerial" column="deviceSerial" />
+		<result property="deviceName" column="deviceName" />
+		<result property="deviceName2" column="deviceName2" />
+		<result property="deivceModel" column="deviceModel" />
+		<result property="serviceLife" column="serviceLife" />
+		<result property="shippingTon" column="shippingTon" />
+		<result property="fuel" column="fuel" />
+		<result property="SContent" column="SContent" />
+		<result property="AshContent" column="AshContent" />
+		<result property="VocContent" column="VocContent" />
+		<result property="materialConsume" column="materialConsume" />
+		<result property="productTotalYear" column="productTotalYear" />
+		<result property="hoursPerDay" column="hoursPerDay" />
+		<result property="daysPerYear" column="daysPerYear" />
+		<result property="m1" column="m1" />
+		<result property="m2" column="m2" />
+		<result property="m3" column="m3" />
+		<result property="m4" column="m4" />
+		<result property="m5" column="m5" />
+		<result property="m6" column="m6" />
+		<result property="m7" column="m7" />
+		<result property="m8" column="m8" />
+		<result property="m9" column="m9" />
+		<result property="m10" column="m10" />
+		<result property="m11" column="m11" />
+		<result property="m12" column="m12" />
+		<result property="productName1" column="productName1" />
+		<result property="materialName1" column="materialName1" />
+		<result property="materialUnit" column="materialUnit" />
+		<result property="productUnit" column="productUnit" />
+		<result property="stepSerial" column="stepSerial" />
+		<result property="productName" column="productName" />
+		<result property="productfId" column="productfId" />
+		<result property="prdesignOutput" column="prdesignOutput" />
+		<result property="prhoursPerDay" column="prhoursPerDay" />
+		<result property="prdaysPerYear" column="prdaysPerYear" />
+		<result property="punit" column="punit" />
+		<result property="pm1" column="pm1" />
+		<result property="pm2" column="pm2" />
+		<result property="pm3" column="pm3" />
+		<result property="pm4" column="pm4" />
+		<result property="pm5" column="pm5" />
+		<result property="pm6" column="pm6" />
+		<result property="pm7" column="pm7" />
+		<result property="pm8" column="pm8" />
+		<result property="pm9" column="pm9" />
+		<result property="pm10" column="pm10" />
+		<result property="pm11" column="pm11" />
+		<result property="pm12" column="pm12" />
+		<result property="materialName" column="materialName" />
+		<result property="consumeOfYear" column="consumeOfYear" />
+		<result property="unit" column="unit" />
+		<result property="outletSerial" column="outletSerial" />
+		<result property="outletHeight" column="outletHeight" />
+		<result property="outletDiameter" column="outletDiameter" />
+		<result property="e_outlet" column="e_outlet" />
+		<result property="n_outlet" column="n_outlet" />
+		<result property="pollutantName" column="pollutantName" />
+		<result property="totalAmount" column="totalAmount" />
+		<result property="yearNongdu" column="yearNongdu" />
+		<result property="s1Nongdu" column="s1Nongdu" />
+		<result property="s2Nongdu" column="s2Nongdu" />
+		<result property="s3Nongdu" column="s3Nongdu" />
+		<result property="s4Nongdu" column="s4Nongdu" />
+		<result property="outletVelocity" column="outletVelocity" />
+		<result property="outletTemperature" column="outletTemperature" />
+		<result property="outletFlow" column="outletFlow" />
+		<result property="outletTotal" column="outletTotal" />
+		<result property="elecDeviceName" column="elecDeviceName" />
+		<result property="elecPerDay" column="elecPerDay" />
+		<result property="elecPerYear" column="elecPerYear" />
+		<result property="foutletSerial" column="foutletSerial" />
+		<result property="fpollutantName" column="fpollutantName" />
+		<result property="technique1" column="technique1" />
+		<result property="technique2" column="technique2" />
+		<result property="facilityModel" column="facilityModel" />
+		<result property="collectRate" column="collectRate" />
+		<result property="fmaterialName" column="fmaterialName" />
+		<result property="fmaterialConsume" column="fmaterialConsume" />
+		<result property="NH3Release" column="NH3Release" />
+		<result property="yearCost" column="yearCost" />
+		<result property="disRate" column="disRate" />
+		<result property="fdaysPerYear" column="fdaysPerYear" />
+		<result property="facilityId" column="facilityId" />
+		<result property="fstepSerial" column="fstepSerial" />
+		<result property="fstepName" column="fstepName" />
+		<result property="fdeviceName" column="fdeviceName" />
+		<result property="fdeviceName2" column="fdeviceName2" />
+		<result property="fdeviceSerial" column="fdeviceSerial" />
+		<result property="status" column="status"/>
+		<result property="trade1" column="trade1"/>
+		<result property="trade2" column="trade2"/>
+		<result property="trade3" column="trade3"/>
+		<result property="trade4" column="trade4"/>
+		<result property="tradeNo1" column="tradeNo1"/>
+		<result property="tradeNo2" column="tradeNo2"/>
+		<result property="tradeNo3" column="tradeNo3"/>
+		<result property="tradeNo4" column="tradeNo4"/>
+		<result property="e_point" column="e_point"/>
+		<result property="n_point" column="n_point"/>
+		<result property="contact" column="contact"/>
+		<result property="contactNo" column="contactNo"/>
+	</resultMap>
+
+	<!-- 公司总产值 -->
+	<select id="getCompanyvalue"
+		resultMap="industryMap">
+		select (select tradeNo from ap_trade where id=e.trade1)tradeNo1,
+		(select tradeNo from ap_trade where id=e.trade2)tradeNo2,
+		(select tradeNo from ap_trade where id=e.trade3)tradeNo3,
+		(select tradeNo from ap_trade where id=e.trade4)tradeNo4,
+		e.enterpriceName,e.e_point,e.n_point,e.id id,(select districtName
+		from ap_district where
+		id=e.city)as city,(select districtName from
+		ap_district where
+		id=e.town)as town,(select tradeName from ap_trade
+		where id=trade2)as
+		tradeName,contact,contactNo from
+		ap_enterprise e 
+		<where>
+		<if test="list!=null and list.size()>0">
+			and e.id in 
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		</if>
+		</where>
+	</select>
+	
+	<select id="getCompanyfill" resultMap="industryMap">
+		select ef.enterpriceId companyId,ef.fillyear,ef.GDP,ef.daysOfWork,ef.hoursOfDay,ef.`status` 
+		from ap_enterprise_fill ef 
+		where ef.fillyear=#{fillyear} 
+		<if test="list!=null and list.size()>0">
+			and ef.enterpriceId in
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		</if>
+	</select>
+
+	<!-- 公司锅窑炉填报信息 -->
+	<select id="getDevice" parameterType="int" resultMap="industryMap">
+		select (select tradeNo from ap_trade where id=e.trade1)tradeNo1,
+		(select tradeNo from ap_trade where id=e.trade2)tradeNo2,
+		(select tradeNo from ap_trade where id=e.trade3)tradeNo3,
+		(select tradeNo from ap_trade where id=e.trade4)tradeNo4,
+		e.enterpriceName,e.e_point,e.n_point,e.id companyId,(select districtName from
+		ap_district where
+		id=e.city)as city,(select districtName from
+		ap_district where
+		id=e.town)as town,(select tradeName from ap_trade
+		where id=e.trade2)as
+		tradeName,(select fillyear from ap_enterprise_fill
+		where id=e.id)as fillyear,
+		(select GDP from ap_enterprise_fill where
+		id=e.id)as GDP,
+		(select hoursOfDay from ap_enterprise_fill where
+		id=e.id)as hoursOfDay,
+		(select daysOfWork from ap_enterprise_fill where
+		id=e.id)as daysOfWork,
+		de.deviceSerial,(select name from ap_static
+		where
+		id=de.deviceTypeId)as
+		deviceName,(select name from ap_static where
+		id=de.deviceTypeId2)as
+		deviceName2,de.deviceModel,de.serviceLife,de.shippingTon,(select name
+		from ap_static where id=df.fuelId)as
+		fuel,df.SContent,df.AshContent,df.VocContent,df.materialConsume,df.productTotalYear,
+		df.hoursPerDay,df.daysPerYear,df.m1,df.m2,df.m3,df.m4,df.m5,df.m6,df.m7,df.m8,
+		df.m9,df.m10,df.m11,df.m12,(select
+		productName
+		from ap_product where
+		id=df.productId)as
+		productName1,(select
+		materialName from ap_material
+		where id=df.materialId)as materialName1,df.materialUnit,df.productUnit,df.`status`
+		from ap_devfill df left join
+		ap_devices de on de.id=df.deviceId left
+		join ap_enterprise e on
+		e.id=de.enterpriceId
+		where df.fillyear=#{fillyear}
+		<if test="list!=null and list.size()>0">
+			and e.id in 
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		</if>
+	</select>
+
+	<!-- 公司原辅料填报信息 -->
+	<select id="getMaterialBypfid" parameterType="int" resultMap="industryMap">
+		select m.materialName,mf.consumeOfYear,mf.unit from ap_material_fill
+		mf
+		left join
+		ap_material m on m.id=mf.materialId left join
+		ap_product_fill
+		pf on
+		pf.id=mf.productFillId where
+		pf.id=#{productfillId}
+	</select>
+	
+	<select id="getMaterial" resultMap="industryMap">
+		select pf.id productfId,m.materialName,mf.consumeOfYear,mf.unit from ap_material_fill
+		mf
+		left join
+		ap_material m on m.id=mf.materialId left join
+		ap_product_fill
+		pf on
+		pf.id=mf.productFillId
+	</select>
+
+	<!-- 公司工段及产品填报信息 -->
+	<select id="getProduct" parameterType="int" resultMap="industryMap">
+		select (select tradeNo from ap_trade where id=e.trade1)tradeNo1,
+		(select tradeNo from ap_trade where id=e.trade2)tradeNo2,
+		(select tradeNo from ap_trade where id=e.trade3)tradeNo3,
+		(select tradeNo from ap_trade where id=e.trade4)tradeNo4,
+		e.enterpriceName,e.e_point,e.n_point,e.id companyId,(select districtName from
+		ap_district where
+		id=e.city)as city,(select districtName from
+		ap_district where
+		id=e.town)as town,(select tradeName from ap_trade
+		where id=e.trade2)as
+		tradeName,(select fillyear from ap_enterprise_fill
+		where id=e.id)as fillyear,
+		(select GDP from ap_enterprise_fill where
+		id=e.id)as GDP,
+		(select hoursOfDay from ap_enterprise_fill where
+		id=e.id)as hoursOfDay,
+		(select daysOfWork from ap_enterprise_fill where
+		id=e.id)as daysOfWork,pf.id productfId,
+		p.productName,pf.daysPerYear
+		prdaysPerYear,pf.hoursPerDay prhoursPerDay,pf.designOutput
+		prdesignOutput,
+		pf.m1 pm1,pf.m2 pm2,pf.m3 pm3,pf.m4 pm4,pf.m5
+		pm5,pf.m6
+		pm6,pf.m7 pm7,pf.m8 pm8,pf.m9 pm9,pf.m10 pm10,pf.m11
+		pm11,pf.m12
+		pm12,p.unit punit,(select stepSerial from ap_producestep where
+		id=pf.produceStepId)as stepSerial,pf.`status` from ap_product_fill pf left join
+		ap_product p on pf.productId=p.id left join ap_enterprise e on
+		e.id=p.enterpriceId
+		where pf.fillyear=#{fillyear}
+		<if test="list!=null and list.size()>0">
+			and e.id in 
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		</if>
+	</select>
+
+	<!-- 公司污染物排放口填报信息 -->
+	<select id="getPollutant" parameterType="int" resultMap="industryMap">
+		select (select tradeNo from ap_trade where id=e.trade1)tradeNo1,
+		(select tradeNo from ap_trade where id=e.trade2)tradeNo2,
+		(select tradeNo from ap_trade where id=e.trade3)tradeNo3,
+		(select tradeNo from ap_trade where id=e.trade4)tradeNo4,
+		e.enterpriceName,e.e_point,e.n_point,e.id companyId,(select districtName from
+		ap_district where
+		id=e.city)as city,(select districtName from
+		ap_district where
+		id=e.town)as town,(select tradeName from ap_trade
+		where id=e.trade2)as
+		tradeName,(select fillyear from ap_enterprise_fill
+		where id=e.id)as fillyear,
+		(select GDP from ap_enterprise_fill where
+		id=e.id)as GDP,
+		(select hoursOfDay from ap_enterprise_fill where
+		id=e.id)as hoursOfDay,
+		(select daysOfWork from ap_enterprise_fill where
+		id=e.id)as daysOfWork,
+		o.outletSerial,o.outletHeight,o.outletDiameter,o.e_outlet,o.n_outlet,
+		po.pollutantName,op.totalAmount,op.yearNongdu,op.s1Nongdu,op.s2Nongdu,op.s3Nongdu,op.s4Nongdu,
+		of.outletVelocity,of.outletTemperature,of.outletFlow,of.outletTotal,of.`status`
+		from ap_outlet_pollutant op left join ap_pollutant po on
+		po.id=op.pollutantId left join ap_outlet_fill of on
+		of.id=op.outletfillId left join ap_outlet o on o.id=of.outletId left
+		join ap_enterprise e on e.id=o.enterpriceId
+		where of.fillyear=#{fillyear}
+		<if test="list!=null and list.size()>0">
+			and e.id in 
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		</if>
+	</select>
+
+	<!-- 用电信息 -->
+	<select id="getElec" parameterType="int" resultMap="industryMap">
+		select (select tradeNo from ap_trade where id=e.trade1)tradeNo1,
+		(select tradeNo from ap_trade where id=e.trade2)tradeNo2,
+		(select tradeNo from ap_trade where id=e.trade3)tradeNo3,
+		(select tradeNo from ap_trade where id=e.trade4)tradeNo4,
+		e.enterpriceName,e.e_point,e.n_point,e.id companyId,(select districtName from
+		ap_district where
+		id=e.city)as city,(select districtName from
+		ap_district where
+		id=e.town)as town,(select tradeName from ap_trade
+		where id=e.trade2)as
+		tradeName,(select fillyear from ap_enterprise_fill
+		where id=e.id)as fillyear,
+		(select GDP from ap_enterprise_fill where
+		id=e.id)as GDP,
+		(select hoursOfDay from ap_enterprise_fill where
+		id=e.id)as hoursOfDay,
+		(select daysOfWork from ap_enterprise_fill where
+		id=e.id)as daysOfWork,
+		(select name from ap_static where
+		id=ef.elecDeviceId)as
+		elecDeviceName,ef.elecPerDay,ef.elecPerYear,ef.`status` from
+		ap_elec_fill ef left join ap_elec el on
+		el.id=ef.elecId left join
+		ap_enterprise e on e.id=el.enterpriceId
+		where el.fillyear=#{fillyear}
+		<if test="list!=null and list.size()>0">
+			and e.id in 
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		</if>
+	</select>
+
+	<!-- 治理设施填报 -->
+	<select id="getFacility" parameterType="int" resultMap="industryMap">
+		select (select tradeNo from ap_trade where id=e.trade1)tradeNo1,
+		(select tradeNo from ap_trade where id=e.trade2)tradeNo2,
+		(select tradeNo from ap_trade where id=e.trade3)tradeNo3,
+		(select tradeNo from ap_trade where id=e.trade4)tradeNo4,
+		e.enterpriceName,e.e_point,e.n_point,e.id companyId,(select districtName from
+		ap_district where
+		id=e.city)as city,(select districtName from
+		ap_district where
+		id=e.town)as town,(select tradeName from ap_trade
+		where id=e.trade2)as
+		tradeName,(select fillyear from ap_enterprise_fill
+		where id=e.id)as fillyear,
+		(select GDP from ap_enterprise_fill where
+		id=e.id)as GDP,
+		(select hoursOfDay from ap_enterprise_fill where
+		id=e.id)as hoursOfDay,
+		(select daysOfWork from ap_enterprise_fill where
+		id=e.id)as daysOfWork,
+		(select pollutantName from ap_pollutant where
+		id=cf.pollutantId)as
+		fpollutantName,(select outletSerial from ap_outlet
+		where id=cf.outletId)as foutletSerial,(select name from ap_static
+		where
+		id=cf.technique1)as technique1,(select name from ap_static where
+		id=cf.technique2)as technique2,cf.facilityModel,cf.id
+		facilityId,ff.collectRate,
+		ff.materialName
+		fmaterialName,ff.materialConsume fmaterialConsume,ff.NH3Release,
+		ff.yearCost,ff.disRate,ff.daysPerYear fdaysPerYear,ff.`status` from
+		ap_facilities_fill ff left join ap_control_facilities cf on
+		cf.id=ff.facilityId left join ap_enterprise e on e.id=cf.enterpriceId
+		where ff.fillyear=#{fillyear}
+		<if test="list!=null and list.size()>0">
+			and e.id in 
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		</if>
+	</select>
+
+	<!-- 治理设施工段 设备 -->
+	<!-- 设备 -->
+	<select id="getDeviceByfaid" parameterType="int" resultMap="industryMap">
+		select (select name from ap_static where
+		id=d.deviceTypeId)as
+		fdeviceName,(select name from ap_static where
+		id=d.deviceTypeId2)as
+		fdeviceName2,d.deviceSerial fdeviceSerial from ap_devices d
+		left join
+		ap_facility_device fd on fd.deviceId=d.id left join
+		ap_control_facilities cf on cf.id=fd.facilityId where
+		cf.id=#{facilityId}
+	</select>
+	
+	<select id="getDeviceAll" resultMap="industryMap">
+		select cf.id facilityId,(select name from ap_static where
+		id=d.deviceTypeId)as
+		fdeviceName,(select name from ap_static where
+		id=d.deviceTypeId2)as
+		fdeviceName2,d.deviceSerial fdeviceSerial from ap_devices d
+		left join
+		ap_facility_device fd on fd.deviceId=d.id left join
+		ap_control_facilities cf on cf.id=fd.facilityId
+	</select>
+	<!-- 工段 -->
+	<select id="getStepByfaid" parameterType="int" resultMap="industryMap">
+		select
+		d.stepSerial fstepSerial,d.stepName fstepName from ap_producestep d
+		left join
+		ap_facility_step fd on
+		fd.stepId=d.id left join
+		ap_control_facilities
+		cf on
+		cf.id=fd.facilityId where
+		cf.id=#{facilityId}
+	</select>
+	
+	<select id="getStep" resultMap="industryMap">
+		select
+		cf.id facilityId,d.stepSerial fstepSerial,d.stepName fstepName from ap_producestep d
+		left join
+		ap_facility_step fd on
+		fd.stepId=d.id left join
+		ap_control_facilities
+		cf on
+		cf.id=fd.facilityId
+	</select>
+</mapper>

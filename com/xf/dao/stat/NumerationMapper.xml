@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xf.dao.stat.INumerationDao">
+	<resultMap type="Boat" id="BoatMap">
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town"/>
+		<result property="boattype" column="boattype"/>
+		<result property="total" column="total" />
+		<result property="measuretype" column="measuretype" />
+		<result property="m1" column="m1"/>
+		<result property="m2" column="m2"/>
+		<result property="m3" column="m3"/>
+		<result property="m4" column="m4"/>
+		<result property="m5" column="m5"/>
+		<result property="m6" column="m6"/>
+		<result property="m7" column="m7"/>
+		<result property="m8" column="m8"/>
+		<result property="m9" column="m9"/>
+		<result property="m10" column="m10"/>
+		<result property="m11" column="m11"/>
+		<result property="m12" column="m12"/>
+	</resultMap>
+	
+	<resultMap type="Oildepot" id="OildepotMap">
+		<result property="oildepotName" column="oildepotName"/>
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="total" column="total" />
+		<result property="gasolineGross" column="gasolineGross"/>
+		<result property="dieselGross" column="dieselGross"/>
+		<result property="way" column="way"/>
+		<result property="recycleDevice" column="recycleDevice"/>
+		<result property="recovery" column="recovery"/>
+		<result property="conveyType" column="conveyType"/>
+	</resultMap>
+	
+	<select id="getCleanerNumber" parameterType="int" resultType="Cleaner">
+		SELECT
+		a.province,a.city,a.town,SUM(a.cleanerNumber)as cleanerNumber
+		from ap_cleaner a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.status=3 and a.fillyear=#{fillyear} AND e1.province>0
+		group by a.town;
+	</select>
+
+    <select id="getCleanerNumber2" parameterType="int" resultType="Cleaner">
+		SELECT
+		a.province,a.city,a.town,SUM(a.cleanerNumber)as cleanerNumber
+		from ap_cleaner a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.status=3 and a.fillyear=#{fillyear} AND e1.province=0
+		group by a.town;
+	</select>
+
+	<select id="getGovfactor" resultType="GovFactor">
+		select (select id from
+		ap_pollutant where pollutantName=gf.type_y)as
+		id,gf.type_x,gf.type_x2,gf.type_y,gf.type_y2,gf.factor,typename from
+		ap_govfactor gf where typename=#{typename}
+	</select>
+	
+	<select id="getXfactor" resultType="GovFactor">
+		select (select id from
+		ap_pollutant where pollutantName=gf.type_x)as
+		id,gf.type_x,gf.type_x2,gf.type_y,gf.type_y2,gf.factor,typename from
+		ap_govfactor gf where typename=#{typename}
+	</select>
+	
+	<select id="getX2factor" resultType="GovFactor">
+		select (select id from
+		ap_pollutant where pollutantName=gf.type_x2)as
+		id,gf.type_x,gf.type_x2,gf.type_y,gf.type_y2,gf.factor,typename from
+		ap_govfactor gf where typename=#{typename}
+	</select>
+
+	<insert id="addGovStat" parameterType="java.util.List">
+		insert into
+		ap_stat_gov(pollutantId,province,city,town,fillyear,stattype,statvalue,months,stattype2,stattype3,stat_exp,stat_valtype,stat_value,stat_factor,stat_dsrate)
+		values
+		<foreach collection="list" item="gov" index="index" separator=",">
+			(#{gov.pollutantId},#{gov.province},#{gov.city},#{gov.town},#{gov.fillyear},#{gov.stattype},#{gov.statvalue},#{gov.months},#{gov.stattype2},#{gov.stattype3},#{gov.stat_exp},#{gov.stat_valtype},#{gov.stat_value},#{gov.stat_factor},#{gov.stat_dsrate})
+		</foreach>
+		on duplicate key update statvalue=VALUES(statvalue)
+	</insert>
+
+    <insert id="addGovStat2" parameterType="java.util.List">
+		insert into
+		ap_stat_gov_pc(pollutantId,province,city,town,fillyear,stattype,statvalue,months,stattype2,stattype3,stat_exp,stat_valtype,stat_value,stat_factor,stat_dsrate)
+		values
+		<foreach collection="list" item="gov" index="index" separator=",">
+			(#{gov.pollutantId},#{gov.province},#{gov.city},#{gov.town},#{gov.fillyear},#{gov.stattype},#{gov.statvalue},#{gov.months},#{gov.stattype2},#{gov.stattype3},#{gov.stat_exp},#{gov.stat_valtype},#{gov.stat_value},#{gov.stat_factor},#{gov.stat_dsrate})
+		</foreach>
+		on duplicate key update statvalue=VALUES(statvalue)
+	</insert>
+
+	<select id="getBoatNumber" parameterType="int" resultMap="BoatMap">
+		select
+		a.fillyear,a.province,a.city,SUM(m1+m2+m3+m4+m5+m6+m7+m8+m9+m10+m11+m12)as
+		total,sum(m1)m1,sum(m2)m2,sum(m3)m3,sum(m4)m4,sum(m5)m5,sum(m6)m6,
+		sum(m7)m7,sum(m8)m8,sum(m9)m9,sum(m10)m10,sum(m11)m11,sum(m12)m12,a.measuretype
+		from ap_boat a 
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.`status`=3 and a.fillyear=#{fillyear} AND e1.province>0
+		group by a.measuretype,a.city
+	</select>
+	
+	<select id="getBoatNumber2" parameterType="int" resultMap="BoatMap">
+		select
+		a.fillyear,a.province,a.city,SUM(m1+m2+m3+m4+m5+m6+m7+m8+m9+m10+m11+m12)as
+		total,sum(m1)m1,sum(m2)m2,sum(m3)m3,sum(m4)m4,sum(m5)m5,sum(m6)m6,
+		sum(m7)m7,sum(m8)m8,sum(m9)m9,sum(m10)m10,sum(m11)m11,sum(m12)m12,a.measuretype
+		from ap_boat a 
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.`status`=3 and a.fillyear=#{fillyear} AND e1.province=0
+		group by a.measuretype,a.city
+	</select>
+	
+	<select id="getBoatCity" parameterType="int" resultMap="BoatMap">
+		select
+		b.fillyear,b.province,b.city,SUM(m1+m2+m3+m4+m5+m6+m7+m8+m9+m10+m11+m12)as
+		total,sum(m1)m1,sum(m2)m2,sum(m3)m3,sum(m4)m4,sum(m5)m5,sum(m6)m6,
+		sum(m7)m7,sum(m8)m8,sum(m9)m9,sum(m10)m10,sum(m11)m11,sum(m12)m12,measuretype
+		from ap_boat b left join ap_enterprise en on en.id=b.accountid where en.province>0 and `status`=3 and fillyear=#{year} group by measuretype,city
+	</select>
+	
+	<select id="getBoatCity2" parameterType="int" resultMap="BoatMap">
+		select
+		b.fillyear,b.province,b.city,SUM(m1+m2+m3+m4+m5+m6+m7+m8+m9+m10+m11+m12)as
+		total,sum(m1)m1,sum(m2)m2,sum(m3)m3,sum(m4)m4,sum(m5)m5,sum(m6)m6,
+		sum(m7)m7,sum(m8)m8,sum(m9)m9,sum(m10)m10,sum(m11)m11,sum(m12)m12,measuretype
+		from ap_boat b left join ap_enterprise en on en.id=b.accountid where en.province=0 and `status`=3 and fillyear=#{year} group by measuretype,city
+	</select>
+	
+	<select id="getBoatMonth" parameterType="int" resultMap="BoatMap">
+		select
+		b.fillyear,b.province,b.city,SUM(m1+m2+m3+m4+m5+m6+m7+m8+m9+m10+m11+m12)as
+		total,sum(m1)m1,sum(m2)m2,sum(m3)m3,sum(m4)m4,sum(m5)m5,sum(m6)m6,
+		sum(m7)m7,sum(m8)m8,sum(m9)m9,sum(m10)m10,sum(m11)m11,sum(m12)m12,measuretype
+		from ap_boat b left join ap_enterprise en on en.id=b.accountid where en.province>0 and `status`=3 and fillyear=#{year} group by measuretype
+	</select>
+
+    <select id="getBoatMonth2" parameterType="int" resultMap="BoatMap">
+		select
+		b.fillyear,b.province,b.city,SUM(m1+m2+m3+m4+m5+m6+m7+m8+m9+m10+m11+m12)as
+		total,sum(m1)m1,sum(m2)m2,sum(m3)m3,sum(m4)m4,sum(m5)m5,sum(m6)m6,
+		sum(m7)m7,sum(m8)m8,sum(m9)m9,sum(m10)m10,sum(m11)m11,sum(m12)m12,measuretype
+		from ap_boat b left join ap_enterprise en on en.id=b.accountid where en.province=0 and `status`=3 and fillyear=#{year} group by measuretype
+	</select>
+
+	<select id="getOildepotNumber" parameterType="int" resultMap="OildepotMap">
+		SELECT a.oildepotName,a.fillyear,a.province,a.city,a.town,SUM(a.gasolineGross)as
+		gasolineGross,SUM(a.dieselGross)as dieselGross,SUM(a.way)as
+		way,SUM(a.recycleDevice)as recycleDevice,SUM(a.recovery)as
+		recovery,SUM(a.conveyType)as conveyType 
+		FROM ap_oildepot a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.`status`=3 and a.fillyear=#{fillyear} AND e1.province>0
+		group by a.city,a.way,a.recycleDevice,a.conveyType,a.recovery,a.oildepotName;
+	</select>
+	
+	<select id="getOildepotNumber2" parameterType="int" resultMap="OildepotMap">
+		SELECT a.oildepotName,a.fillyear,a.province,a.city,a.town,SUM(a.gasolineGross)as
+		gasolineGross,SUM(a.dieselGross)as dieselGross,SUM(a.way)as
+		way,SUM(a.recycleDevice)as recycleDevice,SUM(a.recovery)as
+		recovery,SUM(a.conveyType)as conveyType 
+		FROM ap_oildepot a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.`status`=3 and a.fillyear=#{fillyear} AND e1.province=0
+		group by a.city,a.way,a.recycleDevice,a.conveyType,a.recovery,a.oildepotName;
+	</select>
+	
+	<select id="getPesticideNumber" parameterType="int" resultType="Pesticide">
+		SELECT a.fillyear,a.city,a.crop,SUM(a.worm_ddt)worm_ddt,SUM(a.worm_leguo)worm_leguo,SUM(a.worm_juzhi)worm_juzhi,
+		SUM(a.grass_baicao)grass_baicao,SUM(a.germ_duojun)germ_duojun,SUM(a.grass_ganlin)grass_ganlin,SUM(a.germ_total)germ_total
+		FROM ap_pesticide a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{fillyear} and a.`status`=3 AND e1.province>0
+		GROUP BY a.city,a.crop
+	</select>
+	
+	<select id="getPesticideNumber2" parameterType="int" resultType="Pesticide">
+		SELECT a.fillyear,a.city,a.crop,SUM(a.worm_ddt)worm_ddt,SUM(a.worm_leguo)worm_leguo,SUM(a.worm_juzhi)worm_juzhi,
+		SUM(a.grass_baicao)grass_baicao,SUM(a.germ_duojun)germ_duojun,SUM(a.grass_ganlin)grass_ganlin,SUM(a.germ_total)germ_total
+		FROM ap_pesticide a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{fillyear} and a.`status`=3 AND e1.province=0
+		GROUP BY a.city,a.crop
+	</select>
+	
+	<select id="getEnergysell" parameterType="int" resultType="EnergySell">
+		SELECT a.fillyear,a.city,a.purpose,SUM(a.coal)coal,SUM(a.gas)gas,SUM(a.liqgas)liqgas,SUM(a.oil)oil 
+		FROM `ap_energy_sell` a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{fillyear} and a.`status`=3  AND e1.province>0
+		GROUP BY a.city,a.purpose;
+	</select>
+	
+	<select id="getEnergysell2" parameterType="int" resultType="EnergySell">
+		SELECT a.fillyear,a.city,a.purpose,SUM(a.coal)coal,SUM(a.gas)gas,SUM(a.liqgas)liqgas,SUM(a.oil)oil 
+		FROM `ap_energy_sell` a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{fillyear} and a.`status`=3  AND e1.province=0
+		GROUP BY a.city,a.purpose;
+	</select>
+	
+	<select id="getEnergyconsume" parameterType="int" resultType="EnergySell">
+		SELECT a.fillyear,a.city,a.purpose,SUM(a.coal)coal,SUM(a.gas)gas,SUM(a.liqgas)liqgas,SUM(a.oil)oil 
+		FROM `ap_energy_consume` a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{fillyear} and a.`status`=3 AND e1.province>0
+		GROUP BY a.city,a.purpose;
+	</select>
+	
+	<select id="getEnergyconsume2" parameterType="int" resultType="EnergySell">
+		SELECT a.fillyear,a.city,a.purpose,SUM(a.coal)coal,SUM(a.gas)gas,SUM(a.liqgas)liqgas,SUM(a.oil)oil 
+		FROM `ap_energy_consume` a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{fillyear} and a.`status`=3 AND e1.province=0
+		GROUP BY a.city,a.purpose;
+	</select>
+	
+	<select id="getDumpField" parameterType="int" resultType="DumpField">
+		SELECT a.fillyear,a.city,a.factorytype,SUM(a.rubbish_burn)rubbish_burn,SUM(a.rubbish_bury)rubbish_bury,
+		SUM(a.rubbish_hill)rubbish_hill,SUM(a.sewerage_total)sewerage_total FROM `ap_dump_field` a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{fillyear} and a.`status`=3 AND e1.province>0
+		GROUP BY a.city,a.factorytype;
+	</select>
+	
+	<select id="getDumpField2" parameterType="int" resultType="DumpField">
+		SELECT a.fillyear,a.city,a.factorytype,SUM(a.rubbish_burn)rubbish_burn,SUM(a.rubbish_bury)rubbish_bury,
+		SUM(a.rubbish_hill)rubbish_hill,SUM(a.sewerage_total)sewerage_total FROM `ap_dump_field` a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{fillyear} and a.`status`=3 AND e1.province=0
+		GROUP BY a.city,a.factorytype;
+	</select>
+	
+	<select id="getConstruction" parameterType="int" resultType="Construction">
+		SELECT a.fillyear,a.city,SUM(a.completeArea)completeArea,SUM(a.asphaltRoadArea)asphaltRoadArea 
+		FROM `ap_construction` a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.`status`=3 and a.fillyear=#{fillyear} AND e1.province>0
+		GROUP BY a.city;
+	</select>
+	
+	<select id="getConstruction2" parameterType="int" resultType="Construction">
+		SELECT a.fillyear,a.city,SUM(a.completeArea)completeArea,SUM(a.asphaltRoadArea)asphaltRoadArea 
+		FROM `ap_construction` a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.`status`=3 and a.fillyear=#{fillyear} AND e1.province=0
+		GROUP BY a.city;
+	</select>
+</mapper>

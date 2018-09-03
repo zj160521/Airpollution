@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.ICountyAreaDao">
+
+	<!-- resultMap -->
+	<resultMap type="CountyArea" id="CountyAreaMap">
+		<result property="id" column="id" />
+		<result property="consDustId" column="consDustId" />
+		<result property="accountid" column="accountid" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="countyConstructNumber" column="countyConstructNumber" />
+		<result property="countyConstructArea" column="countyConstructArea" />
+		<result property="addressStr" column="addressStr" />
+		<result property="townname" column="townname" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="CountyAreaMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_county_area where id=#{id}
+	</select>
+	<select id="getByField" parameterType="CountyArea" resultMap="CountyAreaMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_county_area where fillyear=#{fillyear} and town=#{town} and accountid=#{accountid}
+	</select>
+	<select id="getByTown" parameterType="CountyArea" resultMap="CountyAreaMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr
+		from ap_county_area where fillyear=#{fillyear} and town=#{town} and accountid=#{accountid}
+	</select>
+	<select id="getByYear" parameterType="CountyArea" resultMap="CountyAreaMap">
+		select *,
+			(select districtName from ap_district where id=town) as townname
+		from ap_county_area where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_county_area where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_county_area set status=#{0} where accountid=#{1}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_county_area set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<insert id="add" parameterType="CountyArea" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_county_area
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="consDustId > 0">
+			consDustId=#{consDustId},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="countyConstructNumber > 0">
+			countyConstructNumber=#{countyConstructNumber},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="countyConstructArea > 0">
+			countyConstructArea=#{countyConstructArea}
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_county_area where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="CountyArea">
+		update ap_county_area
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="consDustId > 0">
+			consDustId=#{consDustId},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="countyConstructNumber > 0">
+			countyConstructNumber=#{countyConstructNumber},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="countyConstructArea > 0">
+			countyConstructArea=#{countyConstructArea}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

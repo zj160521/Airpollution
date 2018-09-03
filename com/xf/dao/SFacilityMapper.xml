@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xf.dao.ISfacilityDao">
+	<insert id="add" parameterType="SmallFacility" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into
+		ap_smallFacility(enterpriceId,fillyear,technique1,technique2,technique3,technique4,status)
+		values(#{enterpriceId},#{fillyear},#{technique1},#{technique2},#{technique3},#{technique4},#{status});
+	</insert>
+
+	<delete id="delete" parameterType="int">
+		delete from ap_smallFacility
+		where id=#{id}
+	</delete>
+	<delete id="delBycomIdYear" >
+		delete from ap_smallFacility
+		where enterpriceId=#{0} and fillyear=#{1};
+	</delete>
+	<select id="getAll" parameterType="SmallFacility" resultType="SmallFacility">
+		select *,
+		ifnull((select name from ap_static where id=technique1),'')techniqueName1,
+		ifnull((select name from ap_static where id=technique2),'')techniqueName2,
+		ifnull((select name from ap_static where id=technique3),'')techniqueName3,
+		ifnull((select name from ap_static where id=technique4),'')techniqueName4
+		from ap_smallFacility where enterpriceId=#{enterpriceId} and fillyear=#{fillyear}
+		<if test="status >0">
+			and status=#{status}
+		</if>
+	</select>
+
+	<select id="getByid" parameterType="int" resultType="SmallFacility">
+		select *,
+		ifnull((select name from ap_static where id=technique1),'')techniqueName1,
+		ifnull((select name from ap_static where id=technique2),'')techniqueName2,
+		ifnull((select name from ap_static where id=technique3),'')techniqueName3,
+		ifnull((select name from ap_static where id=technique4),'')techniqueName4,
+		ifnull((select pid from ap_static where id=technique1),0)parentId1,
+		ifnull((select pid from ap_static where id=technique2),0)parentId2,
+		ifnull((select pid from ap_static where id=technique3),0)parentId3,
+		ifnull((select pid from ap_static where id=technique4),0)parentId4
+		from
+		ap_smallFacility
+		where id=#{id}
+	</select>
+
+	<update id="update" parameterType="SmallFacility">
+		update ap_smallFacility
+		<set>
+			<if test="enterpriceId>0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="fillyear>0">
+				fillyear=#{fillyear},
+			</if>
+			<if test="technique1>0">
+				technique1=#{technique1},
+			</if>
+			<if test="technique2>0">
+				technique2=#{technique2},
+			</if>
+			<if test="technique3>0">
+				technique3=#{technique3},
+			</if>
+			<if test="technique4>0">
+				technique4=#{technique4},
+			</if>
+			<if test="status>0">
+				status=#{status}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_smallFacility set status=#{0} where enterpriceId=#{1} and
+		fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_smallFacility set status=#{0} where enterpriceId=#{1} and
+		status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_smallFacility set status=#{0} where enterpriceId=#{1} and
+		status=#{2} and fillyear=#{3}
+	</update>
+	
+	<select id="getRemoval" parameterType="int" resultType="SmallFacility">
+		select *,
+		ifnull((select unit from ap_static where id=technique1),0)removal1,
+		ifnull((select unit from ap_static where id=technique2),0)removal2,
+		ifnull((select unit from ap_static where id=technique3),0)removal3,
+		ifnull((select unit from ap_static where id=technique4),0)removal4
+		from ap_smallFacility where fillyear=2015 and status=2 GROUP BY enterpriceId
+	</select>
+	
+	<select id="getByCompanyYear" resultType="SmallFacility">
+	    SELECT *
+        FROM ap_smallFacility s
+        WHERE s.enterpriceId=#{companyid} AND fillyear=#{fillyear}
+	</select>
+</mapper>

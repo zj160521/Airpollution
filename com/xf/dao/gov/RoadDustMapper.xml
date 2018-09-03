@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IRoadDustDao">
+
+	<!-- resultMap -->
+	<resultMap type="RoadDust" id="RoadDustMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="country" column="country" />
+		<result property="street" column="street" />
+		<result property="ksPitch" column="ksPitch" />
+		<result property="ksCement" column="ksCement" />
+		<result property="ksNotShop" column="ksNotShop" />
+		<result property="zgPitch" column="zgPitch" />
+		<result property="zgCement" column="zgCement" />
+		<result property="zgNotShop" column="zgNotShop" />
+		<result property="cgPitch" column="cgPitch" />
+		<result property="cgCement" column="cgCement" />
+		<result property="cgNotShop" column="cgNotShop" />
+		<result property="zPitch" column="zPitch" />
+		<result property="zCement" column="zCement" />
+		<result property="zNotShop" column="zNotShop" />
+		<result property="rainDays" column="rainDays" />
+		<result property="controlType" column="controlType" />
+		<result property="department" column="department" />
+		<result property="addressStr" column="addressStr" />
+		<result property="control" column="control" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="RoadDustMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select districtName from ap_district where id=city) as cityName,
+			(select name from ap_static where id = controlType ) as control
+		from ap_road_dust where id=#{id}
+	</select>
+	<select id="getByField" parameterType="RoadDust" resultMap="RoadDustMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select districtName from ap_district where id=city) as cityName 
+		from ap_road_dust where fillyear=#{fillyear} and town=#{town} and accountid=#{accountid}
+	</select>
+	<select id="getByTown" parameterType="RoadDust" resultMap="RoadDustMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select districtName from ap_district where id=city) as cityName,
+			(select name from ap_static where id = controlType ) as control
+		from ap_road_dust where fillyear=#{fillyear} and (town=#{town} or city=#{town}) and accountid=#{accountid}
+	</select>
+	<select id="statAll" resultMap="RoadDustMap">
+		select * from ap_road_dust where fillyear=#{0} and `status`=3
+	</select>
+	<select id="getByYear" parameterType="RoadDust" resultMap="RoadDustMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(select districtName from ap_district where id=city) as cityName,
+			(select name from ap_static where id = controlType ) as control
+		from ap_road_dust where fillyear=#{fillyear} and accountid=#{accountid}
+	</select>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_road_dust where accountid=#{accountid} order by fillyear desc;
+	</select>
+	<!-- 添加 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_road_dust set status=#{0} where accountid=#{1} and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_road_dust set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_road_dust set status=#{0} where accountid=#{1} and status=#{2} and fillyear=#{3}
+	</update>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_road_dust where id=#{id};
+	</delete>
+	<insert id="add" parameterType="RoadDust" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_road_dust
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear >= 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province >= 0">
+			province=#{province},
+		</if>
+		<if test="city >= 0">
+			city=#{city},
+		</if>
+		<if test="town >= 0">
+			town=#{town},
+		</if>
+		<if test="country >= 0">
+			country=#{country},
+		</if>
+		<if test="street >= 0">
+			street=#{street},
+		</if>
+		<if test="ksPitch >= 0">
+			ksPitch=#{ksPitch},
+		</if>
+		<if test="ksCement >= 0">
+			ksCement=#{ksCement},
+		</if>
+		<if test="ksNotShop >= 0">
+			ksNotShop=#{ksNotShop},
+		</if>
+		<if test="zgPitch >= 0">
+			zgPitch=#{zgPitch},
+		</if>
+		<if test="zgCement >= 0">
+			zgCement=#{zgCement},
+		</if>
+		<if test="zgNotShop >= 0">
+			zgNotShop=#{zgNotShop},
+		</if>
+		<if test="cgPitch >= 0">
+			cgPitch=#{cgPitch},
+		</if>
+		<if test="cgCement >= 0">
+			cgCement=#{cgCement},
+		</if>
+		<if test="cgNotShop >= 0">
+			cgNotShop=#{cgNotShop},
+		</if>
+		<if test="zPitch >= 0">
+			zPitch=#{zPitch},
+		</if>
+		<if test="zCement >= 0">
+			zCement=#{zCement},
+		</if>
+		<if test="zNotShop >= 0">
+			zNotShop=#{zNotShop},
+		</if>
+		<if test="rainDays > 0">
+			rainDays=#{rainDays},
+		</if>
+		<if test="controlType > 0">
+			controlType=#{controlType},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="department != null">
+			department=#{department}
+		</if>
+	</set>
+	</insert>
+
+	<!--修改 -->
+	<update id="update" parameterType="RoadDust">
+		update ap_road_dust
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="country > 0">
+			country=#{country},
+		</if>
+		<if test="street > 0">
+			street=#{street},
+		</if>
+		<if test="ksPitch !=null">
+			ksPitch=#{ksPitch},
+		</if>
+		<if test="ksCement !=null">
+			ksCement=#{ksCement},
+		</if>
+		<if test="ksNotShop !=null">
+			ksNotShop=#{ksNotShop},
+		</if>
+		<if test="zgPitch !=null">
+			zgPitch=#{zgPitch},
+		</if>
+		<if test="zgCement !=null">
+			zgCement=#{zgCement},
+		</if>
+		<if test="zgNotShop !=null">
+			zgNotShop=#{zgNotShop},
+		</if>
+		<if test="cgPitch !=null">
+			cgPitch=#{cgPitch},
+		</if>
+		<if test="cgCement !=null">
+			cgCement=#{cgCement},
+		</if>
+		<if test="cgNotShop !=null">
+			cgNotShop=#{cgNotShop},
+		</if>
+		<if test="zPitch !=null">
+			zPitch=#{zPitch},
+		</if>
+		<if test="zCement !=null">
+			zCement=#{zCement},
+		</if>
+		<if test="zNotShop !=null">
+			zNotShop=#{zNotShop},
+		</if>
+		<if test="rainDays > 0">
+			rainDays=#{rainDays},
+		</if>
+		<if test="controlType > 0">
+			controlType=#{controlType},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="department != null">
+			department=#{department}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

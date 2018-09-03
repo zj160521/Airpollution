@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IMaterialDao">
+
+	<!-- resultMap -->
+	<resultMap type="material" id="materialMap">
+		<result property="id" column="id" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="materialSerial" column="materialSerial" />
+		<result property="materialName" column="materialName" />
+		<result property="unit" column="unit" />
+		<result property="remark" column="remark" />
+
+	</resultMap>
+	<resultMap type="com.xf.vo.IntString" id="IntStringMap">
+		<result property="it" column="it" />
+		<result property="str" column="str" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="material" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_material(enterpriceId, materialSerial,
+		materialName, unit,
+		remark) values(#{enterpriceId}, #{materialSerial},
+		#{materialName}, #{unit},
+		#{remark});
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_material where
+		id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="material">
+		update ap_material
+		<set>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="materialSerial != null">
+				materialSerial=#{materialSerial},
+			</if>
+			<if test="materialName != null">
+				materialName=#{materialName},
+			</if>
+			<if test="unit != null">
+				unit=#{unit},
+			</if>
+			<if test="remark != null">
+				remark=#{remark}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<select id="getById" parameterType="int" resultMap="materialMap">
+		select * from
+		ap_material where id=#{id};
+	</select>
+	<select id="getByCompany" parameterType="int" resultMap="materialMap">
+		select *
+		from ap_material where enterpriceId=#{companyid}
+	</select>
+	<select id="getByStep" parameterType="int" resultMap="materialMap">
+		select m.*
+		from ap_material m
+		join ap_produce_material pm on pm.materialId = m.id
+		where
+		pm.stepid=#{stepid};
+	</select>
+	<select id="getMaterial" resultMap="materialMap">
+		SELECT * FROM ap_material WHERE enterpriceId=#{0} AND materialName=#{1}
+	</select>
+	<select id="getMaterialFactor" parameterType="int" resultMap="IntStringMap">	
+		SELECT DISTINCT aa.materialId it,aa.materialName str FROM(
+SELECT a.id enterpriceId,a.enterpriceName,a.trade2 tradeId,b.id productFillId,b.productId,g.productName,b.produceStepId,b.fillyear,c.id materialFillId,
+              c.materialId,f.materialName,c.consumeOfYear,c.unit
+              FROM ap_enterprise a
+              LEFT JOIN ap_product_fill b
+              ON a.id=b.enterpriceId
+              LEFT JOIN ap_material_fill c
+              ON c.productFillId=b.id
+              LEFT JOIN ap_material f
+              ON f.id=c.materialId
+              LEFT JOIN ap_product g
+              ON b.productId=g.id
+              WHERE b.productId=#{0} AND c.materialId>0 AND b.fillyear=(select v from ap_config where k='current_year')
+              ORDER BY b.productId,b.produceStepId,c.materialId
+) aa
+	</select>
+	<select id="getGroupMaterial" parameterType="int" resultMap="materialMap">
+		SELECT DISTINCT m.materialName FROM ap_material m LEFT JOIN ap_enterprise e ON
+		e.id=m.enterpriceId LEFT JOIN ap_product p ON e.trade2=p.trade2 WHERE
+		p.id=#{groupid};
+	</select>
+	<select id="getIdbyname" parameterType="java.lang.String" resultMap="materialMap">
+		SELECT * from ap_material WHERE materialName=#{materialName}
+	</select>
+</mapper>

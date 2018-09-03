@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IOutletFillDao">
+
+	<!-- resultMap -->
+	<resultMap type="outletfill" id="outletfillMap">
+		<result property="id" column="id" />
+		<result property="outletId" column="outletId" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="detectDevice" column="detectDevice" />
+		<result property="outletVelocity" column="outletVelocity" />
+		<result property="outletTemperature" column="outletTemperature" />
+		<result property="outletFlow" column="outletFlow" />
+		<result property="outletTotal" column="outletTotal" />
+		<result property="remark" column="remark" />
+		<result property="status" column="status" />
+
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="outletfill" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_outlet_fill(outletId, fillTime, fillyear,
+		detectDevice, outletVelocity,
+		outletTemperature, outletFlow, outletTotal, remark)
+		values(#{outletId}, #{fillTime},
+		#{fillyear}, #{detectDevice}, #{outletVelocity}, #{outletTemperature},
+		#{outletFlow}, #{outletTotal}, #{remark})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="outletfill">
+		delete from ap_outlet_fill
+		where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_outlet_fill set status=#{0} where outletId in (select id
+		from ap_outlet where enterpriceId=#{1} and enabled>0) and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_outlet_fill set status=#{0} where outletId in (select id
+		from ap_outlet where enterpriceId=#{1} and enabled>0)
+		and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_outlet_fill set status=#{0} where outletId in (select id
+		from ap_outlet where enterpriceId=#{1} and enabled>0)
+		and status=#{2} and fillyear=#{3}
+	</update>
+	<update id="unpass"> <!-- 参数0是status,参数1是companyid -->
+		update ap_outlet_fill set status=#{0} where id = #{1}
+		and status=#{2}
+	</update>
+	<update id="update" parameterType="outletfill">
+		update ap_outlet_fill
+		<set>
+			<if test="outletId > 0">
+				outletId=#{outletId},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime},
+			</if>
+			<if test="detectDevice != null">
+				detectDevice=#{detectDevice},
+			</if>
+			<if test="fillyear > 0">
+				fillyear=#{fillyear},
+			</if>
+			<if test="outletVelocity != null">
+				outletVelocity=#{outletVelocity},
+			</if>
+			<if test="outletTemperature != null">
+				outletTemperature=#{outletTemperature},
+			</if>
+			<if test="outletFlow != null">
+				outletFlow=#{outletFlow},
+			</if>
+			<if test="outletTotal != null">
+				outletTotal=#{outletTotal},
+			</if>
+			<if test="status > 0">
+				status=#{status},
+			</if>
+			<if test="remark != null">
+				remark=#{remark}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="outletfillMap">
+		select * from
+		ap_outlet_fill where id=#{id}
+	</select>
+
+	<select id="getByOutlet" parameterType="int" resultMap="outletfillMap">
+		select *
+		from ap_outlet_fill where outletId=#{outletid}
+	</select>
+	<select id="getCuryearFill" parameterType="int" resultMap="outletfillMap">
+		select * from ap_outlet_fill where outletId=#{outletid} and
+		fillyear=#{fillyear}
+	</select>
+
+</mapper>

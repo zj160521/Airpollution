@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IOutletDao">
+
+	<!-- resultMap -->
+	<resultMap type="outlet" id="outletMap">
+		<result property="id" column="id" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="outletSerial" column="outletSerial" />
+		<result property="outletTypeId" column="outletTypeId" />
+		<result property="outletHeight" column="outletHeight" />
+		<result property="outletDiameter" column="outletDiameter" />
+		<result property="e_outlet" column="e_outlet" />
+		<result property="n_outlet" column="n_outlet" />
+		<result property="enabled" column="enabled" />
+		<result property="remark" column="remark" />
+		<result property="status" column="status" />
+		<result property="outletTypeName" column="outletTypeName" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="outlet" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_outlet(enterpriceId, outletSerial,
+		outletTypeId, outletHeight, outletDiameter,
+		e_outlet, n_outlet,
+		enabled, remark)
+		values(#{enterpriceId}, #{outletSerial},
+		#{outletTypeId}, #{outletHeight}, #{outletDiameter}, #{e_outlet},
+		#{n_outlet}, 1, #{remark})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="outlet">
+		delete from ap_outlet where
+		id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="outlet">
+		update ap_outlet
+		<set>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="outletSerial != null">
+				outletSerial=#{outletSerial},
+			</if>
+			<if test="outletTypeId > 0">
+				outletTypeId=#{outletTypeId},
+			</if>
+			<if test="outletHeight >= 0">
+				outletHeight=#{outletHeight},
+			</if>
+			<if test="outletDiameter >= 0">
+				outletDiameter=#{outletDiameter},
+			</if>
+			<if test="e_outlet > 0">
+				e_outlet=#{e_outlet},
+			</if>
+			<if test="n_outlet > 0">
+				n_outlet=#{n_outlet},
+			</if>
+			<if test="enabled > 0">
+				enabled=#{enabled},
+			</if>
+			<if test="remark != null">
+				remark=#{remark}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="outletMap">
+		select *,
+		(select status from ap_outlet_fill where o.id=outletId and
+		fillyear=(select v from ap_config where k='current_year')) status,
+		(select name from ap_static where id=outletTypeId) as outletTypeName
+		from ap_outlet o where id=#{id}
+	</select>
+
+	<select id="getByCompany" parameterType="int" resultMap="outletMap">
+		select
+		*,
+		(select MAX(status) from ap_outlet_fill where outletId=o.id and
+		fillyear=#{fillyear})as status,
+		(select name from ap_static where id=o.outletTypeId) as outletTypeName
+		from ap_outlet o where o.enterpriceId=#{companyid}
+	</select>
+
+	<select id="yearList" resultMap="outletMap">
+		select o.*,(select status from
+		ap_outlet_fill
+		where outletId=o.id and fillyear=(select v from
+		ap_config where
+		k='current_year')) as status
+		from ap_outlet o;
+	</select>
+
+	<select id="getyearList" parameterType="Condition" resultMap="outletMap">
+		select o.*,ifnull((select MAX(`status`) from
+		ap_outlet_fill
+		where outletId=o.id
+		<if test="fillyear>0">
+			and fillyear=#{fillyear}
+		</if>
+		limit 1),0) as status
+		from ap_outlet o;
+	</select>
+	
+	<select id="check" parameterType="outlet" resultMap="outletMap">
+		select * from ap_outlet where enterpriceId=#{enterpriceId} and outletSerial=#{outletSerial}
+	</select>
+</mapper>

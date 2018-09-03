@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IElecFillDao">
+
+	<!-- resultMap -->
+	<resultMap type="elecfill" id="elecfillMap">
+		<result property="id"             column="id"              />
+		<result property="elecId"         column="elecId"          />
+		<result property="elecDeviceId"   column="elecDeviceId"    />
+		<result property="elecPerDay"     column="elecPerDay"      />
+		<result property="elecPerYear"    column="elecPerYear"     />
+		<result property="status"    column="status"     />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="elecfill" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_elec_fill(elecId, elecDeviceId, elecPerDay, elecPerYear,status)
+		values(#{elecId}, #{elecDeviceId}, #{elecPerDay}, #{elecPerYear},1);
+		update ap_elec e set yeartotal=(select sum(elecPerYear) from ap_elec_fill where elecId=e.id),status=1 where id=#{elecId};
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="elecfill">
+		delete from ap_elec_fill where id=#{id};
+		update ap_elec e set yeartotal=(select sum(elecPerYear) from ap_elec_fill where elecId=e.id) where id=#{elecId};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="elecfill">
+		update ap_elec_fill 
+		<set>
+			<if test="elecId > 0">
+				elecId=#{elecId},
+			</if>
+			<if test="elecDeviceId > 0">
+				elecDeviceId=#{elecDeviceId}, 
+			</if>
+			<if test="elecPerDay != null">
+				elecPerDay=#{elecPerDay}, 
+			</if>
+			<if test="elecPerYear != null">
+				elecPerYear=#{elecPerYear},
+			</if>
+		</set>
+		where id=#{id};
+		update ap_elec e set yeartotal=(select sum(elecPerYear) from ap_elec_fill where elecId=e.id) where id=#{elecId};
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="elecfillMap">
+		select *, (select name from ap_static where id=elecDeviceId) as elecDeviceName
+		from ap_elec_fill where id=#{id}
+	</select>
+	<select id="getByElec" parameterType="int" resultMap="elecfillMap">
+		select *, (select name from ap_static where id=elecDeviceId) as elecDeviceName
+		from ap_elec_fill where elecid=#{elecid}
+	</select>
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		UPDATE ap_elec_fill SET status=#{0} WHERE elecId in (select id from ap_elec where enterpriceId=#{1} and fillyear=#{2})
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		UPDATE ap_elec_fill SET status=#{0} WHERE elecId in (select id from ap_elec where enterpriceId=#{1}) and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		UPDATE ap_elec_fill SET status=#{0} WHERE elecId in (select id from ap_elec where enterpriceId=#{1}) and status=#{2} and fillyear=#{3}
+	</update>
+	<select id="getef" resultMap="elecfillMap">
+	    select * from ap_elec_fill where elecDeviceId=#{1} and elecId=(select id from ap_elec where enterpriceId=#{0} and fillyear=#{2});
+	</select>
+	<update id="updateForUser" parameterType="elecfill">
+	    update ap_elec_fill 
+		<set>
+			<if test="elecId > 0">
+				elecId=#{elecId},
+			</if>
+			<if test="elecDeviceId > 0">
+				elecDeviceId=#{elecDeviceId}, 
+			</if>
+			<if test="elecPerDay != null">
+				elecPerDay=#{elecPerDay}, 
+			</if>
+			<if test="elecPerYear != null">
+				elecPerYear=#{elecPerYear},
+			</if>
+			<if test="status > 0">
+				status=#{status}
+			</if>
+		</set>
+		where id=#{id};
+	</update>
+</mapper>

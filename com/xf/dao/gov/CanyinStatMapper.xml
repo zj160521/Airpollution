@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.ICanyinStatDao">
+
+	<!-- resultMap -->
+	<resultMap type="CanyinStat" id="CanyinStatMap">
+		<result property="id" column="id" />
+		<result property="accountid" column="accountid" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="certified" column="certified" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="canguan_huge" column="canguan_huge" />
+		<result property="canguan_big" column="canguan_big" />
+		<result property="canguan_mid" column="canguan_mid" />
+		<result property="canguan_small" column="canguan_small" />
+		<result property="snack" column="snack" />
+		<result property="fastfood" column="fastfood" />
+		<result property="milk" column="milk" />
+		<result property="drink" column="drink" />
+		<result property="shitang_shiye" column="shitang_shiye" />
+		<result property="shitang_school" column="shitang_school" />
+		<result property="shitang_gongdi" column="shitang_gongdi" />
+		<result property="total" column="total" />
+		<result property="incoming" column="incoming" />
+		<result property="addressStr" column="addressStr" />
+		<result property="he" column="he" />
+		<result property="status" column="status" />
+	</resultMap>
+	<resultMap type="AccountStat" id="AccountStat">
+		<result property="id" column="id" />
+		<result property="cnt" column="cnt" />
+	</resultMap>
+
+	<!--根据id查询全部 -->
+	<select id="getAccountStat" parameterType="int" resultMap="AccountStat">
+		<![CDATA[
+		select e.id,(select count(*) from ap_canyin_stat where accountid=e.id and 
+		fillyear=#{year}) as cnt from ap_enterprise e where typeid=3;
+		]]>
+	</select>
+	<select id="getById" parameterType="int" resultMap="CanyinStatMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(canguan_huge + canguan_big +canguan_mid+canguan_small+snack+fastfood+milk+drink+shitang_shiye+shitang_school+shitang_gongdi) as he
+		 from ap_canyin_stat 
+		 where id=#{id}
+	</select>
+	<select id="getByField" parameterType="CanyinStat" resultMap="CanyinStatMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(canguan_huge + canguan_big +canguan_mid+canguan_small+snack+fastfood+milk+drink+shitang_shiye+shitang_school+shitang_gongdi) as he 
+		 from ap_canyin_stat 
+		 where fillyear=#{fillyear} and town=#{town} and certified=#{certified}
+		 and accountid = #{accountid}
+	</select>
+	<select id="getByTown" parameterType="canyinstat" resultMap="CanyinStatMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(canguan_huge + canguan_big +canguan_mid+canguan_small+snack+fastfood+milk+drink+shitang_shiye+shitang_school+shitang_gongdi) as he 
+		from ap_canyin_stat where fillyear=#{fillyear} and town=#{town} and certified=#{certified} and accountid=#{accountid}
+	</select>
+	<!--根据fillTime查询 -->
+	<select id="getFillTime" parameterType="canyinstat" resultMap="CanyinStatMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(canguan_huge + canguan_big +canguan_mid+canguan_small+snack+fastfood+milk+drink+shitang_shiye+shitang_school+shitang_gongdi) as he
+		 from ap_canyin_stat where fillyear=#{fillyear} and certified=#{certified}
+		 and accountid = #{accountid}
+	</select>
+	<select id="getByYear" parameterType="canyinstat" resultMap="CanyinStatMap">
+		select *,
+			concat(
+			(select districtName from ap_district where id=province), ' ',
+			(select districtName from ap_district where id=city), ' ',
+			(select districtName from ap_district where id=town)) as addressStr,
+			(canguan_huge + canguan_big +canguan_mid+canguan_small+snack+fastfood+milk+drink+shitang_shiye+shitang_school+shitang_gongdi) as he
+		from ap_canyin_stat where fillyear=#{fillyear}
+		and accountid = #{accountid}
+	</select>
+	
+	<delete id="clearData" parameterType="canyinstat">
+		delete from ap_canyin_stat where fillyear=#{fillyear} and accountid = #{accountid}
+	</delete>
+	<select id="getYears" parameterType="int" resultType="java.lang.Integer">
+		select distinct fillyear from ap_canyin_stat where accountid = #{accountid} order by fillyear desc;
+	</select>
+	<select id="getAll" resultMap="CanyinStatMap">
+		select * from ap_canyin_stat where `status`=3
+	</select>
+	<select id="statAll" resultMap="CanyinStatMap">
+		select a.* from ap_canyin_stat a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{0} and a.`status`=3 AND e1.province>0
+	</select>
+	<select id="statAll_pc" resultMap="CanyinStatMap">
+		select a.* from ap_canyin_stat a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{0} and a.`status`=3 AND e1.province=0
+	</select>
+	<select id="statAll2" resultMap="CanyinStatMap">
+		select a.* from ap_canyin_stat a
+		LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+		where a.fillyear=#{0} and a.`status`=3 AND e1.province=0
+	</select>
+	<!-- 添加 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_canyin_stat set status=#{0} where accountid=#{1}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_canyin_stat set status=#{0} where accountid=#{1} and status=#{2}
+	</update>
+	<insert id="add" parameterType="CanyinStat" useGeneratedKeys="true" keyProperty="id">
+		insert into ap_canyin_stat
+		<set>
+		<if test="accountid >= 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="certified > 0">
+			certified=#{certified},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="canguan_huge > 0">
+			canguan_huge=#{canguan_huge},
+		</if>
+		<if test="canguan_big > 0">
+			canguan_big=#{canguan_big},
+		</if>
+		<if test="canguan_mid > 0">
+			canguan_mid=#{canguan_mid},
+		</if>
+		<if test="canguan_small > 0">
+			canguan_small=#{canguan_small},
+		</if>
+		<if test="snack > 0">
+			snack=#{snack},
+		</if>
+		<if test="fastfood > 0">
+			fastfood=#{fastfood},
+		</if>
+		<if test="milk > 0">
+			milk=#{milk},
+		</if>
+		<if test="drink > 0">
+			drink=#{drink},
+		</if>
+		<if test="shitang_shiye > 0">
+			shitang_shiye=#{shitang_shiye},
+		</if>
+		<if test="shitang_school > 0">
+			shitang_school=#{shitang_school},
+		</if>
+		<if test="shitang_gongdi > 0">
+			shitang_gongdi=#{shitang_gongdi},
+		</if>
+		<if test="total > 0">
+			total=#{total},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="incoming > 0">
+			incoming=#{incoming}
+		</if>
+	</set>
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from ap_canyin_stat where id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="CanyinStat">
+		update ap_canyin_stat
+		<set>
+		<if test="accountid > 0">
+			accountid=#{accountid},
+		</if>
+		<if test="fillTime != null">
+			fillTime=#{fillTime},
+		</if>
+		<if test="fillyear > 0">
+			fillyear=#{fillyear},
+		</if>
+		<if test="certified > 0">
+			certified=#{certified},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="canguan_huge > 0">
+			canguan_huge=#{canguan_huge},
+		</if>
+		<if test="canguan_big > 0">
+			canguan_big=#{canguan_big},
+		</if>
+		<if test="canguan_mid > 0">
+			canguan_mid=#{canguan_mid},
+		</if>
+		<if test="canguan_small > 0">
+			canguan_small=#{canguan_small},
+		</if>
+		<if test="snack > 0">
+			snack=#{snack},
+		</if>
+		<if test="fastfood > 0">
+			fastfood=#{fastfood},
+		</if>
+		<if test="milk > 0">
+			milk=#{milk},
+		</if>
+		<if test="drink > 0">
+			drink=#{drink},
+		</if>
+		<if test="shitang_shiye > 0">
+			shitang_shiye=#{shitang_shiye},
+		</if>
+		<if test="shitang_school > 0">
+			shitang_school=#{shitang_school},
+		</if>
+		<if test="shitang_gongdi > 0">
+			shitang_gongdi=#{shitang_gongdi},
+		</if>
+		<if test="total > 0">
+			total=#{total},
+		</if>
+		<if test="status > 0">
+			status=#{status},
+		</if>
+		<if test="incoming > 0">
+			incoming=#{incoming}
+		</if>
+	</set>
+		where id=#{id}
+	</update>
+
+</mapper>

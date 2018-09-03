@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.IComputeDao">
+
+	<!--ft.productId并不只是存燃料的，所以还需通过ft.formulaId来判断 -->
+	<select id="computefuel" resultType="com.xf.vo.Fuelres" parameterType="int">  
+    select s.pid,df.id as dfillid, df.fillyear,d.enterpriceId,df.deviceid,df.fuelid,d.deviceTypeId2,ft.pollutantId,ft.factor,scontent,ashcontent,voccontent,mTotalYear,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12
+        from ap_devfill df 
+        join ap_devices d on df.deviceid=d.id
+        join ap_factor ft on ft.productId=df.fuelid AND ft.formulaId>0 
+        left join ap_static s on df.fuelid=s.id 
+        where df.status = 3 and s.name is not null and d.devClass=0 and (ft.factor = 0 or ft.factor > 0) and df.fillyear=#{fillyear}
+		UNION
+    select s.pid,df.id as dfillid, df.fillyear,d.enterpriceId,df.deviceid,df.fuelid,d.deviceTypeId2,ft.pollutantId,ft.factor,scontent,ashcontent,voccontent,mTotalYear,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12
+        from ap_devfill df
+        join ap_devices d on df.deviceid=d.id
+        JOIN ap_enterprise e ON d.enterpriceId = e.id
+        join ap_factor ft on (ft.productId+100145)=df.fuelid AND ft.tradeid = e.trade1  AND ft.formulaId = d.deviceTypeId2
+        left join ap_static s on df.fuelid=s.id
+        where df.status = 3 and s.name is not null and d.devClass=0 and (ft.factor = 0 or ft.factor > 0) and df.fillyear=#{fillyear}
+
+        
+	</select>
+	
+	<select id="computefuel1" resultType="com.xf.vo.Fuelres">	    
+        select fd.deviceid, fd.facilityId, f.pollutantId, s2.name, avg(s2.unit) as dsrate, avg(s2.remark) as dsrate2
+        from ap_facility_device fd
+        left join ap_control_facilities f on fd.facilityId=f.id
+        left join ap_static s2 on s2.id = f.technique2
+        where f.enabled = 1
+        group by fd.deviceid, f.pollutantid;
+	</select>
+	
+	<select id="prodfuel" parameterType="java.util.Map" resultType="com.xf.vo.ProdFuelstat">
+		${sql}
+	</select>
+	
+	<select id="computeprod1" resultType="com.xf.vo.Prodres" parameterType="int">	    
+        select pf.id as pfillid,pf.fillyear,pf.enterpriceId,pf.productId, ft.pollutantId, ft.factor,p.productName,realoutput,pf.m1,pf.m2,pf.m3,pf.m4,pf.m5,pf.m6,pf.m7,pf.m8,pf.m9,pf.m10,pf.m11,pf.m12
+        from ap_product_fill pf
+        join ap_product p on pf.productid=p.id
+        join ap_factor ft on p.groupid= ft.groupid OR p.groupid=ft.productId
+        join ap_producestep s on s.id=pf.produceStepId 
+        left join ap_enterprise e on pf.enterpriceId = e.id
+        where pf.status = 3 and ft.factor is not null and pf.fillyear=#{fillyear};
+	</select>
+	<select id="computeprod2" resultType="com.xf.vo.Prodres" parameterType="int">	           
+        select pf.id as pfillid, pf.productId, f.pollutantId, avg(s2.unit) as dsrate, avg(s2.remark) as dsrate2
+        from ap_product_fill pf
+        left join ap_facility_step fs on pf.produceStepId=fs.stepid 
+        left join ap_control_facilities f on f.id=fs.facilityid
+        left join ap_static s2 on f.technique2=s2.id 
+        where f.enabled = 1 and pf.productId > 0 and f.pollutantId > 0
+        group by pf.id, pf.productId, f.pollutantId;
+	</select>
+	<select id="computeprod3" resultType="com.xf.vo.Prodres" parameterType="int">	     
+        select pf.id as pfillid,pf.fillyear,pf.enterpriceId,pf.productId, ft.pollutantId, mf.materialId, p.productName, m.materialName, mf.consumeOfYear, ft.factor
+        from ap_product_fill pf
+        join ap_product p on pf.productid=p.id
+        join ap_factor ft on p.groupid= ft.groupid OR p.groupid=ft.productId
+        join ap_material_fill mf on mf.productFillId=pf.id
+        left join ap_material m on mf.materialId=m.id
+        where pf.status = 3 and ft.materialId > 0 and ft.typeid &lt; 4 and pf.fillyear=#{fillyear};
+	</select>
+	<select id="findFuelfactor" resultType="com.xf.vo.FuelFactor">
+		select af.productid, s.name, af.pollutantId, p.pollutantName, af.factor
+        from ap_pollutant p
+        left join ap_factor af on p.id = af.pollutantId
+        join ap_static s on s.id = af.productid
+        where af.typeid = 1;
+	</select>
+	<select id="findProdfactor" resultType="com.xf.vo.ProdFactor">
+		select af.productid, s.productName, af.pollutantId, p.pollutantName, af.factor
+        from ap_pollutant p
+        left join ap_factor af on p.id = af.pollutantId
+        join ap_product s on s.id = af.productid
+        where af.typeid = 2;
+	</select>
+	<insert id="addFuelres" parameterType="java.util.List">
+		insert into ap_stat_device(companyid,deviceid,pollutantId,fillyear,statvalue,devclass,fuelid,fuelname,fuelunit,fuelgroupid,fuelgroupname,pollutantName,statmonth,stat_exp,stat_valtype,stat_value,stat_factor,stat_dsrate)   
+	    values
+	    <foreach collection="list" item="fuel" index="index" separator=",">  
+	       (#{fuel.companyid},#{fuel.deviceid},#{fuel.pollutantId},#{fuel.fillyear},#{fuel.statvalue},#{fuel.devclass},#{fuel.fuelid},#{fuel.fuelname},#{fuel.fuelunit},#{fuel.fuelgroupid},#{fuel.fuelgroupname},#{fuel.pollutantName},#{fuel.statmonth},#{fuel.stat_exp},#{fuel.stat_valtype},#{fuel.stat_value},#{fuel.stat_factor},#{fuel.stat_dsrate})
+	    </foreach>
+	</insert>
+	<insert id="addProdres" parameterType="java.util.List">
+		insert into ap_stat_product(companyid,productid,pollutantId,fillyear,statvalue,statmonth,materialid,fuelid,stat_exp,stat_valtype,stat_value,stat_factor,stat_dsrate)  
+	    values
+	    <foreach collection="list" item="prod" index="index" separator=",">  
+	       (#{prod.companyid},#{prod.productid},#{prod.pollutantId},#{prod.fillyear},#{prod.statvalue},#{prod.statmonth},#{prod.materialid},#{prod.fuelid},#{prod.stat_exp},#{prod.stat_valtype},#{prod.stat_value},#{prod.stat_factor},#{prod.stat_dsrate})
+	    </foreach>
+	</insert>
+	
+	<select id="getAllGasStation" resultType="com.xf.entity.gov.Gasstation" parameterType="int">
+	    SELECT * FROM ap_gasstation a LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province>0
+	</select>
+	
+	<select id="getAllGasStation2" resultType="com.xf.entity.gov.Gasstation" parameterType="int">
+	    SELECT * FROM ap_gasstation a LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province=0
+	</select>
+	
+	<select id="getAllHouseholdFuel" resultType="com.xf.entity.gov.HouseholdFuel" parameterType="int">
+	    SELECT * FROM ap_household_fuel a LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province>0
+	</select>
+	
+	<select id="getAllHouseholdFuel2" resultType="com.xf.entity.gov.HouseholdFuel" parameterType="int">
+	    SELECT * FROM ap_household_fuel a LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province=0
+	</select>
+	
+	<select id="getAllNfertilizer" resultType="com.xf.entity.gov.Nfertilizer" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,a.ferType,IFNULL(SUM(a.amountTotal),0) AS amountTotal,IFNULL(SUM(a.m1),0) AS m1,IFNULL(SUM(a.m2),0) AS m2,IFNULL(SUM(a.m3),0) AS m3,IFNULL(SUM(a.m4),0) AS m4,IFNULL(SUM(a.m5),0) AS m5,IFNULL(SUM(a.m6),0) AS m6,IFNULL(SUM(a.m7),0) AS m7,IFNULL(SUM(a.m8),0) AS m8,IFNULL(SUM(a.m9),0) AS m9,IFNULL(SUM(a.m10),0) AS m10,IFNULL(SUM(a.m11),0) AS m11,IFNULL(SUM(a.m12),0) AS m12
+        FROM ap_nfertilizer a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province>0
+        GROUP BY a.province,a.city,a.town,a.ferType
+	</select>
+	
+	<select id="getAllNfertilizer2" resultType="com.xf.entity.gov.Nfertilizer" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,a.ferType,IFNULL(SUM(a.amountTotal),0) AS amountTotal,IFNULL(SUM(a.m1),0) AS m1,IFNULL(SUM(a.m2),0) AS m2,IFNULL(SUM(a.m3),0) AS m3,IFNULL(SUM(a.m4),0) AS m4,IFNULL(SUM(a.m5),0) AS m5,IFNULL(SUM(a.m6),0) AS m6,IFNULL(SUM(a.m7),0) AS m7,IFNULL(SUM(a.m8),0) AS m8,IFNULL(SUM(a.m9),0) AS m9,IFNULL(SUM(a.m10),0) AS m10,IFNULL(SUM(a.m11),0) AS m11,IFNULL(SUM(a.m12),0) AS m12
+        FROM ap_nfertilizer a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province=0
+        GROUP BY a.province,a.city,a.town,a.ferType
+	</select>
+	
+	<select id="getSumNfertilizer" resultType="com.xf.entity.gov.Nfertilizer" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,a.ferType,IFNULL(SUM(a.amountTotal),0) AS amountTotal
+        FROM ap_nfertilizer a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province>0
+        GROUP BY a.province,a.city,a.town
+	</select>
+	
+	<select id="getSumNfertilizer2" resultType="com.xf.entity.gov.Nfertilizer" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,a.ferType,IFNULL(SUM(a.amountTotal),0) AS amountTotal
+        FROM ap_nfertilizer a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province=0
+        GROUP BY a.province,a.city,a.town
+	</select>
+	
+	<select id="getAllFirewood" resultType="com.xf.entity.gov.GovStat" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,(a.yield*c.BurnRatio*c.RiceGrassDryRatio*c.RiceGrassRatio*d.factor*e.factor)/1000 AS statvalue,f.id AS pollutantId,c.`name` AS stattype3,d.factor AS stat_factor,concat(a.yield,' X ',c.BurnRatio,' X ',c.RiceGrassDryRatio,' X ',c.RiceGrassRatio,' X ',d.factor,' X ',e.factor,' /1000') AS stat_value
+        FROM ap_firewood a
+        JOIN ap_static b
+        ON a.cropType=b.id
+        JOIN ap_firewood_param c
+        ON b.`name`=c.`name`
+        LEFT JOIN ap_govfactor d
+        ON c.`name`=d.type_x AND d.type_x2='EF因子'
+        JOIN ap_govfactor e
+        ON d.id+1=e.id AND e.type_x2='燃烧比例'
+        JOIN ap_pollutant f
+        ON f.pollutantName=d.type_y
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND d.factor>0 AND e.factor>0 AND e1.province>0
+	</select>
+	
+	<select id="getAllFirewood2" resultType="com.xf.entity.gov.GovStat" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,(a.yield*c.BurnRatio*c.RiceGrassDryRatio*c.RiceGrassRatio*d.factor*e.factor)/1000 AS statvalue,f.id AS pollutantId,c.`name` AS stattype3,d.factor AS stat_factor,concat(a.yield,' X ',c.BurnRatio,' X ',c.RiceGrassDryRatio,' X ',c.RiceGrassRatio,' X ',d.factor,' X ',e.factor,' /1000') AS stat_value
+        FROM ap_firewood a
+        JOIN ap_static b
+        ON a.cropType=b.id
+        JOIN ap_firewood_param c
+        ON b.`name`=c.`name`
+        LEFT JOIN ap_govfactor d
+        ON c.`name`=d.type_x AND d.type_x2='EF因子'
+        JOIN ap_govfactor e
+        ON d.id+1=e.id AND e.type_x2='燃烧比例'
+        JOIN ap_pollutant f
+        ON f.pollutantName=d.type_y
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND d.factor>0 AND e.factor>0 AND e1.province=0
+	</select>
+	
+	<select id="getAllConstructiondust" resultType="com.xf.entity.gov.ConstructionDust" parameterType="int">
+	    SELECT a.* FROM ap_constructiondust a 
+        LEFT JOIN ap_enterprise e ON a.accountid=e.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e.province>0
+	</select>
+	
+	<select id="getAllConstructiondust2" resultType="com.xf.entity.gov.ConstructionDust" parameterType="int">
+	    SELECT a.* FROM ap_constructiondust a 
+        LEFT JOIN ap_enterprise e ON a.accountid=e.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e.province=0
+	</select>
+	
+	<select id="getAllEquipment" resultType="com.xf.entity.gov.Equipment" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,a.etype,b.`name` AS etypeName,a.area,c.`name` AS areaName,a.enumber,a.emodel
+        FROM ap_equipment a 
+        LEFT JOIN ap_enterprise e ON a.accountid=e.id
+        LEFT JOIN ap_static b
+        ON a.etype=b.id
+        LEFT JOIN ap_static c
+        ON a.area=c.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e.province>0
+	</select>
+	
+	<select id="getAllEquipment2" resultType="com.xf.entity.gov.Equipment" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,a.etype,b.`name` AS etypeName,a.area,c.`name` AS areaName,a.enumber,a.emodel
+        FROM ap_equipment a 
+        LEFT JOIN ap_enterprise e ON a.accountid=e.id
+        LEFT JOIN ap_static b
+        ON a.etype=b.id
+        LEFT JOIN ap_static c
+        ON a.area=c.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e.province=0
+	</select>
+	
+	<select id="getAllEquipmentfarm"  resultType="com.xf.entity.gov.EquipmentFarm" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,SUM(a.fuelconsume) AS fuelconsume,CONCAT(a.farmtype,a.farmtype2) AS farmtype
+        FROM ap_equipment_farm a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND a.fuelconsume>0 AND e1.province>0
+        GROUP BY a.city,CONCAT(a.farmtype,a.farmtype2)
+	</select>
+	
+	<select id="getAllEquipmentfarm2"  resultType="com.xf.entity.gov.EquipmentFarm" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,SUM(a.fuelconsume) AS fuelconsume,CONCAT(a.farmtype,a.farmtype2) AS farmtype
+        FROM ap_equipment_farm a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND a.fuelconsume>0 AND e1.province=0
+        GROUP BY a.city,CONCAT(a.farmtype,a.farmtype2)
+	</select>
+	
+	<select id="getAllRoaddust" resultType="com.xf.entity.gov.RoadDust" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,IFNULL(SUM(a.ksPitch+a.ksCement),0) AS ksPitch,IFNULL(SUM(a.cgCement+a.cgPitch),0) AS cgPitch,IFNULL(SUM(a.zgCement+a.zgPitch),0) AS zgPitch,IFNULL(SUM(a.zCement+a.zPitch),0) AS zPitch,IFNULL(SUM(a.ksNotShop),0) AS ksNotShop
+        FROM ap_road_dust a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province>0
+        GROUP BY a.town
+	</select>
+	
+	<select id="getAllRoaddust2" resultType="com.xf.entity.gov.RoadDust" parameterType="int">
+	    SELECT a.fillyear,a.province,a.city,a.town,IFNULL(SUM(a.ksPitch+a.ksCement),0) AS ksPitch,IFNULL(SUM(a.cgCement+a.cgPitch),0) AS cgPitch,IFNULL(SUM(a.zgCement+a.zgPitch),0) AS zgPitch,IFNULL(SUM(a.zCement+a.zPitch),0) AS zPitch,IFNULL(SUM(a.ksNotShop),0) AS ksNotShop
+        FROM ap_road_dust a
+        LEFT JOIN ap_enterprise e1 ON a.accountid=e1.id
+        WHERE a.`status`=3 AND a.fillyear=#{fillyear} AND e1.province=0
+        GROUP BY a.town
+	</select>
+	
+	<delete id="deleteAll" parameterType="int">
+	    DELETE FROM ap_stat_gov WHERE fillyear=#{fillyear};
+	</delete>
+	
+	<delete id="deleteAll2" parameterType="int">
+	    DELETE FROM ap_stat_gov_pc WHERE fillyear=#{fillyear};
+	</delete>
+	
+	<delete id="deleteProdDevice" parameterType="int">
+	    DELETE FROM ap_stat_product WHERE fillyear=#{fillyear};
+	    DELETE FROM ap_stat_device WHERE fillyear=#{fillyear};
+	</delete>
+</mapper>

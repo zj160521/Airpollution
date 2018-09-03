@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.gov.IGovHandleDao">
+
+	<!--根据id查询全部 -->
+	<select id="getAll" parameterType="java.util.Map" resultType="com.xf.vo.GovHandle">
+		${sql}
+	</select>
+	<select id="getTName" parameterType="VgovTName" resultType="com.xf.entity.gov.VgovTName">
+	    select typeid,reportname from ap_account_report where isimport=0
+	</select>
+</mapper>

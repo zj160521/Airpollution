@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.IElecDao">
+
+	<!-- resultMap -->
+	<resultMap type="elec" id="elecMap">
+		<result property="id" column="id" />
+		<result property="enterpriceId" column="enterpriceId" />
+		<result property="fillTime" column="fillTime" />
+		<result property="fillyear" column="fillyear" />
+		<result property="yearTotal" column="yearTotal" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="elec" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into ap_elec(enterpriceId, fillTime, fillyear,
+		yearTotal)
+		values(#{enterpriceId}, #{fillTime}, #{fillyear},
+		#{yearTotal})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="elec">
+		delete from ap_elec where
+		id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="setstatus"> <!-- 参数0是status,参数1是companyid -->
+		update ap_elec set status=#{0} where enterpriceId=#{1} and fillyear=#{2}
+	</update>
+	<update id="setstatus2"> <!-- 参数0是status,参数1是companyid -->
+		update ap_elec set status=#{0} where enterpriceId=#{1} and status=#{2}
+	</update>
+	<update id="setstatus3"> <!-- 参数0是status,参数1是companyid -->
+		update ap_elec set status=#{0} where enterpriceId=#{1} and status=#{2} and fillyear=#{3}
+	</update>
+	<update id="update" parameterType="elec">
+		update ap_elec
+		<set>
+			<if test="enterpriceId > 0">
+				enterpriceId=#{enterpriceId},
+			</if>
+			<if test="fillyear > 0">
+				fillyear=#{fillyear},
+			</if>
+			<if test="fillTime != null">
+				fillTime=#{fillTime},
+			</if>
+			<if test="status > 0">
+				status=#{status},
+			</if>
+			yearTotal=(select sum(elecPerYear) from ap_elec_fill where
+			elecId=#{id})
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultMap="elecMap">
+		select * from
+		ap_elec where id=#{id}
+	</select>
+	<select id="getByCompany" parameterType="int" resultMap="elecMap">
+		select *
+		from ap_elec where enterpriceId=#{companyid}
+	</select>
+	<select id="getYears" resultType="java.lang.Integer">
+		select distinct fillyear from
+		ap_elec order by fillyear desc;
+	</select>
+	<select id="yearList" resultMap="elecMap">
+		select e.*
+		from ap_elec e
+		where
+		fillyear=(select v from ap_config where k='current_year')
+	</select>
+
+	<select id="getyearList" parameterType="Condition" resultMap="elecMap">
+		select e.*
+		from ap_elec e
+		<where>
+			<if test="fillyear>0">
+				fillyear=#{fillyear}
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,875 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.LookupDataDao">
+
+    <select id="getResult" resultType="com.xf.vo.LookupResult">
+       SELECT e.id AS cityid,e.districtName,f.id AS tradeid,f.tradeName,i.id AS pollutantid,i.pollutantName,IFNULL(g.sum,0) AS sum
+       FROM ap_district e
+       LEFT JOIN ap_trade f
+       ON f.parentId=#{tradeid}
+       LEFT JOIN ap_pollutant i
+       ON i.id>0 and i.id&lt;11
+       LEFT JOIN (SELECT a.id AS cityid,a.districtName,c.id AS tradeid,c.tradeName,e.id AS pollutantid,e.pollutantName,SUM(d.statvalue) AS sum
+       FROM ap_district a
+       LEFT JOIN ap_enterprise b
+       ON IFNULL(1/#{in},b.ismall=#{issmall}) AND (a.id=b.city OR a.id =b.province)
+       left JOIN ap_trade c
+       ON c.id=b.trade1 OR c.id=b.trade2 OR c.id=b.trade3 OR c.id=b.trade4
+       left JOIN ap_stat_device d
+       ON d.companyid=b.id
+       LEFT JOIN ap_pollutant e
+       ON d.pollutantId=e.id
+       WHERE a.districtLevel=#{cityid} AND d.fillyear=#{year} AND c.parentId=#{tradeid} 
+       GROUP BY a.id,c.id,d.pollutantId) g
+       ON e.id=g.cityid AND f.id=g.tradeid AND i.id=g.pollutantid
+       WHERE e.districtLevel=#{cityid}
+    </select>
+    
+    <select id="getResult1" resultType="com.xf.vo.LookupResult">
+       SELECT e.id AS cityid,e.districtName,f.id AS tradeid,f.tradeName,i.id AS pollutantid,i.pollutantName,IFNULL(g.sum,0) AS sum
+       FROM ap_district e
+       LEFT JOIN ap_trade f
+       ON f.parentId=#{tradeid}
+       LEFT JOIN ap_pollutant i
+       ON i.id>0 and i.id&lt;11
+       LEFT JOIN (SELECT a.id AS cityid,a.districtName,c.id AS tradeid,c.tradeName,e.id AS pollutantid,e.pollutantName,SUM(d.statvalue) AS sum
+       FROM ap_district a
+       LEFT JOIN ap_enterprise b
+       ON IFNULL(1/#{in},b.ismall=#{issmall}) AND (a.id=b.city OR a.id =b.province)
+       left JOIN ap_trade c
+       ON c.id=b.trade1 OR c.id=b.trade2 OR c.id=b.trade3 OR c.id=b.trade4
+       left JOIN ap_stat_product d
+       ON d.companyid=b.id
+       LEFT JOIN ap_pollutant e
+       ON d.pollutantId=e.id
+       WHERE a.districtLevel=#{cityid} AND d.fillyear=#{year} AND c.parentId=#{tradeid}
+       GROUP BY a.id,c.id,d.pollutantId) g
+       ON e.id=g.cityid AND f.id=g.tradeid AND i.id=g.pollutantid
+       WHERE e.districtLevel=#{cityid}
+    </select>
+    
+	<select id="searchCompany" resultType="com.xf.entity.Company">
+		SELECT * FROM ap_enterprise
+		<if test="city != 0">
+			WHERE city = #{city}
+		</if>
+	</select>
+
+	<select id="searchStatDevice" parameterType="java.util.Map"
+		resultType="com.xf.vo.StatDevice">
+		${sql1};
+	</select>
+
+	<select id="searchStatProduct" parameterType="java.util.Map"
+		resultType="com.xf.vo.StatProd">
+		${sql2};
+	</select>
+
+	<select id="searchStatDevByYear" parameterType="int"
+		resultType="com.xf.vo.StatDevice">
+		select * from ap_stat_device where fillyear=#{year};
+	</select>
+
+	<select id="searchStatProByYear" parameterType="int"
+		resultType="com.xf.vo.StatProd">
+		select * from ap_stat_product where fillyear=#{year};
+	</select>
+
+	<select id="findPollutionName" parameterType="int" resultType="java.lang.String">
+		select pollutantName from ap_pollutant where id=#{pollutionid};
+	</select>
+
+	<select id="findTradeName" parameterType="int" resultType="java.lang.String">
+		select tradeName from ap_trade where id=#{tradeid};
+	</select>
+
+	<select id="searchLookupMonthRes" resultType="com.xf.vo.LookupMonthRes">
+        SELECT month,pollutionid,pollutantName,SUM(total) as total
+        FROM
+        (SELECT a.month,b.id as
+		pollutionid,b.pollutantName,IFNULL(SUM(c.statvalue),0)
+		AS total
+		FROM v_month a
+		LEFT JOIN ap_pollutant b
+		ON b.id>0 and b.id&lt;11
+		LEFT JOIN
+		ap_stat_device c
+		ON a.month=c.statmonth AND b.id=c.pollutantId AND c.fillyear=#{0}
+    AND c.companyid in (SELECT id FROM ap_enterprise WHERE IFNULL(1/#{2},ismall=#{1}))
+        GROUP BY a.month,b.id
+        UNION ALL
+        SELECT a.month,b.id as
+		pollutionid,b.pollutantName,IFNULL(SUM(c.statvalue),0)
+		AS total
+		FROM v_month a
+		LEFT JOIN ap_pollutant b
+		ON b.id>0 and b.id&lt;11
+		LEFT JOIN
+		ap_stat_product c
+		ON a.month=c.statmonth AND b.id=c.pollutantId AND c.fillyear=#{0}
+    AND c.companyid in (SELECT id FROM ap_enterprise WHERE IFNULL(1/#{2},ismall=#{1}))
+        GROUP BY a.month,b.id) stat
+        GROUP BY month,pollutionid
+        
+	</select>
+
+	<select id="searchDevices" parameterType="int" resultType="com.xf.vo.LookupDevicesRes">
+		SELECT d.id,d.name,IFNULL(SUM(e.count),0) AS count FROM
+		ap_static d
+		LEFT JOIN
+		(SELECT id,name,COUNT(*) AS count
+		FROM (SELECT
+		a.id,a.`name`,b.id AS deviceid FROM ap_static a
+		LEFT JOIN ap_devices b ON b.deviceTypeId=a.id
+		LEFT JOIN ap_enterprise en ON b.enterpriceId=en.id
+		WHERE b.id>0 AND (a.groupid=1 OR a.groupid=4)
+		AND b.serviceLife=#{year} <if test="temp=0"> AND en.ismall=#{ismall}</if>) c
+		GROUP BY c.id,c.name)e
+		ON d.id= e.id
+		WHERE
+		d.groupid=1 or d.groupid=4
+		GROUP BY d.`name`
+	</select>
+
+    <select id="searchDevices2" parameterType="int" resultType="com.xf.vo.LookupDevicesRes">
+		SELECT d.id,d.name,IFNULL(SUM(e.count),0) AS count FROM
+		ap_static d
+		LEFT JOIN
+		(SELECT id,name,COUNT(*) AS count
+		FROM (SELECT a.id,a.`name`,b.id AS deviceid FROM ap_static a
+		LEFT JOIN ap_devices b
+		ON b.deviceTypeId2=a.id
+		WHERE a.groupid=4 AND b.serviceLife=#{year}) c
+		GROUP BY c.id,c.name)e
+		ON d.id= e.id
+		WHERE d.groupid=4
+		GROUP BY d.`name`
+	</select>
+
+	<select id="searchCityDevice" resultType="com.xf.vo.LookupCityDevicesRes">
+		SELECT e.id AS
+		cityid,e.districtName,f.id AS
+		deviceTypeid,f.`name`,IFNULL(SUM(g.count),0)
+		AS count
+		FROM ap_district e
+		LEFT JOIN ap_static f
+		ON f.groupid=1 OR
+		f.groupid=4
+		LEFT JOIN
+		(SELECT
+		a.id,a.districtName,c.deviceTypeId,d.`name`,COUNT(*) AS count
+		FROM
+		ap_district a
+		LEFT JOIN ap_enterprise b
+		ON b.city=a.id and IFNULL(1/#{1},b.ismall=#{0})
+		LEFT JOIN
+		ap_devices c
+		ON c.enterpriceId=b.id
+		JOIN ap_static d
+		ON
+		d.id=c.deviceTypeId
+		WHERE a.parentId=1 AND c.id>0 AND c.devClass=0 AND
+		c.enabled=1
+		GROUP BY a.districtName,c.deviceTypeId) g
+		ON e.id=g.id AND
+		f.id=g.deviceTypeId
+		WHERE e.parentId=1
+		GROUP BY e.id,f.`name`
+		ORDER BY e.id,f.id
+	</select>
+
+	<select id="searchTradeDevice" resultType="com.xf.vo.LookupTradeDevicesRes">
+		SELECT
+		a.id,a.tradeName,b.id AS deviceTypeid,b.`name`,IFNULL(SUM(g.count),0) AS
+		count
+		FROM ap_trade a
+		LEFT JOIN ap_static b
+		ON b.groupid=1 OR b.groupid=4
+		LEFT JOIN
+		(SELECT c.id,c.tradeName,e.deviceTypeId,f.`name`,COUNT(*) AS
+		count
+		FROM ap_trade c
+		LEFT JOIN ap_enterprise d
+		ON IFNULL(1/#{2},d.ismall=#{0}) and (c.id=d.trade1 OR
+		c.id=d.trade2 OR c.id=d.trade3 OR c.id=d.trade4)
+		LEFT JOIN ap_devices e
+		ON e.enterpriceId=d.id
+		JOIN ap_static f
+		ON f.id=e.deviceTypeId
+		WHERE
+		c.parentId=#{1} AND e.devClass=0 AND e.enabled=1
+		GROUP BY
+		c.id,e.deviceTypeId) g
+		ON a.id=g.id AND b.id=g.deviceTypeId
+		WHERE
+		a.parentId=#{1}
+		GROUP BY a.id,b.`name`
+	</select>
+
+    <select id="searchCityVocs" resultType="com.xf.vo.LookupCityFeulRes">
+        SELECT a.id AS cityid,a.districtName,b.id AS feulid,b.pollutantName AS name,IFNULL(c.sum,0) AS sum
+        FROM ap_district a
+        LEFT JOIN ap_pollutant b ON b.id=9
+        LEFT JOIN (SELECT g.stattype,g.city,d.districtName,g.pollutantId AS feulid,p.pollutantName AS name,IFNULL(SUM(g.statvalue),0) AS sum
+        FROM ap_stat_gov g
+        LEFT JOIN ap_district d
+        ON d.id=g.city
+        LEFT JOIN ap_pollutant p
+        ON g.pollutantId=p.id
+        WHERE g.fillyear=#{year} AND g.stattype=#{type} AND g.pollutantId=9
+        GROUP BY g.city,g.pollutantId) c
+        ON a.id=c.city AND b.id=c.feulid
+        WHERE a.districtLevel=1
+    </select>
+    
+    <select id="searchCityVocs2" resultType="com.xf.vo.LookupCityFeulRes">
+        SELECT a.id AS cityid,a.districtName,b.id AS feulid,b.pollutantName AS name,IFNULL(c.sum,0) AS sum
+        FROM ap_district a
+        LEFT JOIN ap_pollutant b ON b.id=9
+        LEFT JOIN (SELECT g.stattype,g.city,d.districtName,g.pollutantId AS feulid,p.pollutantName AS name,IFNULL(SUM(g.statvalue),0) AS sum
+        FROM ap_stat_gov_pc g
+        LEFT JOIN ap_district d
+        ON d.id=g.city
+        LEFT JOIN ap_pollutant p
+        ON g.pollutantId=p.id
+        WHERE g.fillyear=#{year} AND g.stattype=#{type} AND g.pollutantId=9
+        GROUP BY g.city,g.pollutantId) c
+        ON a.id=c.city AND b.id=c.feulid
+        WHERE a.districtLevel=1
+    </select>
+    
+	<select id="searchCityFuel" resultType="com.xf.vo.LookupCityFeulRes">
+		SELECT a.id AS cityid,a.districtName,b.id AS feulid,b.`name`,IFNULL(SUM(h.sum),0) AS sum
+		FROM ap_district a
+		LEFT JOIN ap_static b ON b.groupid=2
+		LEFT JOIN (SELECT c.id,c.districtName,i.id AS fuelId,i.`name`,SUM(f.mTotalYear) AS sum
+		FROM ap_district c
+		LEFT JOIN ap_enterprise d ON d.city=c.id OR d.province=c.id
+		LEFT JOIN ap_devices e ON d.id=e.enterpriceId
+		LEFT JOIN ap_devfill f ON f.deviceId=e.id
+		JOIN ap_static g ON f.fuelId=g.id
+        LEFT JOIN ap_static i ON g.pid=i.id AND i.groupid=2
+		WHERE c.parentId=#{cityid} AND f.fillyear=#{year} AND f.`status`=3
+		GROUP BY c.id,i.id) h
+		ON a.id=h.id AND b.id=h.fuelId
+		WHERE a.parentId=#{cityid}
+		GROUP BY a.id,b.`name`
+	</select>
+
+	<select id="searchFeulType" parameterType="int" resultType="com.xf.vo.LookupFeulTypeRes">
+		SELECT a.id,a.`name`,IFNULL(SUM(b.mTotalYear),0) AS sum
+		FROM ap_static a
+		LEFT JOIN ap_devfill b ON b.fuelId=a.id AND b.fillyear=#{year}
+		WHERE a.groupid=3 AND b.`status`=3
+		GROUP BY a.id
+	</select>
+
+	<select id="saerchTradeFeul" resultType="com.xf.vo.LookupTradeFeulRes">
+		SELECT f.id AS tradeid,f.tradeName,g.id AS feulid,g.`name`,IFNULL(SUM(h.sum),0) AS sum
+		FROM ap_trade f
+		LEFT JOIN ap_static g ON g.groupid=2
+		LEFT JOIN(SELECT a.id AS tradeid,a.tradeName,i.id AS feulid,i.`name`,SUM(d.mTotalYear) AS sum
+		FROM ap_trade a
+		LEFT JOIN ap_enterprise b ON a.id=b.trade1 OR a.id=b.trade2 OR a.id=b.trade3 OR a.id=b.trade4
+		LEFT JOIN ap_devices c ON b.id=c.enterpriceId
+		LEFT JOIN ap_devfill d ON d.deviceId=c.id
+		JOIN ap_static e ON d.fuelId=e.id
+        LEFT JOIN ap_static i ON e.pid=i.id AND i.groupid=2
+		WHERE a.parentId=#{tradeid} AND d.fillyear=#{year} AND d.`status`=3
+		GROUP BY a.id,i.id) h
+		ON f.id=h.tradeid AND h.feulid=g.id
+		WHERE f.parentId=#{tradeid}
+		GROUP BY f.id,g.`name`
+	</select>
+
+	<select id="searchMonthFeul" parameterType="int"
+		resultType="com.xf.vo.LookupMonthFeulRes">
+		SELECT IFNULL(SUM(a.m1),0) AS m1,IFNULL(SUM(a.m2),0) AS
+		m2,IFNULL(SUM(a.m3),0) AS m3,IFNULL(SUM(a.m4),0) AS
+		m4,IFNULL(SUM(a.m5),0) AS m5,IFNULL(SUM(a.m6),0) AS
+		m6,IFNULL(SUM(a.m7),0) AS m7,IFNULL(SUM(a.m8),0) AS
+		m8,IFNULL(SUM(a.m9),0) AS m9,IFNULL(SUM(a.m10),0) AS
+		m10,IFNULL(SUM(a.m11),0) AS m11,IFNULL(SUM(a.m12),0) AS m12
+		FROM ap_devfill a
+        LEFT JOIN ap_devices b
+        ON a.deviceId=b.id
+        LEFT JOIN ap_static c
+        ON a.fuelId=c.id
+		WHERE a.fillyear=#{year} AND a.`status`=3 AND b.devClass=0 AND c.pid=2001
+	</select>
+
+	<select id="searchTradeFeulSum" resultType="com.xf.vo.LookupTradeFeulSum">
+		SELECT
+		f.id,f.tradeName,IFNULL(g.sum,0) AS sum
+		FROM ap_trade f
+		LEFT JOIN
+		(SELECT a.id AS tradeid,a.tradeName,SUM(d.mTotalYear) AS sum
+		FROM
+		ap_trade a
+		LEFT JOIN ap_enterprise b
+		ON a.id=b.trade1 OR a.id=b.trade2
+		OR a.id=b.trade3 OR a.id=b.trade4
+		LEFT JOIN ap_devices c
+		ON
+		b.id=c.enterpriceId
+		LEFT JOIN ap_devfill d
+		ON d.deviceId=c.id
+		JOIN
+		ap_static e
+		ON d.fuelId=e.id
+		WHERE a.parentId=#{tradeid} AND
+		d.fillyear=#{year} AND d.`status`=3
+		GROUP BY a.id) g
+		ON f.id=g.tradeid
+		WHERE f.parentId=#{tradeid}
+	</select>
+
+	<select id="searchCityTradeAS" resultType="com.xf.vo.LookupCityTradeAS">
+		SELECT a.id AS
+		cityid,a.districtName,b.id AS
+		tradeid,b.tradeName,IFNULL(g.avgAsh,0) AS
+		avgAsh,IFNULL(g.avgS,0) AS
+		avgS,IFNULL(g.avgVoc,0) AS avgVoc
+		FROM
+		ap_district a
+		LEFT JOIN ap_trade b
+		ON b.parentId=#{tradeid}
+		LEFT JOIN
+		(SELECT a.id AS cityid,a.districtName,e.id AS
+		tradeid,e.tradeName,AVG(d.AshContent) AS avgAsh,AVG(d.SContent) AS
+		avgS,AVG(d.VocContent) AS avgVoc
+		FROM ap_district a
+		LEFT JOIN
+		ap_enterprise b
+		ON a.id=b.city OR a.id=b.province
+		LEFT JOIN ap_trade e
+		ON b.trade1=e.id OR
+		b.trade2=e.id OR b.trade3=e.id OR b.trade4=e.id
+		LEFT JOIN ap_devices c
+		ON b.id=c.enterpriceId
+		LEFT JOIN ap_devfill d
+		ON c.id=d.deviceId
+		WHERE
+		a.districtLevel=#{cityid} AND e.parentId=#{tradeid} AND b.typeid=2 AND
+		d.fillyear=#{year} AND d.`status`=3
+		GROUP BY a.id,e.id) g
+		ON
+		a.id=g.cityid AND b.id=g.tradeid
+		WHERE a.districtLevel=#{cityid}
+	</select>
+
+	<select id="searchCityTradeTon" resultType="com.xf.vo.LookupCityTradeASRes">
+		SELECT a.id AS cityid,a.districtName,b.id AS
+		tradeid,b.tradeName,IFNULL(g.sum,0) AS sum
+		FROM ap_district a
+		LEFT JOIN
+		ap_trade b
+		ON b.parentId=#{tradeid}
+		LEFT JOIN (SELECT a.id AS
+		cityid,a.districtName,e.id AS
+		tradeid,e.tradeName,SUM(c.shippingTon) AS
+		sum
+		FROM ap_district a
+		LEFT JOIN ap_enterprise b
+		ON IFNULL(1/#{in},b.ismall=#{issmall}) AND (a.id=b.city OR a.id=b.province)
+		LEFT JOIN
+		ap_trade e
+		ON b.trade1=e.id OR b.trade2=e.id OR b.trade3=e.id OR
+		b.trade4=e.id
+		LEFT JOIN ap_devices c
+		ON b.id=c.enterpriceId
+		WHERE
+		a.districtLevel=#{cityid} AND e.parentId=#{tradeid} AND b.typeid=2 AND
+		c.enabled=1
+		GROUP BY a.id,e.id) g
+		ON a.id=g.cityid AND b.id=g.tradeid
+		WHERE a.districtLevel=#{cityid}
+	</select>
+
+	<select id="searchDeviceCount" resultType="com.xf.vo.LookupTradeFeulRes">
+		SELECT f.id AS
+		tradeid,f.tradeName,g.id,g.`name`,IFNULL(SUM(h.sum),0) AS sum
+		FROM ap_trade f
+		LEFT JOIN ap_static g ON g.groupid=5
+		LEFT JOIN(SELECT a.id AS tradeid,a.tradeName,i.id AS feulid,i.`name`,COUNT(*) AS sum
+		FROM ap_trade a
+		LEFT JOIN ap_enterprise b ON a.id=b.trade1 OR a.id=b.trade2 OR a.id=b.trade3 OR a.id=b.trade4
+		LEFT JOIN ap_devices c ON b.id=c.enterpriceId
+		JOIN ap_static e ON c.deviceTypeId2=e.id
+        LEFT JOIN ap_static i ON e.pid=i.id AND i.groupid=5
+		WHERE a.parentId=#{tradeid} AND e.groupid=6 AND c.enabled=1
+		GROUP BY a.id,i.id) h
+		ON f.id=h.tradeid AND g.id=h.feulid
+		WHERE
+		f.parentId=#{tradeid}
+		GROUP BY f.id,g.`name`
+	</select>
+
+    <select id="searchDeviceCount2" resultType="com.xf.vo.LookupTradeFeulRes">
+		SELECT f.id AS
+		tradeid,f.tradeName,g.id,g.`name`,IFNULL(SUM(h.sum),0) AS sum
+		FROM ap_trade f
+		LEFT JOIN ap_static g ON g.groupid=5
+		LEFT JOIN(SELECT a.id AS tradeid,a.tradeName,i.id AS feulid,i.`name`,COUNT(*) AS sum
+		FROM ap_trade a
+		LEFT JOIN ap_enterprise b ON a.id=b.trade1 OR a.id=b.trade2 OR a.id=b.trade3 OR a.id=b.trade4
+		LEFT JOIN ap_devices c ON b.id=c.enterpriceId
+		JOIN ap_static e ON c.deviceTypeId2=e.id
+        LEFT JOIN ap_static i ON e.pid=i.id AND i.groupid=5
+		WHERE a.id=#{tradeid} AND e.groupid=6 AND c.enabled=1
+		GROUP BY a.id,i.id) h
+		ON f.id=h.tradeid AND g.id=h.feulid
+		WHERE
+		f.id=#{tradeid}
+		GROUP BY f.id,g.`name`
+	</select>
+
+	<select id="deviceTonCount" resultType="int">
+		SELECT COUNT(*)
+		FROM
+		ap_devices a
+		LEFT JOIN ap_enterprise b
+		ON a.enterpriceId=b.id and IFNULL(1/#{in},b.ismall=#{issmall})
+		WHERE
+		a.devClass=0 AND b.trade3!=811 AND a.shippingTon&lt;#{end} AND
+		a.shippingTon&gt;=#{start}
+	</select>
+
+	<select id="CityDeviceCount" resultType="com.xf.vo.LookupCityDevicesRes">
+		SELECT e.id,e.districtName,f.id AS deviceTypeid,f.`name`,IFNULL(SUM(g.count),0) AS count
+		FROM ap_district e
+		LEFT JOIN ap_static f
+		ON f.groupid=5
+		LEFT JOIN(SELECT a.id,a.districtName,i.id AS deviceTypeid,i.`name`,COUNT(*) AS count
+		FROM ap_district a
+		LEFT JOIN ap_enterprise b ON b.city=a.id
+		LEFT JOIN ap_devices c ON c.enterpriceId=b.id AND c.devClass=1 AND c.enabled=1
+		JOIN ap_static d ON c.deviceTypeId2=d.id
+        LEFT JOIN ap_static i ON d.pid=i.id AND i.groupid=5
+		WHERE a.districtLevel=1
+		GROUP BY a.id,d.id) g
+		ON e.id=g.id AND f.id=g.deviceTypeid
+		WHERE e.districtLevel=1
+		GROUP BY e.id,f.`name`
+	</select>
+
+	<select id="searchFeulDeviceType" parameterType="int" resultType="com.xf.vo.LookupFeulTypeRes">
+		SELECT d.id,d.`name`,IFNULL(SUM(e.sum),0) AS sum
+		FROM ap_static d
+		LEFT JOIN(SELECT a.id,a.`name`,IFNULL(SUM(b.mTotalYear),0) AS sum
+		FROM ap_static a
+		LEFT JOIN ap_devfill b ON b.fuelId=a.id AND b.fillyear=#{year}
+		LEFT JOIN ap_devices c ON c.id=b.deviceId
+		WHERE a.groupid=3 AND c.devClass=1 AND c.enabled=1 AND b.`status`=3
+		GROUP BY a.id) e
+		ON d.id=e.id
+		WHERE d.groupid=3
+		GROUP BY d.`name`
+	</select>
+
+	<select id="DeviceCityFuel" parameterType="int" resultType="com.xf.vo.LookupCityFeulRes">
+		SELECT a.id AS cityid,a.districtName,b.id AS feulid,b.`name`,IFNULL(SUM(h.sum),0) AS sum
+		FROM ap_district a
+		LEFT JOIN ap_static b ON b.groupid=2
+		LEFT JOIN (SELECT c.id,c.districtName,i.id AS fuelId,i.`name`,SUM(f.mTotalYear) AS sum
+		FROM ap_district c
+		LEFT JOIN ap_enterprise d ON d.city=c.id OR d.province=c.id
+		LEFT JOIN ap_devices e ON d.id=e.enterpriceId
+		LEFT JOIN ap_devfill f ON f.deviceId=e.id
+		JOIN ap_static g ON f.fuelId=g.id
+        LEFT JOIN ap_static i ON g.pid=i.id AND i.groupid=2
+		WHERE c.parentId=#{cityid} AND f.fillyear=#{year} AND f.`status`=3 AND g.groupid=3
+		GROUP BY c.id,i.id) h
+		ON a.id=h.id AND b.id=h.fuelId
+		WHERE a.parentId=#{cityid}
+		GROUP BY a.id,b.id
+	</select>
+
+	<select id="DeviceTradeFeul" resultType="com.xf.vo.LookupTradeFeulRes">
+		SELECT f.id AS tradeid,f.tradeName,g.id AS feulid,g.`name`,IFNULL(SUM(h.sum),0) AS sum
+		FROM ap_trade f
+		LEFT JOIN ap_static g ON g.groupid=2
+		LEFT JOIN(SELECT a.id AS tradeid,a.tradeName,i.id AS feulid,i.`name`,SUM(d.mTotalYear) AS sum
+		FROM ap_trade a
+		LEFT JOIN ap_enterprise b ON a.id=b.trade1 OR a.id=b.trade2 OR a.id=b.trade3 OR a.id=b.trade4
+		LEFT JOIN ap_devices c ON b.id=c.enterpriceId
+		LEFT JOIN ap_devfill d ON d.deviceId=c.id
+		JOIN ap_static e ON d.fuelId=e.id
+        LEFT JOIN ap_static i ON e.pid=i.id AND i.groupid=2
+		WHERE a.parentId=#{tradeid} AND d.fillyear=#{year} AND d.`status`=3 AND c.devClass=1 AND e.groupid=3
+		GROUP BY a.id,i.id) h
+		ON f.id=h.tradeid AND h.feulid=g.id
+		WHERE f.parentId=#{tradeid}
+		GROUP BY f.id,g.`name`
+	</select>
+
+	<select id="DeviceCityTradeAS" resultType="com.xf.vo.LookupCityTradeAS">
+		SELECT a.id AS
+		cityid,a.districtName,b.id AS
+		tradeid,b.tradeName,IFNULL(g.avgAsh,0) AS
+		avgAsh,IFNULL(g.avgS,0) AS
+		avgS,IFNULL(g.avgVoc,0) AS avgVoc
+		FROM
+		ap_district a
+		LEFT JOIN ap_trade b
+		ON b.parentId=#{tradeid}
+		LEFT JOIN
+		(SELECT a.id AS cityid,a.districtName,e.id AS
+		tradeid,e.tradeName,AVG(d.AshContent) AS avgAsh,AVG(d.SContent) AS
+		avgS,AVG(d.VocContent) AS avgVoc
+		FROM ap_district a
+		LEFT JOIN
+		ap_enterprise b
+		ON a.id=b.city OR a.id=b.province
+		LEFT JOIN ap_trade e
+		ON b.trade1=e.id OR
+		b.trade2=e.id OR b.trade3=e.id OR b.trade4=e.id
+		LEFT JOIN ap_devices c
+		ON b.id=c.enterpriceId
+		LEFT JOIN ap_devfill d
+		ON c.id=d.deviceId
+		WHERE
+		a.districtLevel=#{cityid} AND e.parentId=#{tradeid} AND b.typeid=2 AND
+		d.fillyear=#{year} AND d.`status`=3 AND c.devClass=1
+		GROUP BY
+		a.id,e.id) g
+		ON a.id=g.cityid AND b.id=g.tradeid
+		WHERE a.districtLevel=#{cityid}
+	</select>
+
+	<select id="DeviceMonthFeul" parameterType="int"
+		resultType="com.xf.vo.LookupMonthFeulRes">
+		SELECT IFNULL(SUM(a.m1),0) AS m1,IFNULL(SUM(a.m2),0) AS
+		m2,IFNULL(SUM(a.m3),0) AS m3,IFNULL(SUM(a.m4),0) AS
+		m4,IFNULL(SUM(a.m5),0) AS m5,IFNULL(SUM(a.m6),0) AS
+		m6,IFNULL(SUM(a.m7),0) AS m7,IFNULL(SUM(a.m8),0) AS
+		m8,IFNULL(SUM(a.m9),0) AS m9,IFNULL(SUM(a.m10),0) AS
+		m10,IFNULL(SUM(a.m11),0) AS m11,IFNULL(SUM(a.m12),0) AS m12
+		FROM ap_devfill a
+        LEFT JOIN ap_devices b
+        ON a.deviceId=b.id
+        LEFT JOIN ap_static c
+        ON a.fuelId=c.id
+		WHERE a.fillyear=#{year} AND a.`status`=3 AND b.devClass=1 AND c.pid=2001
+	</select>
+
+	<select id="DeviceCityFeulSum" parameterType="int"
+		resultType="com.xf.vo.LookupDeviceCityFeulSum">
+		SELECT e.id,e.districtName,IFNULL(f.sum,0) AS sum
+		FROM
+		ap_district e
+		LEFT JOIN (SELECT a.id,a.districtName,SUM(d.mTotalYear)
+		AS sum
+		FROM ap_district a
+		LEFT JOIN ap_enterprise b
+		ON a.id=b.city
+		LEFT
+		JOIN ap_devices c
+		ON b.id=c.enterpriceId
+		LEFT JOIN ap_devfill d
+		ON
+		c.id=d.deviceId
+		WHERE a.districtLevel=1 AND c.devClass=1 AND
+		d.`status`=3 AND
+		d.fillyear=#{year}
+		GROUP BY a.id) f
+		ON f.id=e.id
+		WHERE
+		e.districtLevel=1
+	</select>
+
+	<select id="DeviceTradeFeulSum" resultType="com.xf.vo.LookupTradeFeulSum">
+		SELECT
+		f.id,f.tradeName,IFNULL(g.sum,0) AS sum
+		FROM ap_trade f
+		LEFT JOIN
+		(SELECT a.id AS tradeid,a.tradeName,SUM(d.mTotalYear) AS sum
+		FROM
+		ap_trade a
+		LEFT JOIN ap_enterprise b
+		ON a.id=b.trade1 OR a.id=b.trade2
+		OR a.id=b.trade3 OR a.id=b.trade4
+		LEFT JOIN ap_devices c
+		ON
+		b.id=c.enterpriceId
+		LEFT JOIN ap_devfill d
+		ON d.deviceId=c.id
+		JOIN
+		ap_static e
+		ON d.fuelId=e.id
+		WHERE a.parentId=#{tradeid} AND
+		d.fillyear=#{year} AND d.`status`=3
+		GROUP BY a.id) g
+		ON f.id=g.tradeid
+		WHERE f.parentId=#{tradeid}
+	</select>
+
+	<select id="CityTradeTech" parameterType="int"
+		resultType="com.xf.vo.LookupCityTradeTechRes">
+		SELECT f.id AS cityid,f.districtName,g.id AS
+		tradeid,g.tradeName,h.id AS
+		techniqueid,h.`name`,IFNULL(i.count,0) AS
+		count
+		FROM ap_district f
+		LEFT JOIN ap_trade g
+		ON g.parentId=#{tradeid}
+		LEFT JOIN ap_static h
+		ON h.groupid=8
+		LEFT JOIN
+		(SELECT a.id AS
+		cityid,a.districtName,c.id AS
+		tradeid,c.tradeName,d.technique1,e.`name`,COUNT(*) AS count
+		FROM
+		ap_district a
+		LEFT JOIN ap_enterprise b
+		ON a.id=b.city
+		LEFT JOIN ap_trade
+		c
+		ON b.trade1=c.id OR b.trade2=c.id OR b.trade3=c.id OR b.trade4=c.id
+		LEFT JOIN ap_control_facilities d
+		ON d.enterpriceId=b.id
+		JOIN ap_static
+		e
+		ON d.technique1=e.id AND e.groupid=8
+		WHERE a.districtLevel=1 AND
+		c.parentId=#{tradeid}
+		GROUP BY a.id,c.id,d.technique1) i
+		ON
+		f.id=i.cityid AND g.id=i.tradeid AND i.technique1=h.id
+		WHERE
+		f.districtLevel=1
+	</select>
+
+	<select id="CityTradeElecSum" resultType="com.xf.vo.LookupCityTradeASRes">
+		SELECT a.id AS
+		cityid,a.districtName,b.id AS
+		tradeid,b.tradeName,IFNULL(g.sum,0) AS
+		sum
+		FROM ap_district a
+		LEFT JOIN ap_trade b
+		ON b.parentId=#{tradeid}
+		LEFT
+		JOIN (SELECT a.id AS cityid,a.districtName,e.id AS
+		tradeid,e.tradeName,IFNULL(sum(c.yearTotal),0) AS sum
+		FROM ap_district
+		a
+		LEFT JOIN ap_enterprise b
+		ON a.id=b.city OR a.id=b.province
+		LEFT JOIN ap_trade e
+		ON
+		b.trade1=e.id OR b.trade2=e.id OR b.trade3=e.id OR b.trade4=e.id
+		LEFT
+		JOIN ap_elec c
+		ON b.id=c.enterpriceId
+		WHERE a.districtLevel=#{cityid} AND
+		e.parentId=#{tradeid} AND c.fillyear=#{year}
+		AND c.`status`=3
+		GROUP BY
+		a.id,e.id) g
+		ON a.id=g.cityid AND b.id=g.tradeid
+		WHERE a.districtLevel=#{cityid}
+	</select>
+
+	<select id="facilitiesYearCost" resultType="com.xf.vo.LookupCityTradeASRes">
+		SELECT a.id AS
+		cityid,a.districtName,b.id AS
+		tradeid,b.tradeName,IFNULL(g.sum,0) AS
+		sum
+		FROM ap_district a
+		LEFT JOIN ap_trade b
+		ON b.parentId=#{tradeid}
+		LEFT
+		JOIN (SELECT a.id AS cityid,a.districtName,e.id AS
+		tradeid,e.tradeName,IFNULL(sum(d.yearCost),0) AS sum
+		FROM ap_district a
+		LEFT JOIN ap_enterprise b
+		ON a.id=b.city OR a.id=b.province
+		LEFT JOIN ap_trade e
+		ON
+		b.trade1=e.id OR b.trade2=e.id OR b.trade3=e.id OR b.trade4=e.id
+		LEFT
+		JOIN ap_control_facilities c
+		ON b.id=c.enterpriceId
+		LEFT JOIN
+		ap_facilities_fill d
+		ON c.id=d.facilityId
+		WHERE a.districtLevel=#{cityid} AND
+		e.parentId=#{tradeid} AND d.fillyear=#{year}
+		AND d.`status`=3 AND
+		c.technique1=#{technique}
+		GROUP BY a.id,e.id,c.technique1) g
+		ON
+		a.id=g.cityid AND b.id=g.tradeid
+		WHERE a.districtLevel=#{cityid}
+	</select>
+
+	<select id="yearCostDisrate" parameterType="int"
+		resultType="com.xf.vo.YearCostDisrateRes">
+		SELECT d.id,d.`name`,IFNULL(e.yearCost,0) AS
+		yearCost,IFNULL(e.disRate,0) AS
+		disRate
+		FROM ap_static d
+		LEFT JOIN
+		(SELECT a.id,a.`name`,AVG(c.yearCost) AS yearCost,AVG(c.disRate)
+		AS
+		disRate
+		FROM ap_static a
+		JOIN ap_control_facilities b
+		ON
+		a.id=b.technique2
+		LEFT JOIN ap_facilities_fill c
+		ON b.id=c.facilityId
+		WHERE a.pid=#{technique}
+		GROUP BY a.id) e
+		ON d.id=e.id
+		WHERE
+		d.pid=#{technique}
+	</select>
+
+
+	<select id="getYearOuteltotal" resultType="com.xf.vo.OutletTotal">
+		select
+		dis.districtName,tr.tradeName,ifnull(tal.outletTotal,0)as outletTotal
+		from ap_district dis
+		left join ap_trade tr on tr.parentId=#{trade} left
+		join
+		(select d.id disid,d.districtName,t.tradeName tradeName,t.id
+		tradeid,SUM(of.outletTotal)as outletTotal
+		from ap_district d left join
+		ap_enterprise e on
+		d.id=e.city left join ap_trade t on t.id=e.trade1 or
+		t.id=e.trade2
+		or t.id=e.trade3 or t.id=trade4 left join ap_outlet o on
+		o.enterpriceId=e.id
+		left join ap_outlet_fill of on of.outletId=o.id
+		where d.districtLevel=1
+		and t.parentId=#{trade} and
+		of.fillyear=#{fillyear} and of.`status`=3 group by
+		e.city,t.id)tal
+		on
+		dis.id=tal.disid and tr.id=tal.tradeid where dis.districtLevel=1
+	</select>
+	   
+	<select id="CityMaterialSum" resultType="com.xf.vo.CityMaterialSumRes">
+	    SELECT f.id,f.districtName,IFNULL(g.sum,0) AS sum,IFNULL(g.unit,'吨') AS unit
+        FROM ap_district f
+        LEFT JOIN (SELECT e.id,e.districtName,SUM(c.consumeOfYear) AS sum,c.unit
+        FROM ap_product a
+        LEFT JOIN ap_product_fill b
+        ON a.id=b.productId
+        LEFT JOIN ap_material_fill c
+        ON b.id=c.productFillId
+        LEFT JOIN ap_enterprise d
+        ON b.enterpriceId=d.id
+        LEFT JOIN ap_district e
+        ON d.city=e.id
+        WHERE a.groupid=#{pid} AND b.`status`=3 AND b.fillyear=#{year}
+        GROUP BY e.id) g
+        ON f.id=g.id
+        WHERE f.districtLevel=1
+	</select>
+	
+	<select id="getAllProd" resultType="com.xf.entity.Product">
+	    SELECT *
+        FROM ap_product a
+        WHERE a.isgroup=1
+	</select>
+	
+	<select id="CityProdSum" resultType="com.xf.vo.CityProdSumRes">
+	    SELECT e.id,e.districtName,IFNULL(f.unit,'吨') AS unit,IFNULL(f.m1,0) AS m1,IFNULL(f.m2,0) AS m2,IFNULL(f.m3,0) AS m3,IFNULL(f.m4,0) AS m4,IFNULL(f.m5,0) AS m5,IFNULL(f.m6,0) AS m6,IFNULL(f.m7,0) AS m7,IFNULL(f.m8,0) AS m8,IFNULL(f.m9,0) AS m9,IFNULL(f.m10,0) AS m10,IFNULL(f.m11,0) AS m11,IFNULL(f.m12,0) AS m12
+        FROM ap_district e
+        LEFT JOIN(SELECT a.unit,d.id,d.districtName,SUM(b.m1) AS m1,SUM(b.m2) AS m2,SUM(b.m3) AS m3,SUM(b.m4) AS m4,SUM(b.m5) AS m5,SUM(b.m6) AS m6,SUM(b.m7) AS m7,SUM(b.m8) AS m8,SUM(b.m9) AS m9,SUM(b.m10) AS m10,SUM(b.m11) AS m11,SUM(b.m12) AS m12
+        FROM ap_product a
+        LEFT JOIN ap_product_fill b
+        ON a.id=b.productId
+        LEFT JOIN ap_enterprise c
+        ON c.id=b.enterpriceId and IFNULL(1/#{in},c.ismall=#{issmall})
+        LEFT JOIN ap_district d
+        ON c.city=d.id
+        WHERE a.groupid=#{pid} AND d.districtLevel=1 AND b.fillyear=#{year} AND b.`status`=3
+        GROUP BY d.id) f
+        ON e.id=f.id
+        WHERE e.districtLevel=1
+	</select>
+	
+	<select id="TradeCityProductSum"  resultType="com.xf.vo.TradeCityProductSumRes">
+	   SELECT t.id AS cityid,t.districtName ,m.id AS productid,m.productName,IFNULL(n.unit,'吨') AS unit,IFNULL(n.sum,0) AS sum
+        FROM ap_district t
+        LEFT JOIN (SELECT * 
+        FROM ap_product a
+        WHERE a.isgroup=1) m
+        ON m.id>0
+        LEFT JOIN (SELECT a.id AS cityid,a.districtName,d.groupid,f.productName AS groupName,d.unit,SUM(e.realOutput) sum
+        FROM ap_district a
+        LEFT JOIN ap_enterprise b
+        ON IFNULL(1/#{in},b.ismall=#{issmall}) and (a.id=b.city OR a.id=b.province)
+        LEFT JOIN ap_trade c
+        ON b.trade1=c.id OR b.trade2=c.id OR b.trade3=c.id OR b.trade4=c.id
+        LEFT JOIN (SELECT * 
+        FROM ap_product a
+        WHERE a.isgroup=0) d
+        ON d.enterpriceId=b.id
+        LEFT JOIN ap_product_fill e
+        ON d.id=e.productId
+        LEFT JOIN (SELECT * 
+        FROM ap_product a
+        WHERE a.isgroup=1) f
+        ON d.groupid=f.id
+        WHERE a.districtLevel=#{cityid} AND c.id=#{tradeid} AND e.fillyear=#{year} AND e.`status`=3
+        GROUP BY a.id,c.id,d.groupid) n
+        ON t.id=n.cityid AND m.id=n.groupid
+        WHERE t.districtLevel=#{cityid}
+	</select>
+	
+	<select id="getBycontion" resultType="com.xf.vo.LookupCityTradeTechRes">
+		SELECT dis.id cityid,t.id tradeid,dis.districtName,t.tradeName,s.`name`,ifnull(tal.count,0)count from ap_district dis
+		left join ap_trade t on t.parentId=#{tradeid}
+		left join ap_static s on s.pid=#{techniqueid}
+		left join
+		(SELECT a.id AS
+		cityid,a.districtName,c.id AS
+		tradeid,c.tradeName,d.technique1,d.technique2,e.`name`,COUNT(*) AS count
+		FROM
+		ap_district a
+		LEFT JOIN ap_enterprise b
+		ON a.id=b.city
+		LEFT JOIN ap_trade c
+		ON b.trade1=c.id OR b.trade2=c.id OR b.trade3=c.id OR b.trade4=c.id
+		LEFT JOIN ap_control_facilities d
+		ON d.enterpriceId=b.id
+		JOIN ap_static e
+		ON d.technique1=e.id AND e.groupid=8
+		WHERE a.districtLevel=1 AND
+		c.parentId=#{tradeid} and d.technique1=#{techniqueid}
+		GROUP BY a.id,c.id,d.technique2)tal
+		on tal.cityid=dis.id and t.id=tal.tradeid and s.id=tal.technique2
+		where dis.districtLevel=1
+	</select>
+	
+	<select id="getBycontion2" resultType="com.xf.vo.LookupCityTradeTechRes">
+		SELECT dis.id cityid,t.id tradeid,dis.districtName,t.tradeName,s.`name`,ifnull(tal.count,0)count from ap_district dis
+		left join ap_trade t on t.id=#{tradeid}
+		left join ap_static s on s.pid=#{techniqueid}
+		left join
+		(SELECT a.id AS
+		cityid,a.districtName,c.id AS
+		tradeid,c.tradeName,d.technique1,d.technique2,e.`name`,COUNT(*) AS count
+		FROM
+		ap_district a
+		LEFT JOIN ap_enterprise b
+		ON a.id=b.city
+		LEFT JOIN ap_trade c
+		ON b.trade1=c.id OR b.trade2=c.id OR b.trade3=c.id OR b.trade4=c.id
+		LEFT JOIN ap_control_facilities d
+		ON d.enterpriceId=b.id
+		JOIN ap_static e
+		ON d.technique1=e.id AND e.groupid=8
+		WHERE a.districtLevel=1 AND
+		c.id=#{tradeid} and d.technique1=#{techniqueid}
+		GROUP BY a.id,c.id,d.technique2)tal
+		on tal.cityid=dis.id and t.id=tal.tradeid and s.id=tal.technique2
+		where dis.districtLevel=1
+	</select>
+</mapper>

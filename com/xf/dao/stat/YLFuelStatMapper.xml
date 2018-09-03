@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xf.dao.stat.YLFuelStatDao">
+
+	<select id="getData" resultType="com.xf.vo.YLFuelStat">
+	
+SELECT b.id fuelid,b.`name` fuelname,c.fillyear,IFNULL(SUM(c.m1),0) m1,IFNULL(SUM(c.m2),0) m2,IFNULL(SUM(c.m3),0) m3
+,IFNULL(SUM(c.m4),0) m4,IFNULL(SUM(c.m5),0) m5,IFNULL(SUM(c.m6),0) m6,IFNULL(SUM(c.m7),0) m7,IFNULL(SUM(c.m8),0) m8,IFNULL(SUM(c.m9),0) m9
+,IFNULL(SUM(c.m10),0) m10,IFNULL(SUM(c.m11),0) m11,IFNULL(SUM(c.m12),0) m12
+FROM ap_static b
+LEFT JOIN ap_devfill c
+ON c.fuelId=b.id AND c.fillyear=#{0} AND c.`status`=3 AND c.deviceId IN (SELECT id FROM ap_devices WHERE devClass=1)
+WHERE b.groupid=3
+GROUP BY b.id
+
+	</select>
+
+</mapper>

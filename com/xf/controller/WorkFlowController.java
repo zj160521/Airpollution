@@ -1784,46 +1784,45 @@ public class WorkFlowController {
 			for (DetailsOfindustry proli : compro) {
 				if (proli.getProductfId() > 0) {
 					List<DetailsOfindustry> commat = map.get(proli.getProductfId());
-					if(commat == null)
-						continue;
-					for (int i = 0; i < commat.size(); i++) {
-						DetailsOfindustry malis = new DetailsOfindustry();
-						if (i == 0) {
-							malis.setCompanyName(proli.getCompanyName());
-							malis.setCity(proli.getCity());
-							malis.setTown(proli.getTown());
-							malis.setTradeNo1(proli.getTradeNo1());
-							malis.setTradeNo2(proli.getTradeNo2());
-							malis.setTradeNo3(proli.getTradeNo3());
-							malis.setTradeNo4(proli.getTradeNo4());
-							malis.setE_point(proli.getE_point());
-							malis.setN_point(proli.getN_point());
-							malis.setTradeName(proli.getTradeName());
-							malis.setStepSerial(proli.getStepSerial());
-							malis.setPrhoursPerDay(proli.getPrhoursPerDay());
-							malis.setPrdaysPerYear(proli.getPrdaysPerYear());
-							malis.setProductName(proli.getProductName());
-							malis.setPm1(proli.getPm1());
-							malis.setPm2(proli.getPm2());
-							malis.setPm3(proli.getPm3());
-							malis.setPm4(proli.getPm4());
-							malis.setPm5(proli.getPm5());
-							malis.setPm6(proli.getPm6());
-							malis.setPm7(proli.getPm7());
-							malis.setPm8(proli.getPm8());
-							malis.setPm9(proli.getPm9());
-							malis.setPm10(proli.getPm10());
-							malis.setPm11(proli.getPm11());
-							malis.setPm12(proli.getPm12());
-							malis.setPrdesignOutput(proli.getPrdesignOutput());
-							malis.setPunit(proli.getPunit());
+					if(commat != null && commat.size() > 0){
+						for (int i = 0; i < commat.size(); i++) {
+							DetailsOfindustry malis = new DetailsOfindustry();
+							if (i == 0) {
+								malis.setCompanyName(proli.getCompanyName());
+								malis.setCity(proli.getCity());
+								malis.setTown(proli.getTown());
+								malis.setTradeNo1(proli.getTradeNo1());
+								malis.setTradeNo2(proli.getTradeNo2());
+								malis.setTradeNo3(proli.getTradeNo3());
+								malis.setTradeNo4(proli.getTradeNo4());
+								malis.setE_point(proli.getE_point());
+								malis.setN_point(proli.getN_point());
+								malis.setTradeName(proli.getTradeName());
+								malis.setStepSerial(proli.getStepSerial());
+								malis.setPrhoursPerDay(proli.getPrhoursPerDay());
+								malis.setPrdaysPerYear(proli.getPrdaysPerYear());
+								malis.setProductName(proli.getProductName());
+								malis.setPm1(proli.getPm1());
+								malis.setPm2(proli.getPm2());
+								malis.setPm3(proli.getPm3());
+								malis.setPm4(proli.getPm4());
+								malis.setPm5(proli.getPm5());
+								malis.setPm6(proli.getPm6());
+								malis.setPm7(proli.getPm7());
+								malis.setPm8(proli.getPm8());
+								malis.setPm9(proli.getPm9());
+								malis.setPm10(proli.getPm10());
+								malis.setPm11(proli.getPm11());
+								malis.setPm12(proli.getPm12());
+								malis.setPrdesignOutput(proli.getPrdesignOutput());
+								malis.setPunit(proli.getPunit());
+							}
+							malis.setMaterialName(commat.get(i).getMaterialName());
+							malis.setConsumeOfYear(commat.get(i).getConsumeOfYear());
+							malis.setUnit(commat.get(i).getUnit());
+							prolist.add(malis);
 						}
-						malis.setMaterialName(commat.get(i).getMaterialName());
-						malis.setConsumeOfYear(commat.get(i).getConsumeOfYear());
-						malis.setUnit(commat.get(i).getUnit());
-						prolist.add(malis);
-					}
-					if (commat.size() <= 0) {
+					}else{
 						prolist.add(proli);
 					}
 				}
@@ -1831,7 +1830,7 @@ public class WorkFlowController {
 		}
 		List<DetailsOfindustry> faclist = new ArrayList<DetailsOfindustry>();
 		List<DetailsOfindustry> comfac = detailService.getFacility(companyid, fillyear);
-		if (comfac != null) {
+		if (comfac != null && comfac.size() > 0) {
 			List<DetailsOfindustry> step2 = detailService.getStep();
 			Map<Integer,List<DetailsOfindustry>> map = new HashMap<Integer, List<DetailsOfindustry>>();
 			for(DetailsOfindustry doi : step2){
@@ -1856,7 +1855,7 @@ public class WorkFlowController {
 			for (DetailsOfindustry fac : comfac) {
 				if (fac.getFacilityId() > 0) {
 					List<DetailsOfindustry> step = map.get(fac.getFacilityId());
-					if (step != null) {
+					if (step != null && step.size() > 0) {
 						for (DetailsOfindustry stepli : step) {
 							DetailsOfindustry malis = new DetailsOfindustry();
 							malis.setCompanyName(fac.getCompanyName());
@@ -1887,7 +1886,7 @@ public class WorkFlowController {
 						}
 					}
 					List<DetailsOfindustry> devi = map2.get(fac.getFacilityId());
-					if (devi != null) {
+					if (devi != null && devi.size() > 0) {
 						for (DetailsOfindustry deli : devi) {
 							DetailsOfindustry malis = new DetailsOfindustry();
 							malis.setCompanyName(fac.getCompanyName());
@@ -1918,7 +1917,10 @@ public class WorkFlowController {
 							faclist.add(malis);
 						}
 					}
-					if (step != null && devi != null && step.size() <= 0 && devi.size() <= 0) {
+					if (step == null && devi == null) {
+						faclist.add(fac);
+					}
+					if(step != null && devi != null && step.size() <= 0 && devi.size() <= 0){
 						faclist.add(fac);
 					}
 				}

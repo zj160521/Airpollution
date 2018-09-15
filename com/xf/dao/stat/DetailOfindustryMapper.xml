@@ -288,10 +288,11 @@
 		o.outletSerial,o.outletHeight,o.outletDiameter,o.e_outlet,o.n_outlet,
 		po.pollutantName,op.totalAmount,op.yearNongdu,op.s1Nongdu,op.s2Nongdu,op.s3Nongdu,op.s4Nongdu,
 		of.outletVelocity,of.outletTemperature,of.outletFlow,of.outletTotal,of.`status`
-		from ap_outlet_pollutant op left join ap_pollutant po on
-		po.id=op.pollutantId left join ap_outlet_fill of on
-		of.id=op.outletfillId left join ap_outlet o on o.id=of.outletId left
-		join ap_enterprise e on e.id=o.enterpriceId
+		from ap_outlet_fill of 
+		LEFT JOIN ap_outlet_pollutant op on of.id=op.outletfillId
+		left join ap_pollutant po on po.id=op.pollutantId
+		left join ap_outlet o on o.id=of.outletId 
+		left join ap_enterprise e on e.id=o.enterpriceId
 		where of.fillyear=#{fillyear}
 		<if test="list!=null and list.size()>0">
 			and e.id in 

@@ -20,8 +20,6 @@
         join ap_factor ft on (ft.productId+100145)=df.fuelid AND ft.tradeid = e.trade1  AND ft.formulaId = d.deviceTypeId2
         left join ap_static s on df.fuelid=s.id
         where df.status = 3 and s.name is not null and d.devClass=0 and (ft.factor = 0 or ft.factor > 0) and df.fillyear=#{fillyear}
-
-        
 	</select>
 	
 	<select id="computefuel1" resultType="com.xf.vo.Fuelres">	    

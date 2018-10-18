@@ -26,6 +26,7 @@ private double AshContent;
 private double VocContent;
 private double materialConsume;
 private double productTotalYear;
+private Double mTotalYear;
 private int hoursPerDay;
 private int daysPerYear;
 private double m1;
@@ -118,6 +119,12 @@ private double n_point;
 private String contact;
 private String contactNo;
 
+public Double getmTotalYear() {
+	return mTotalYear;
+}
+public void setmTotalYear(Double mTotalYear) {
+	this.mTotalYear = mTotalYear;
+}
 public String getContact() {
 	return contact;
 }

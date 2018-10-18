@@ -58,4 +58,30 @@ public class FileDownloadController {
 			return null;
 		}
 	}
+	
+	@RequestMapping(value = "/downloadHelp")
+	@ResponseBody
+	private ResponseEntity<byte[]> downloadHelp() {
+		
+		try {
+			String fileName = "帮助手册.docx";
+			String path = configService.get("fileupload_dir");
+			if (path == null || path.isEmpty()) {
+				path = "./";
+			}
+			path += "/help/" + fileName;
+			
+			File file = new File(path);
+			HttpHeaders headers = new HttpHeaders();
+			String dfileName = new String(fileName.getBytes("UTF-8"),
+					"iso-8859-1");
+			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			headers.setContentDispositionFormData("attachment", dfileName);
+			return new ResponseEntity(FileUtils.readFileToByteArray(file),
+					headers, HttpStatus.CREATED);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

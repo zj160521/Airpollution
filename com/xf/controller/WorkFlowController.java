@@ -2018,7 +2018,6 @@ public class WorkFlowController {
 		cellgy = rowgy.createCell((short) 4);
 		cellgy.setCellValue("行业");
 		cellgy.setCellStyle(style);
-
 		cellgy = rowgy.createCell((short) 5);
 		cellgy.setCellValue("一级行业代码");
 		cellgy.setCellStyle(style);
@@ -2060,7 +2059,7 @@ public class WorkFlowController {
 		cellgy.setCellValue("主要产品名称");
 		cellgy.setCellStyle(style);
 		cellgy = rowgy.createCell((short) 18);
-		cellgy.setCellValue("产品年产量");
+		cellgy.setCellValue("年设计产量");
 		cellgy.setCellStyle(style);
 		cellgy = rowgy.createCell((short) 19);
 		cellgy.setCellValue("单位");
@@ -2128,6 +2127,9 @@ public class WorkFlowController {
 		cellgy = rowgy.createCell((short) 40);
 		cellgy.setCellValue("12月份");
 		cellgy.setCellStyle(style);
+		cellgy = rowgy.createCell((short) 41);
+		cellgy.setCellValue("年总产量");
+		cellgy.setCellStyle(style);
 
 		HSSFCell cellpr = rowpr.createCell((short) 0);
 		cellpr.setCellValue("序列号");
@@ -2165,7 +2167,7 @@ public class WorkFlowController {
 		cellpr.setCellStyle(style);
 
 		cellpr = rowpr.createCell((short) 11);
-		cellpr.setCellValue("工段编号");
+		cellpr.setCellValue("对应工段编号");
 		cellpr.setCellStyle(style);
 		cellpr = rowpr.createCell((short) 12);
 		cellpr.setCellValue("日工作频率");
@@ -2213,7 +2215,7 @@ public class WorkFlowController {
 		cellpr.setCellValue("12月份");
 		cellpr.setCellStyle(style);
 		cellpr = rowpr.createCell((short) 27);
-		cellpr.setCellValue("年总产量");
+		cellpr.setCellValue("年设计产量");
 		cellpr.setCellStyle(style);
 		cellpr = rowpr.createCell((short) 28);
 		cellpr.setCellValue("单位");
@@ -2363,19 +2365,19 @@ public class WorkFlowController {
 		cellfac.setCellValue("治理工艺设备型号");
 		cellfac.setCellStyle(style);
 		cellfac = rowfac.createCell((short) 16);
-		cellfac.setCellValue("工段编号");
+		cellfac.setCellValue("对应工段编号");
 		cellfac.setCellStyle(style);
 		cellfac = rowfac.createCell((short) 17);
-		cellfac.setCellValue("工段名称");
+		cellfac.setCellValue("对应工段名称");
 		cellfac.setCellStyle(style);
 		cellfac = rowfac.createCell((short) 18);
-		cellfac.setCellValue("设备编号");
+		cellfac.setCellValue("对应设备编号");
 		cellfac.setCellStyle(style);
 		cellfac = rowfac.createCell((short) 19);
-		cellfac.setCellValue("设备类型");
+		cellfac.setCellValue("对应设备类型");
 		cellfac.setCellStyle(style);
 		cellfac = rowfac.createCell((short) 20);
-		cellfac.setCellValue("设备名称");
+		cellfac.setCellValue("对应设备名称");
 		cellfac.setCellStyle(style);
 		cellfac = rowfac.createCell((short) 21);
 		cellfac.setCellValue("主要药剂名称");
@@ -2552,6 +2554,8 @@ public class WorkFlowController {
 			rowgy.createCell((short) 39).setCellValue(j);
 			j = deindus.getM12();
 			rowgy.createCell((short) 40).setCellValue(j);
+			j = deindus.getmTotalYear();
+			rowgy.createCell((short) 41).setCellValue(j);
 		}
 		// 总产值
 		for (int i = 0; i < com.size(); i++) {

@@ -158,7 +158,7 @@
 			tal.trade1=#{tradeid} or tal.trade2=#{tradeid} or tal.trade3=#{tradeid} or tal.trade4=#{tradeid})
 		</if>
 		<if test="productName!=null">
-			and (e.enterpriceName like CONCAT('%',#{productName},'%') or tal.productName like CONCAT('%',#{productName},'%'))
+			and tal.productName like CONCAT('%',#{productName},'%')
 		</if>
 		</where>
 	</select>

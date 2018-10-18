@@ -164,6 +164,33 @@ public class FileUploadController {
 		return map;
 	}
 
+	@RequestMapping(value = "/uploadHelp", method = RequestMethod.POST)
+	@ResponseBody
+	private Object uploadHelp(HttpServletRequest request,
+			HttpServletResponse response) {
+
+		try {
+			String path = configService.get("fileupload_dir");
+			if (path == null || path.isEmpty()) {
+				path = "./";
+			}
+			path += "/help/";
+			createPath(path);
+
+			String fileName = getfileName(request, "file");
+			if (fileName.contains(".docx")) {
+				fileUpload(request, path, "file");
+			}else{
+				return result.setStatus(-2, "文件格式错误！");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return result.setStatus(-2, "exception");
+		}
+		return result.setStatus(0, "ok");
+	}
+	
 	@RequestMapping(value = "/upload1", method = RequestMethod.POST)
 	@ResponseBody
 	private Object upload1(HttpServletRequest request,
@@ -2126,6 +2153,21 @@ public class FileUploadController {
 		}
 	}
 
+	private void fileUpload(HttpServletRequest request, String path,
+			String name)
+			throws IllegalStateException, IOException {
+		if (request instanceof MultipartHttpServletRequest) {
+			MultipartFile excel = ((MultipartHttpServletRequest) request)
+					.getFile(name);
+			String originFileName = excel.getOriginalFilename();
+			if (excel != null && originFileName != null
+					&& originFileName.length() > 0) {
+				File file = new File(path + "帮助手册.docx");
+				excel.transferTo(file);
+			}
+		}
+	}
+	
 	private String getfileName(HttpServletRequest request, String name) {
 		MultipartFile excel = ((MultipartHttpServletRequest) request)
 				.getFile(name);

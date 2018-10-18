@@ -27,6 +27,7 @@
 		<result property="productTotalYear" column="productTotalYear" />
 		<result property="hoursPerDay" column="hoursPerDay" />
 		<result property="daysPerYear" column="daysPerYear" />
+		<result property="mTotalYear" column="mTotalYear" />
 		<result property="m1" column="m1" />
 		<result property="m2" column="m2" />
 		<result property="m3" column="m3" />
@@ -181,9 +182,9 @@
 		id=de.deviceTypeId2)as
 		deviceName2,de.deviceModel,de.serviceLife,de.shippingTon,(select name
 		from ap_static where id=df.fuelId)as
-		fuel,df.SContent,df.AshContent,df.VocContent,df.materialConsume,df.productTotalYear,
+		fuel,df.SContent,df.AshContent,df.VocContent,df.materialConsume,df.mTotalYear,
 		df.hoursPerDay,df.daysPerYear,df.m1,df.m2,df.m3,df.m4,df.m5,df.m6,df.m7,df.m8,
-		df.m9,df.m10,df.m11,df.m12,(select
+		df.m9,df.m10,df.m11,df.m12,df.productTotalYear,(select
 		productName
 		from ap_product where
 		id=df.productId)as
